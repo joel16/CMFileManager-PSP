@@ -1,0 +1,67 @@
+#include <oslib/oslib.h>
+#include <pspkernel.h>
+
+#include "common.h"
+#include "config.h"
+#include "fs.h"
+#include "menus/menu_main.h"
+#include "textures.h"
+
+PSP_MODULE_INFO("CMFileManager", 0, 1, 0);
+PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
+PSP_HEAP_SIZE_KB(-1);
+
+static void Init_Oslib(void) {
+	oslInit(0);
+	oslInitGfx(OSL_PF_8888, 1);
+	oslInitAudio();
+	oslSetQuitOnLoadFailure(1);
+	oslSetKeyAutorepeatInit(40);
+	oslSetKeyAutorepeatInterval(10);
+	oslIntraFontInit(INTRAFONT_CACHE_MED);
+}
+
+int main(int argc, char **argv) {
+	Init_Oslib();
+	Config_Load();
+	Textures_Load();
+
+	font = oslLoadFontFile("flash0:/font/ltn0.pgf");
+	oslSetFont(font);
+
+	if (FS_FileExists("lastdir.txt"))
+	{
+		char *buf = (char *)malloc(256);
+		
+		FILE *read = fopen("lastdir.txt", "r");
+		fscanf(read, "%s", buf);
+		fclose(read);
+		
+		if (FS_DirExists(buf)) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
+			strcpy(cwd, buf);
+		else 
+			strcpy(cwd, START_PATH);
+
+		free(buf);
+	}
+	else
+	{
+		char *buf = (char *)malloc(256);
+		strcpy(buf, START_PATH);
+			
+		FILE *write = fopen("lastdir.txt", "w");
+		fprintf(write, "%s", buf);
+		fclose(write);
+		
+		strcpy(cwd, buf); // Set Start Path to "sdmc:/" if lastDir.txt hasn't been created.
+
+		free(buf);
+	}
+
+	Menu_Main();
+
+	Textures_Free();
+	oslEndGfx();
+	sceKernelExitGame();
+	return 0;
+}
