@@ -11,8 +11,7 @@ VERSION_MICRO :=  0
 
 CFLAGS   = -O2 -G0 -Wall -Werror -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
 CXXFLAGS = $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
-ASFLAGS	:=	-g $(ARCH)
-LIBDIR   =
+ASFLAGS  := -g $(ARCH)
 
 STDLIBS = -losl -lpng -lz \
           -lpsphprm -lpspsdk -lpspctrl -lpsppower -lpspgu -lpspgum  -lpspaudiolib -lpspaudio -lpsphttp -lpspssl -lpspwlan \

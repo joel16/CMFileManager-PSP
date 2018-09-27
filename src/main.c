@@ -21,6 +21,13 @@ static void Init_Oslib(void) {
 	oslIntraFontInit(INTRAFONT_CACHE_MED);
 }
 
+static void Term_Oslib(void) {
+	oslIntraFontShutdown();
+	oslDeinitAudio();
+	oslEndGfx();
+	oslQuit();
+}
+
 int main(int argc, char **argv) {
 	Init_Oslib();
 	Config_Load();
@@ -29,8 +36,7 @@ int main(int argc, char **argv) {
 	font = oslLoadFontFile("flash0:/font/ltn0.pgf");
 	oslSetFont(font);
 
-	if (FS_FileExists("lastdir.txt"))
-	{
+	if (FS_FileExists("lastdir.txt")) {
 		char *buf = (char *)malloc(256);
 		
 		FILE *read = fopen("lastdir.txt", "r");
@@ -44,8 +50,7 @@ int main(int argc, char **argv) {
 
 		free(buf);
 	}
-	else
-	{
+	else {
 		char *buf = (char *)malloc(256);
 		strcpy(buf, START_PATH);
 			
@@ -61,7 +66,6 @@ int main(int argc, char **argv) {
 	Menu_Main();
 
 	Textures_Free();
-	oslEndGfx();
-	sceKernelExitGame();
+	Term_Oslib();
 	return 0;
 }
