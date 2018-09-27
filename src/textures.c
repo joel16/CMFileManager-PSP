@@ -23,9 +23,40 @@ void Textures_Load(void) {
 	properties_dialog_dark = oslLoadImageFilePNG("data/ic_material_properties_dialog_dark.png", OSL_IN_RAM, OSL_PF_8888);
 	dialog = oslLoadImageFilePNG("data/ic_material_dialog.png", OSL_IN_RAM, OSL_PF_8888);
 	dialog_dark = oslLoadImageFilePNG("data/ic_material_dialog_dark.png", OSL_IN_RAM, OSL_PF_8888);
+	battery_20 = oslLoadImageFilePNG("data/battery_20.png", OSL_IN_VRAM, OSL_PF_8888);
+	battery_20_charging = oslLoadImageFilePNG("data/battery_20_charging.png", OSL_IN_VRAM, OSL_PF_8888);
+	battery_30 = oslLoadImageFilePNG("data/battery_30.png", OSL_IN_VRAM, OSL_PF_8888);
+	battery_30_charging = oslLoadImageFilePNG("data/battery_30_charging.png", OSL_IN_VRAM, OSL_PF_8888);
+	battery_50 = oslLoadImageFilePNG("data/battery_50.png", OSL_IN_VRAM, OSL_PF_8888);
+	battery_50_charging = oslLoadImageFilePNG("data/battery_50_charging.png", OSL_IN_VRAM, OSL_PF_8888);
+	battery_60 = oslLoadImageFilePNG("data/battery_60.png", OSL_IN_VRAM, OSL_PF_8888);
+	battery_60_charging = oslLoadImageFilePNG("data/battery_60_charging.png", OSL_IN_VRAM, OSL_PF_8888);
+	battery_80 = oslLoadImageFilePNG("data/battery_80.png", OSL_IN_VRAM, OSL_PF_8888);
+	battery_80_charging = oslLoadImageFilePNG("data/battery_80_charging.png", OSL_IN_VRAM, OSL_PF_8888);
+	battery_90 = oslLoadImageFilePNG("data/battery_90.png", OSL_IN_VRAM, OSL_PF_8888);
+	battery_90_charging = oslLoadImageFilePNG("data/battery_90_charging.png", OSL_IN_VRAM, OSL_PF_8888);
+	battery_full = oslLoadImageFilePNG("data/battery_full.png", OSL_IN_VRAM, OSL_PF_8888);
+	battery_full_charging = oslLoadImageFilePNG("data/battery_full_charging.png", OSL_IN_VRAM, OSL_PF_8888);
+	battery_low = oslLoadImageFilePNG("data/battery_low.png", OSL_IN_VRAM, OSL_PF_8888);
+	battery_unknown = oslLoadImageFilePNG("data/battery_unknown.png", OSL_IN_VRAM, OSL_PF_8888);
 }
 
 void Textures_Free(void) {
+	oslDeleteImage(battery_unknown);
+	oslDeleteImage(battery_low);
+	oslDeleteImage(battery_full_charging);
+	oslDeleteImage(battery_full);
+	oslDeleteImage(battery_90_charging);
+	oslDeleteImage(battery_80_charging);
+	oslDeleteImage(battery_80);
+	oslDeleteImage(battery_60_charging);
+	oslDeleteImage(battery_60);
+	oslDeleteImage(battery_50_charging);
+	oslDeleteImage(battery_50);
+	oslDeleteImage(battery_30_charging);
+	oslDeleteImage(battery_30);
+	oslDeleteImage(battery_20_charging);
+	oslDeleteImage(battery_20);
 	oslDeleteImage(dialog_dark);
 	oslDeleteImage(dialog);
 	oslDeleteImage(properties_dialog_dark);

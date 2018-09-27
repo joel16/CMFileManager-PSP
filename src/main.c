@@ -30,6 +30,7 @@ static void Term_Oslib(void) {
 
 int main(int argc, char **argv) {
 	Init_Oslib();
+	pspSdkInetInit();
 	Config_Load();
 	Textures_Load();
 
@@ -66,6 +67,7 @@ int main(int argc, char **argv) {
 	Menu_Main();
 
 	Textures_Free();
+	pspSdkInetTerm();
 	Term_Oslib();
 	return 0;
 }
