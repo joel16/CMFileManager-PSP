@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
 	Config_Load();
 	Textures_Load();
 
-	font = oslLoadFontFile("flash0:/font/ltn0.pgf");
+	font = oslLoadFontFile("data/Roboto.pgf");
 	oslSetFont(font);
 
 	if (FS_FileExists("lastdir.txt")) {

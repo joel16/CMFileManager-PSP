@@ -1,5 +1,4 @@
 #include <stdbool.h>
-#include <time.h>
 #include <oslib/oslib.h>
 #include <pspnet_apctl.h>
 #include <psprtc.h>
@@ -111,6 +110,6 @@ void StatusBar_DisplayTime(void) {
 	oslIntraFontSetStyle(font, 0.6f, WHITE, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 	int width = oslGetStringWidth(Clock_GetCurrentTime());
 	IsWlanConnected()? oslDrawImageXY(wifi_on, 475 - width - 22 - (percent_width + 6) - 22, 2) : oslDrawImageXY(wifi_off, 475 - width - 22 - (percent_width + 6) - 22, 2);
-	StatusBar_GetBatteryStatus(475 - width - 22, (20 - (font->charHeight - 6)) / 2);
-	oslDrawString(475 - width, (20 - (font->charHeight - 6)) / 2, Clock_GetCurrentTime());
+	StatusBar_GetBatteryStatus(475 - width - 22, ((20 - (font->charHeight - 6)) / 2) + 1);
+	oslDrawString(475 - width, ((20 - (font->charHeight - 6)) / 2) + 1, Clock_GetCurrentTime());
 }

@@ -1,5 +1,6 @@
 #include <stdbool.h>
 
+#include "archive/archive.h"
 #include "common.h"
 #include "config.h"
 #include "dirbrowse.h"
@@ -153,7 +154,7 @@ void Dirbrowse_DisplayFiles(void)
 			else if ((!strncasecmp(file->ext, "mp3", 3)) || (!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "flac", 3)))
 				oslDrawImageXY(icon_audio, 34, 65 + (42 * printed));
 			else if ((!strncasecmp(file->ext, "zip", 3)) || (!strncasecmp(file->ext, "rar", 3)))
-				oslDrawImageXY(icon_audio, 34, 65 + (42 * printed));
+				oslDrawImageXY(icon_archive, 34, 65 + (42 * printed));
 			else if ((!strncasecmp(file->ext, "iso", 3)) || (!strncasecmp(file->ext, "cso", 3)))
 				oslDrawImageXY(icon_cd, 34, 65 + (42 * printed));
 			else if ((!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3)) || (!strncasecmp(file->ext, "png", 3)))
@@ -190,7 +191,7 @@ void Dirbrowse_DisplayFiles(void)
 
 static void Dirbrowse_SaveLastDirectory(void) {
 	char *buf = (char *)malloc(256);
-	int len = snprintf(buf, 256, cwd);
+	int len = snprintf(buf, 256, "%s\n", cwd);
 	FS_WriteFile("lastdir.txt", buf, len);
 	free(buf);
 }
@@ -224,6 +225,10 @@ void Dirbrowse_OpenFile(void) {
 	}
 	else if ((!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3)) || (!strncasecmp(file->ext, "png", 3)))
 		Gallery_DisplayImage(path);
+	else if (!strncasecmp(file->ext, "zip", 3)) {
+		Archive_ExtractZIP(path, cwd);
+		Dirbrowse_PopulateFiles(true);
+	}
 }
 
 // Navigate to Folder
