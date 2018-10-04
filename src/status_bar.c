@@ -2,6 +2,7 @@
 #include <time.h>
 #include <oslib/oslib.h>
 #include <pspnet_apctl.h>
+#include <psprtc.h>
 
 #include "common.h"
 #include "textures.h"

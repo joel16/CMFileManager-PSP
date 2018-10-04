@@ -1,7 +1,5 @@
 #include <oslib/oslib.h>
 
-#include "utils.h"
-
 void Utils_EndDrawing(void) {
 	oslEndDrawing();
 	oslEndFrame();
@@ -35,34 +33,6 @@ void Utils_GetSizeString(char *string, u64 size) {
 	}
 
 	sprintf(string, "%.*f %s", (i == 0) ? 0 : 2, double_size, units[i]);
-}
-
-static int Utils_ConvertUtcToLocalTime(pspTime *time_local, pspTime *time_utc) {
-	int ret = 0;
-	u64 tick = 0;
-
-	if (R_FAILED(ret = sceRtcGetTick(time_utc, &tick)))
-		return ret;
-
-	if (R_FAILED(ret = sceRtcConvertUtcToLocalTime(&tick, &tick)))
-		return ret;
-
-	if (R_FAILED(ret = sceRtcSetTick(time_local, &tick)))
-		return ret;
-
-	return 0;
-}
-
-// ISO standard
-int Utils_GetDateString(char string[24], pspTime time) {
-	int ret = 0;
-	pspTime time_local;
-
-	if (R_FAILED(ret = Utils_ConvertUtcToLocalTime(&time_local, &time)))
-		return ret;
-	
-	snprintf(string, 24, "%04d%s%02d%s%02d", time_local.year, "/", time_local.month, "/", time_local.day);
-	return 0;
 }
 
 void Utils_AppendArr(char subject[], const char insert[], int pos) {

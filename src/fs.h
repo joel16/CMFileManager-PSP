@@ -8,4 +8,4 @@ int FS_MakeDir(const char *path);
 void FS_RecursiveMakeDir(const char *path);
 const char *FS_GetFileExt(const char *filename);
 SceOff FS_GetFileSize(const char *path);
-ScePspDateTime FS_GetFileModifiedTime(const char *path);
+char *FS_GetFileTimestamp(const char *path, int time);

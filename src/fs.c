@@ -76,9 +76,24 @@ SceOff FS_GetFileSize(const char *path) {
 	return stat.st_size;
 }
 
-ScePspDateTime FS_GetFileModifiedTime(const char *path) {
+char *FS_GetFileTimestamp(const char *path, int time) {
+	static char timeStr[20];
 	SceIoStat stat;
-	sceIoGetstat(path, &stat);
-	
-	return stat.st_mtime;
+
+	if (R_FAILED(sceIoGetstat(path, &stat)))
+		return NULL;
+
+	switch(time) {
+		case 0:
+			snprintf(timeStr, sizeof(timeStr), "%d/%d/%d %2i:%02i", stat.st_ctime.year, stat.st_ctime.month, stat.st_ctime.day, stat.st_ctime.hour, stat.st_ctime.minute);
+			break;
+		case 1:
+			snprintf(timeStr, sizeof(timeStr), "%d/%d/%d %2i:%02i", stat.st_atime.year, stat.st_atime.month, stat.st_atime.day, stat.st_atime.hour, stat.st_atime.minute);
+			break;
+		case 2:
+			snprintf(timeStr, sizeof(timeStr), "%d/%d/%d %2i:%02i", stat.st_mtime.year, stat.st_mtime.month, stat.st_mtime.day, stat.st_mtime.hour, stat.st_mtime.minute);
+			break;
+	}
+
+	return timeStr;
 }

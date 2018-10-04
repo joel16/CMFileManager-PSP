@@ -87,6 +87,10 @@ void Menu_Main(void) {
 			Menu_DisplayFileOptions();
 			Menu_ControlFileOptions();
 		}
+		else if (MENU_STATE == MENU_STATE_PROPERTIES) {
+			Menu_DisplayFileProperties();
+			Menu_ControlFileProperties();
+		}
 		else if (MENU_STATE == MENU_STATE_DELETE) {
 			Menu_DisplayDeleteDialog();
 			Menu_ControlDeleteDialog();

@@ -549,7 +549,42 @@ void Menu_DisplayDeleteDialog(void) {
 	oslDrawString(364 - oslGetStringWidth("NO"), (191 - (font->charHeight - 6)), "NO");
 }
 
-void Menu_ControlFileOptions(u32 input) {
+void Menu_ControlFileProperties(void) {
+	if ((osl_keys->pressed.cross) || (osl_keys->pressed.circle))
+		MENU_STATE = MENU_STATE_FILEOPTIONS;
+}
+
+void Menu_DisplayFileProperties(void) {
+	File *file = Dirbrowse_GetFileIndex(position);
+
+	char path[1024], size[16];
+	strcpy(path, cwd);
+	strcpy(path + strlen(path), file->name);
+
+	oslDrawImageXY(config_dark_theme? properties_dialog_dark : properties_dialog, 131, 32);
+	oslIntraFontSetStyle(font, 0.6f, config_dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+	oslDrawString(138, 39, "Properties");
+	oslDrawString(345 - oslGetStringWidth("OK"), 230 - (font->charHeight - 6), "OK");
+
+	oslIntraFontSetStyle(font, 0.5f, config_dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+	oslDrawStringf(140, 64, "Name: %s", file->name);
+	oslDrawStringf(140, 80, "Parent: %s", cwd);
+
+	if (!file->isDir) {
+		Utils_GetSizeString(size, file->size);
+		oslDrawStringf(140, 96, "Size: %s", size);
+		oslDrawStringf(140, 112, "Creation time: %s", FS_GetFileTimestamp(path, 0));
+		oslDrawStringf(140, 128, "Access time: %s", FS_GetFileTimestamp(path, 1));
+		oslDrawStringf(140, 144, "Modification time: %s", FS_GetFileTimestamp(path, 2));
+	}
+	else {
+		oslDrawStringf(140, 96, "Creation time: %s", FS_GetFileTimestamp(path, 0));
+		oslDrawStringf(140, 112, "Access time: %s", FS_GetFileTimestamp(path, 1));
+		oslDrawStringf(140, 128, "Modification time: %s", FS_GetFileTimestamp(path, 2));
+	}
+}
+
+void Menu_ControlFileOptions(void) {
 	if (osl_keys->pressed.right)
 		row++;
 	else if (osl_keys->pressed.left)
