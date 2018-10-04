@@ -14,7 +14,7 @@ CXXFLAGS = $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 ASFLAGS  := -g $(ARCH)
 
 STDLIBS = -losl -lpng -lz \
-          -lpsphprm -lpspsdk -lpspctrl -lpsppower -lpspgu -lpspgum  -lpspaudiolib -lpspaudio -lpsphttp -lpspssl -lpspwlan \
+          -lpsphprm -lpspsdk -lpspctrl -lpsprtc -lpsppower -lpspgu -lpspgum  -lpspaudiolib -lpspaudio -lpsphttp -lpspssl -lpspwlan \
           -lpspnet_adhocmatching -lpspnet_adhoc -lpspnet_adhocctl -lm -ljpeg
 LIBS    = $(STDLIBS)
 

@@ -20,25 +20,23 @@ bool IsWlanConnected(void) {
 
 static char *Clock_GetCurrentTime(void) {
 	static char buffer[10];
+	pspTime time;
 
-	time_t unix_time = time(0);
-	struct tm* time_struct = gmtime((const time_t*)&unix_time);
-	int hours = time_struct->tm_hour;
-	int minutes = time_struct->tm_min;
+	if (R_SUCCEEDED(sceRtcGetCurrentClockLocalTime(&time))) {
+		bool amOrPm = false;
 	
-	bool amOrPm = false;
-	
-	if (hours < 12)
-		amOrPm = true;
-	if (hours == 0)
-		hours = 12;
-	else if (hours > 12)
-		hours = hours - 12;
+		if (time.hour < 12)
+			amOrPm = true;
+		if (time.hour == 0)
+			time.hour = 12;
+		else if (time.hour > 12)
+			time.hour = time.hour - 12;
 
-	if ((hours >= 1) && (hours < 10))
-		snprintf(buffer, 10, "%2i:%02i %s", hours, minutes, amOrPm ? "AM" : "PM");
-	else
-		snprintf(buffer, 10, "%2i:%02i %s", hours, minutes, amOrPm ? "AM" : "PM");
+		if ((time.hour >= 1) && (time.hour < 10))
+			snprintf(buffer, 10, "%2i:%02i %s", time.hour, time.minutes, amOrPm ? "AM" : "PM");
+		else
+			snprintf(buffer, 10, "%2i:%02i %s", time.hour, time.minutes, amOrPm ? "AM" : "PM");
+	}
 
 	return buffer;
 }
