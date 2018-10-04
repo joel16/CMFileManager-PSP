@@ -4,6 +4,7 @@
 #include "config.h"
 #include "dirbrowse.h"
 #include "fs.h"
+#include "menus/menu_gallery.h"
 #include "textures.h"
 #include "utils.h"
 
@@ -224,6 +225,8 @@ void Dirbrowse_OpenFile(void) {
 			Dirbrowse_PopulateFiles(true);
 		}
 	}
+	else if ((!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3)) || (!strncasecmp(file->ext, "png", 3)))
+		Gallery_DisplayImage(path);
 }
 
 // Navigate to Folder

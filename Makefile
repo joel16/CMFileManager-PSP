@@ -1,6 +1,6 @@
 TARGET = CMFileManager
 OBJS   = src/config.o src/dirbrowse.o src/fs.o src/main.o src/status_bar.o src/textures.o src/utils.o \
-         src/menus/menu_fileoptions.o src/menus/menu_main.o src/menus/menu_settings.o
+         src/menus/menu_fileoptions.o src/menus/menu_gallery.o src/menus/menu_main.o src/menus/menu_settings.o
 
 #To build for custom firmware:
 BUILD_PRX = 1
