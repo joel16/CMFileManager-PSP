@@ -9,3 +9,5 @@ void FS_RecursiveMakeDir(const char *path);
 const char *FS_GetFileExt(const char *filename);
 SceOff FS_GetFileSize(const char *path);
 char *FS_GetFileTimestamp(const char *path, int time);
+int FS_ReadFile(char *path, void *buf, int size);
+int FS_WriteFile(char *path, void *buf, int size);

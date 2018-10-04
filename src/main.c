@@ -45,10 +45,8 @@ int main(int argc, char **argv) {
 
 	if (FS_FileExists("lastdir.txt")) {
 		char *buf = (char *)malloc(256);
-		
-		FILE *read = fopen("lastdir.txt", "r");
-		fscanf(read, "%s", buf);
-		fclose(read);
+		FS_ReadFile("lastdir.txt", buf, 256);
+		sscanf(buf, "%s", buf);
 		
 		if (FS_DirExists(buf)) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
 			strcpy(cwd, buf);
@@ -59,14 +57,9 @@ int main(int argc, char **argv) {
 	}
 	else {
 		char *buf = (char *)malloc(256);
-		strcpy(buf, START_PATH);
-			
-		FILE *write = fopen("lastdir.txt", "w");
-		fprintf(write, "%s", buf);
-		fclose(write);
-		
-		strcpy(cwd, buf); // Set Start Path to "sdmc:/" if lastDir.txt hasn't been created.
-
+		int len = snprintf(buf, 256, START_PATH);
+		FS_WriteFile("lastdir.txt", buf, len);
+		strcpy(cwd, buf); // Set Start Path to "ms0:/" if lastDir.txt hasn't been created.
 		free(buf);
 	}
 

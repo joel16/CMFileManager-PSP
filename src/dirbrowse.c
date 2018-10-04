@@ -189,12 +189,9 @@ void Dirbrowse_DisplayFiles(void)
 }
 
 static void Dirbrowse_SaveLastDirectory(void) {
-	char *buf = (char *)malloc(512);
-	strcpy(buf, cwd);
-
-	FILE *write = fopen("lastdir.txt", "w");
-	fprintf(write, "%s", buf);
-	fclose(write);
+	char *buf = (char *)malloc(256);
+	int len = snprintf(buf, 256, cwd);
+	FS_WriteFile("lastdir.txt", buf, len);
 	free(buf);
 }
 

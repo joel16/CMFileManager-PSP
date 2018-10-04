@@ -97,3 +97,27 @@ char *FS_GetFileTimestamp(const char *path, int time) {
 
 	return timeStr;
 }
+
+int FS_ReadFile(char *path, void *buf, int size) {
+	SceUID file = 0;
+
+	if (R_SUCCEEDED(file = sceIoOpen(path, PSP_O_RDONLY, 0))) {
+		int read = sceIoRead(file, buf, size);
+		sceIoClose(file);
+		return read;
+	}
+	
+	return file;
+}
+
+int FS_WriteFile(char *path, void *buf, int size) {	
+	SceUID file = 0;
+	
+	if (R_SUCCEEDED(file = sceIoOpen(path, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777))) {
+		int written = sceIoWrite(file, buf, size);
+		sceIoClose(file);
+		return written;
+	}
+		
+	return file;
+}
