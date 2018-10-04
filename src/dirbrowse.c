@@ -77,6 +77,7 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 
 			// Copy File Name
 			strcpy(item->name, entries[i].d_name);
+			strcpy(item->ext, FS_GetFileExt(item->name));
 
 			item->isDir = FIO_S_ISDIR(entries[i].d_stat.st_mode);
 
@@ -146,6 +147,20 @@ void Dirbrowse_DisplayFiles(void)
 
 			if (file->isDir)
 				oslDrawImageXY(config_dark_theme? icon_dir_dark : icon_dir, 34, 65 + (42 * printed));
+			else if (!strncasecmp(file->ext, "pbp", 3))
+				oslDrawImageXY(icon_app, 34, 65 + (42 * printed));
+			else if ((!strncasecmp(file->ext, "mp3", 3)) || (!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "flac", 3)))
+				oslDrawImageXY(icon_audio, 34, 65 + (42 * printed));
+			else if ((!strncasecmp(file->ext, "zip", 3)) || (!strncasecmp(file->ext, "rar", 3)))
+				oslDrawImageXY(icon_audio, 34, 65 + (42 * printed));
+			else if ((!strncasecmp(file->ext, "iso", 3)) || (!strncasecmp(file->ext, "cso", 3)))
+				oslDrawImageXY(icon_cd, 34, 65 + (42 * printed));
+			else if ((!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3)) || (!strncasecmp(file->ext, "png", 3)))
+				oslDrawImageXY(icon_image, 34, 65 + (42 * printed));
+			else if (!strncasecmp(file->ext, "prx", 3))
+				oslDrawImageXY(icon_prx, 34, 65 + (42 * printed));
+			else if ((!strncasecmp(file->ext, "cfg", 3)) || (!strncasecmp(file->ext, "log", 3)) || (!strncasecmp(file->ext, "txt", 3)))
+				oslDrawImageXY(icon_text, 34, 65 + (42 * printed));
 			else
 				oslDrawImageXY(icon_file, 34, 65 + (42 * printed));
 

@@ -57,6 +57,15 @@ void FS_RecursiveMakeDir(const char *path) {
 	}
 }
 
+const char *FS_GetFileExt(const char *filename) {
+	const char *dot = strrchr(filename, '.');
+	
+	if (!dot || dot == filename)
+		return "";
+	
+	return dot + 1;
+}
+
 SceOff FS_GetFileSize(const char *path) {
 	SceIoStat stat;
 	int ret = 0;

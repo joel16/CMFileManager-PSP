@@ -1,9 +1,17 @@
 #include "textures.h"
 
 void Textures_Load(void) {
-	icon_file = oslLoadImageFilePNG("data/ic_fso_default.png", OSL_IN_RAM, OSL_PF_8888);
+
+	icon_app = oslLoadImageFilePNG("data/ic_fso_type_app.png", OSL_IN_RAM, OSL_PF_8888);
+	icon_archive = oslLoadImageFilePNG("data/ic_fso_type_compress.png", OSL_IN_RAM, OSL_PF_8888);
+	icon_audio = oslLoadImageFilePNG("data/ic_fso_type_audio.png", OSL_IN_RAM, OSL_PF_8888);
+	icon_cd = oslLoadImageFilePNG("data/ic_fso_type_cdimage.png", OSL_IN_RAM, OSL_PF_8888);
 	icon_dir = oslLoadImageFilePNG("data/ic_fso_folder.png", OSL_IN_RAM, OSL_PF_8888);
 	icon_dir_dark = oslLoadImageFilePNG("data/ic_fso_folder_dark.png", OSL_IN_RAM, OSL_PF_8888);
+	icon_file = oslLoadImageFilePNG("data/ic_fso_default.png", OSL_IN_RAM, OSL_PF_8888);
+	icon_image = oslLoadImageFilePNG("data/ic_fso_type_image.png", OSL_IN_RAM, OSL_PF_8888);
+	icon_prx = oslLoadImageFilePNG("data/ic_fso_type_system.png", OSL_IN_RAM, OSL_PF_8888);
+	icon_text = oslLoadImageFilePNG("data/ic_fso_type_text.png", OSL_IN_RAM, OSL_PF_8888);
 	icon_check = oslLoadImageFilePNG("data/btn_material_light_check_on_normal.png", OSL_IN_VRAM, OSL_PF_8888);
 	icon_check_dark = oslLoadImageFilePNG("data/btn_material_light_check_on_normal_dark.png", OSL_IN_VRAM, OSL_PF_8888);
 	icon_uncheck = oslLoadImageFilePNG("data/btn_material_light_check_off_normal.png", OSL_IN_VRAM, OSL_PF_8888);
@@ -39,9 +47,13 @@ void Textures_Load(void) {
 	battery_full_charging = oslLoadImageFilePNG("data/battery_full_charging.png", OSL_IN_VRAM, OSL_PF_8888);
 	battery_low = oslLoadImageFilePNG("data/battery_low.png", OSL_IN_VRAM, OSL_PF_8888);
 	battery_unknown = oslLoadImageFilePNG("data/battery_unknown.png", OSL_IN_VRAM, OSL_PF_8888);
+	wifi_off = oslLoadImageFilePNG("data/stat_sys_wifi_signal_off.png", OSL_IN_VRAM, OSL_PF_8888);
+	wifi_on = oslLoadImageFilePNG("data/stat_sys_wifi_signal_on.png", OSL_IN_VRAM, OSL_PF_8888);
 }
 
 void Textures_Free(void) {
+	oslDeleteImage(wifi_on);
+	oslDeleteImage(wifi_off);
 	oslDeleteImage(battery_unknown);
 	oslDeleteImage(battery_low);
 	oslDeleteImage(battery_full_charging);
@@ -76,7 +88,14 @@ void Textures_Free(void) {
 	oslDeleteImage(icon_uncheck);
 	oslDeleteImage(icon_check_dark);
 	oslDeleteImage(icon_check);
+	oslDeleteImage(icon_text);
+	oslDeleteImage(icon_prx);
+	oslDeleteImage(icon_image);
+	oslDeleteImage(icon_file);
 	oslDeleteImage(icon_dir_dark);
 	oslDeleteImage(icon_dir);
-	oslDeleteImage(icon_file);
+	oslDeleteImage(icon_cd);
+	oslDeleteImage(icon_audio);
+	oslDeleteImage(icon_archive);
+	oslDeleteImage(icon_app);
 }
