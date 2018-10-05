@@ -1,12 +1,12 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "../common.h"
-#include "../config.h"
-#include "../dirbrowse.h"
-#include "../fs.h"
-#include "../textures.h"
-#include "../utils.h"
+#include "common.h"
+#include "config.h"
+#include "dirbrowse.h"
+#include "fs.h"
+#include "textures.h"
+#include "utils.h"
 
 /*
 *	Copy Flags
@@ -529,7 +529,7 @@ void Menu_DisplayDeleteDialog(void) {
 	oslDrawImageXY(config_dark_theme? dialog_dark : dialog, ((480 - oslGetImageWidth(dialog)) / 2), ((272 - oslGetImageHeight(dialog)) / 2));
 
 	oslIntraFontSetStyle(font, 0.6f, config_dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
-	oslDrawString(((480 - oslGetImageWidth(dialog)) / 2) + 6, ((272 - oslGetImageHeight(dialog)) / 2) + 6, "Confirm deletion");
+	oslDrawString(((480 - oslGetImageWidth(dialog)) / 2) + 8, ((272 - oslGetImageHeight(dialog)) / 2) + 6, "Confirm deletion");
 
 	oslIntraFontSetStyle(font, 0.6f, config_dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 	oslDrawString(((480 - (text_width)) / 2), ((272 - oslGetImageHeight(dialog)) / 2) + 40, "Do you wish to continue?");
@@ -648,7 +648,7 @@ void Menu_DisplayFileOptions(void) {
 	else if (row == 1 && column == 2)
 		oslDrawFillRect(241, 148, 241 + 107, 148 + 38, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
-	oslIntraFontSetStyle(font, 0.6f, config_dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+	oslIntraFontSetStyle(font, 0.5f, config_dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 
 	oslDrawString(143, 82, "Properties");
 	oslDrawString(143, 118, "Rename");

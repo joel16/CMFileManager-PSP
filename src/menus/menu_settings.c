@@ -1,11 +1,12 @@
 #include <stdbool.h>
 
-#include "../common.h"
-#include "../config.h"
-#include "../dirbrowse.h"
-#include "../status_bar.h"
-#include "../textures.h"
-#include "../utils.h"
+#include "common.h"
+#include "config.h"
+#include "dirbrowse.h"
+#include "screenshot.h"
+#include "status_bar.h"
+#include "textures.h"
+#include "utils.h"
 
 static bool displayAbout;
 
@@ -73,6 +74,9 @@ static void Menu_DisplaySortSettings(void) {
 			selection++;
 		else if (osl_keys->pressed.up)
 			selection--;
+
+		if (((osl_keys->held.L) && (osl_keys->pressed.R)) || ((osl_keys->held.R) && (osl_keys->pressed.L)))
+			Screenshot_Capture();
 
 		Utils_SetMax(&selection, 0, max_items);
 		Utils_SetMin(&selection, max_items, 0);
@@ -176,13 +180,16 @@ void Menu_DisplaySettings(void) {
 
 		oslReadKeys();
 
+		if (((osl_keys->held.L) && (osl_keys->pressed.R)) || ((osl_keys->held.R) && (osl_keys->pressed.L)))
+			Screenshot_Capture();
+
 		if (displayAbout) {
 			Menu_DisplayAboutDialog();
 			Menu_ControlAboutDialog();
 		}
 		else
 		{
-			if (osl_keys->pressed.circle)
+			if ((osl_keys->pressed.circle) || (osl_keys->pressed.start))
 				break;
 			
 			if (osl_keys->pressed.down)

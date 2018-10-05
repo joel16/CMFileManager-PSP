@@ -1,13 +1,14 @@
 #include <stdbool.h>
 
-#include "../common.h"
-#include "../config.h"
-#include "../dirbrowse.h"
+#include "common.h"
+#include "config.h"
+#include "dirbrowse.h"
 #include "menu_settings.h"
 #include "menu_fileoptions.h"
-#include "../status_bar.h"
-#include "../textures.h"
-#include "../utils.h"
+#include "screenshot.h"
+#include "status_bar.h"
+#include "textures.h"
+#include "utils.h"
 
 static char multi_select_dir_old[512];
 
@@ -97,6 +98,9 @@ void Menu_Main(void) {
 		}
 		else if (MENU_STATE == MENU_STATE_SETTINGS)
 			Menu_DisplaySettings();
+
+		if (((osl_keys->held.L) && (osl_keys->pressed.R)) || ((osl_keys->held.R) && (osl_keys->pressed.L)))
+			Screenshot_Capture();
 
 		Utils_EndDrawing();
 	}

@@ -1,5 +1,5 @@
-#include "../common.h"
-#include "../utils.h"
+#include "common.h"
+#include "utils.h"
 
 static OSL_IMAGE *image;
 
