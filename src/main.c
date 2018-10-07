@@ -38,30 +38,11 @@ int main(int argc, char **argv) {
 	Init_Oslib();
 	pspSdkInetInit();
 	Config_Load();
+	Config_GetLastDirectory();
 	Textures_Load();
 
 	font = oslLoadFontFile("data/Roboto.pgf");
 	oslSetFont(font);
-
-	if (FS_FileExists("lastdir.txt")) {
-		char *buf = (char *)malloc(256);
-		FS_ReadFile("lastdir.txt", buf, 256);
-		sscanf(buf, "%s", buf);
-		
-		if (FS_DirExists(buf)) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
-			strcpy(cwd, buf);
-		else 
-			strcpy(cwd, START_PATH);
-
-		free(buf);
-	}
-	else {
-		char *buf = (char *)malloc(256);
-		int len = snprintf(buf, 256, START_PATH);
-		FS_WriteFile("lastdir.txt", buf, len);
-		strcpy(cwd, buf); // Set Start Path to "ms0:/" if lastDir.txt hasn't been created.
-		free(buf);
-	}
 
 	Menu_Main();
 
