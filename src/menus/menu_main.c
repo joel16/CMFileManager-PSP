@@ -51,6 +51,11 @@ static void Menu_ControlHome(void) {
 		Utils_SetMax(&position, 0, fileCount - 1);
 		Utils_SetMin(&position, fileCount - 1, 0);
 
+		if (osl_keys->pressed.left)
+			position = 0;
+		else if (osl_keys->pressed.right)
+			position = fileCount - 1;
+
 		if (osl_keys->pressed.square)
 			Menu_HandleMultiSelect();
 
