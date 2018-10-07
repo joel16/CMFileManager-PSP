@@ -21,7 +21,7 @@ void Dirbrowse_RecursiveFree(File *node) {
 	free(node); // Free memory
 }
 
-int cmpstringp(const void *p1, const void *p2) {
+static int cmpstringp(const void *p1, const void *p2) {
 	SceIoDirent* entryA = (SceIoDirent*) p1;
 	SceIoDirent* entryB = (SceIoDirent*) p2;
 

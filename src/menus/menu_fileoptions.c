@@ -41,7 +41,7 @@ void FileOptions_ResetClipboard(void) {
 
 static int FileOptions_CreateFolder(void) {
 	char *buf = (char *)malloc(256);
-	//strcpy(buf, OSK_GetString("", "Enter name"));
+	Utils_DisplayKeyboard("Enter name", "", buf);
 
 	if (strncmp(buf, "", 1) == 0)
 		return -1;
@@ -73,8 +73,8 @@ static int FileOptions_Rename(void) {
 	strcpy(oldPath, cwd);
 	strcpy(newPath, cwd);
 	strcat(oldPath, file->name);
-
-	//strcpy(buf, OSK_GetString(file->name, "Enter name"));
+	
+	Utils_DisplayKeyboard("Enter name", "", buf);
 	strcat(newPath, buf);
 	free(buf);
 
