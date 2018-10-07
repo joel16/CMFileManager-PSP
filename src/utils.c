@@ -1,13 +1,4 @@
-#include <stdbool.h>
-
 #include "common.h"
-#include "config.h"
-
-void Utils_EndDrawing(void) {
-	oslEndDrawing();
-	oslEndFrame();
-	oslSyncFrame();
-}
 
 void Utils_SetMax(int *set, int value, int max) {
 	if (*set > max)
@@ -62,35 +53,4 @@ int Utils_Alphasort(const void *p1, const void *p2) {
 		return 1;
 		
 	return strcasecmp(entryA->d_name, entryB->d_name);
-}
-
-void Utils_DisplayKeyboard(char *descStr, char *initialStr, char *text) {
-	int skip = 0;
-	bool done = false;
-
-	oslInitOsk(descStr, initialStr, 256, 1, -1);
-
-	while(!osl_quit && !done) {
-		if (!skip) {
-			oslStartDrawing();
-			oslDrawFillRect(0, 0, 480, 20, config_dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
-			oslDrawFillRect(0, 20, 480, 62, config_dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
-			if (oslOskIsActive())
-				oslDrawOsk();
-			if (oslGetOskStatus() == PSP_UTILITY_DIALOG_NONE) {
-				if (oslOskGetResult() == OSL_OSK_CANCEL) {
-					strcpy(text, "");
-					done = 1;
-				}
-				else {
-					oslOskGetText(text);
-					done = 1;
-				}
-				oslEndOsk();
-			}
-			oslEndDrawing();
-		}
-		oslEndFrame();
-		skip = oslSyncFrame();
-	}
 }

@@ -1,11 +1,12 @@
 #include <stdbool.h>
 
-#include "archive/archive.h"
+#include "archive.h"
 #include "common.h"
 #include "config.h"
 #include "dirbrowse.h"
 #include "fs.h"
-#include "menus/menu_gallery.h"
+#include "menu_gallery.h"
+#include "osl_helper.h"
 #include "textures.h"
 #include "utils.h"
 
@@ -134,7 +135,7 @@ void Dirbrowse_DisplayFiles(void)
 
 		if (position < FILES_PER_PAGE || i > (position - FILES_PER_PAGE)) {
 			if (i == position)
-				oslDrawFillRect(0, 62 + (42 * printed), 480, (62 + (42 * printed) + 42), config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+				OSL_DawFillRect(0, 62 + (42 * printed), 480, 42, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
 			if (strcmp(multi_select_dir, cwd) == 0) {
 				multi_select[i] == true? oslDrawImageXY(config_dark_theme? icon_check_dark : icon_check, 5, 71 + (42 * printed)) : 

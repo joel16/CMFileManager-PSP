@@ -5,6 +5,7 @@
 #include "config.h"
 #include "dirbrowse.h"
 #include "fs.h"
+#include "osl_helper.h"
 #include "textures.h"
 #include "utils.h"
 
@@ -41,7 +42,7 @@ void FileOptions_ResetClipboard(void) {
 
 static int FileOptions_CreateFolder(void) {
 	char *buf = (char *)malloc(256);
-	Utils_DisplayKeyboard("Enter name", "", buf);
+	OSL_DisplayKeyboard("Enter name", "", buf);
 
 	if (strncmp(buf, "", 1) == 0)
 		return -1;
@@ -74,7 +75,7 @@ static int FileOptions_Rename(void) {
 	strcpy(newPath, cwd);
 	strcat(oldPath, file->name);
 	
-	Utils_DisplayKeyboard("Enter name", "", buf);
+	OSL_DisplayKeyboard("Enter name", "", buf);
 	strcat(newPath, buf);
 	free(buf);
 
@@ -535,12 +536,10 @@ void Menu_DisplayDeleteDialog(void) {
 	oslDrawString(((480 - (text_width)) / 2), ((272 - oslGetImageHeight(dialog)) / 2) + 40, "Do you wish to continue?");
 
 	if (delete_dialog_selection == 0)
-		oslDrawFillRect((364 - oslGetStringWidth("NO")) - 5, (191 - (font->charHeight - 6)) - 5, 
-			((364 - oslGetStringWidth("NO")) - 5) + oslGetStringWidth("NO") + 10, ((191 - (font->charHeight - 6)) - 5) + (font->charHeight - 6) + 10, 
+		OSL_DawFillRect((364 - oslGetStringWidth("NO")) - 5, (191 - (font->charHeight - 6)) - 5, oslGetStringWidth("NO") + 10, (font->charHeight - 6) + 10, 
 			config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	else if (delete_dialog_selection == 1)
-		oslDrawFillRect((409 - (oslGetStringWidth("YES"))) - 5, (191 - (font->charHeight - 6)) - 5, 
-			((409 - (oslGetStringWidth("YES"))) - 5) + oslGetStringWidth("YES") + 10, ((191 - (font->charHeight - 6)) - 5) + (font->charHeight - 6) + 10, 
+		OSL_DawFillRect((409 - (oslGetStringWidth("YES"))) - 5, (191 - (font->charHeight - 6)) - 5, oslGetStringWidth("YES") + 10, (font->charHeight - 6) + 10, 
 			config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
 	// 419
@@ -636,17 +635,17 @@ void Menu_DisplayFileOptions(void) {
 	oslDrawString(345 - oslGetStringWidth("CANCEL"), 230 - (font->charHeight - 6), "CANCEL");
 	
 	if (row == 0 && column == 0)
-		oslDrawFillRect(133, 71, 133 + 107, 71 + 38, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		OSL_DawFillRect(133, 71, 107, 38, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	else if (row == 1 && column == 0)
-		oslDrawFillRect(241, 71, 241 + 107, 71 + 38, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		OSL_DawFillRect(241, 71, 107, 38, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	else if (row == 0 && column == 1)
-		oslDrawFillRect(133, 110, 133 + 107, 110 + 38, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		OSL_DawFillRect(133, 110, 107, 38, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	else if (row == 1 && column == 1)
-		oslDrawFillRect(241, 110, 241 + 107, 110 + 38, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		OSL_DawFillRect(241, 110, 107, 38, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	else if (row == 0 && column == 2)
-		oslDrawFillRect(133, 148, 133 + 107, 148 + 38, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		OSL_DawFillRect(133, 148, 107, 38, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	else if (row == 1 && column == 2)
-		oslDrawFillRect(241, 148, 241 + 107, 148 + 38, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		OSL_DawFillRect(241, 148, 107, 38, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
 	oslIntraFontSetStyle(font, 0.5f, config_dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 

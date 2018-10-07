@@ -20,7 +20,7 @@ static void Init_Oslib(void) {
 	oslSetQuitOnLoadFailure(1);
 	oslSetKeyAutorepeatInit(40);
 	oslSetKeyAutorepeatInterval(10);
-	oslIntraFontInit(INTRAFONT_CACHE_MED);
+	oslIntraFontInit(INTRAFONT_CACHE_LARGE);
 }
 
 static void Term_Oslib(void) {

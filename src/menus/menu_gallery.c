@@ -1,5 +1,5 @@
 #include "common.h"
-#include "utils.h"
+#include "osl_helper.h"
 
 static OSL_IMAGE *image;
 
@@ -9,12 +9,12 @@ void Gallery_DisplayImage(char *path) {
 	int height = oslGetImageHeight(image);
 
 	while (!osl_quit) {
-		oslStartDrawing();
+		OSL_StartDrawing();
 		oslClearScreen(RGBA(33, 39, 43, 255));
 
 		oslDrawImageXY(image, (480 - width) / 2, (272 - height) / 2);
 
-		Utils_EndDrawing();
+		OSL_EndDrawing();
 		oslReadKeys();
 
 		if (osl_keys->pressed.circle)

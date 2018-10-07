@@ -5,6 +5,7 @@
 #include "dirbrowse.h"
 #include "menu_settings.h"
 #include "menu_fileoptions.h"
+#include "osl_helper.h"
 #include "screenshot.h"
 #include "status_bar.h"
 #include "textures.h"
@@ -72,10 +73,10 @@ void Menu_Main(void) {
 	memset(multi_select, 0, sizeof(multi_select)); // Reset all multi selected items
 
 	while (!osl_quit) {
-		oslStartDrawing();
+		OSL_StartDrawing();
 		oslClearScreen(config_dark_theme? BLACK_BG : WHITE);
-		oslDrawFillRect(0, 0, 480, 20, config_dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
-		oslDrawFillRect(0, 20, 480, 62, config_dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
+		OSL_DawFillRect(0, 0, 480, 20, config_dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
+		OSL_DawFillRect(0, 20, 480, 42, config_dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
 		oslDrawImageXY(icon_nav_drawer, 5, 25);
 
 		StatusBar_DisplayTime();
@@ -102,6 +103,6 @@ void Menu_Main(void) {
 		if (((osl_keys->held.L) && (osl_keys->pressed.R)) || ((osl_keys->held.R) && (osl_keys->pressed.L)))
 			Screenshot_Capture();
 
-		Utils_EndDrawing();
+		OSL_EndDrawing();
 	}
 }

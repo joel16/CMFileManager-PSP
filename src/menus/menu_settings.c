@@ -3,6 +3,7 @@
 #include "common.h"
 #include "config.h"
 #include "dirbrowse.h"
+#include "osl_helper.h"
 #include "screenshot.h"
 #include "status_bar.h"
 #include "textures.h"
@@ -23,10 +24,10 @@ static void Menu_DisplaySortSettings(void) {
 	int width = oslGetImageWidth(icon_radio_on);
 
 	while (!osl_quit) {
-		oslStartDrawing();
+		OSL_StartDrawing();
 		oslClearScreen(config_dark_theme? BLACK_BG : WHITE);
-		oslDrawFillRect(0, 0, 480, 20, config_dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
-		oslDrawFillRect(0, 20, 480, 62, config_dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
+		OSL_DawFillRect(0, 0, 480, 20, config_dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
+		OSL_DawFillRect(0, 20, 480, 42, config_dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
 
 		StatusBar_DisplayTime();
 
@@ -42,7 +43,7 @@ static void Menu_DisplaySortSettings(void) {
 
 			if (selection < FILES_PER_PAGE || i > (selection - FILES_PER_PAGE)) {
 				if (i == selection)
-					oslDrawFillRect(0, 62 + (42 * printed), 480, (62 + (42 * printed) + 42), config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+					OSL_DawFillRect(0, 62 + (42 * printed), 480, 42, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 				
 				oslIntraFontSetStyle(font, 0.6f, config_dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 				oslDrawString(20, 62 + ((42 - (font->charHeight - 6)) / 2) + (42 * printed), main_menu_items[i]);
@@ -63,7 +64,7 @@ static void Menu_DisplaySortSettings(void) {
 		config_sort_by == 3? oslDrawImageXY(config_dark_theme? icon_radio_dark_on : icon_radio_on, (460 - width), 195) : 
 			oslDrawImageXY(config_dark_theme? icon_radio_dark_off : icon_radio_off, (460 - width), 195);
 		
-		Utils_EndDrawing();
+		OSL_EndDrawing();
 
 		oslReadKeys();
 
@@ -122,8 +123,7 @@ static void Menu_DisplayAboutDialog(void) {
 	oslDrawStringf(((480 - (text_width)) / 2), ((272 - oslGetImageHeight(dialog)) / 2) + 40, "CM File Manager PSP v%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO);
 	oslDrawStringf(((480 - (author_width)) / 2), ((272 - oslGetImageHeight(dialog)) / 2) + 40 + 16, "Author: Joel16");
 
-	oslDrawFillRect((409 - (oslGetStringWidth("OK"))) - 5, (191 - (font->charHeight - 6)) - 5, 
-		((409 - (oslGetStringWidth("OK"))) - 5) + oslGetStringWidth("OK") + 10, ((191 - (font->charHeight - 6)) - 5) + (font->charHeight - 6) + 10, 
+	OSL_DawFillRect((409 - (oslGetStringWidth("OK"))) - 5, (191 - (font->charHeight - 6)) - 5, oslGetStringWidth("OK") + 10, (font->charHeight - 6) + 10, 
 		config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
 	oslIntraFontSetStyle(font, 0.6f, config_dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
@@ -145,10 +145,10 @@ void Menu_DisplaySettings(void) {
 	int height = oslGetImageHeight(icon_toggle_on);
 
 	while (!osl_quit) {
-		oslStartDrawing();
+		OSL_StartDrawing();
 		oslClearScreen(config_dark_theme? BLACK_BG : WHITE);
-		oslDrawFillRect(0, 0, 480, 20, config_dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
-		oslDrawFillRect(0, 20, 480, 62, config_dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
+		OSL_DawFillRect(0, 0, 480, 20, config_dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
+		OSL_DawFillRect(0, 20, 480, 42, config_dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
 
 		StatusBar_DisplayTime();
 
@@ -164,7 +164,7 @@ void Menu_DisplaySettings(void) {
 
 			if (selection < FILES_PER_PAGE || i > (selection - FILES_PER_PAGE)) {
 				if (i == selection)
-					oslDrawFillRect(0, 62 + (42 * printed), 480, (62 + (42 * printed) + 42), config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+					OSL_DawFillRect(0, 62 + (42 * printed), 480, 42, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
 				oslIntraFontSetStyle(font, 0.6f, config_dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 				oslDrawString(20, 62 + ((42 - (font->charHeight - 6)) / 2) + (42 * printed), main_menu_items[i]);
@@ -216,7 +216,7 @@ void Menu_DisplaySettings(void) {
 			}
 		}
 
-		Utils_EndDrawing();
+		OSL_EndDrawing();
 	}
 
 	MENU_STATE = MENU_STATE_HOME;
