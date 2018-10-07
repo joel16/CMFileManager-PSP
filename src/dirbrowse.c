@@ -174,7 +174,7 @@ void Dirbrowse_DisplayFiles(void)
 			oslIntraFontSetStyle(font, 0.5f, config_dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 			if (!file->isDir) {
 				Utils_GetSizeString(size, file->size);
-				oslDrawString(470 - oslGetStringWidth(size), 85 + (42 * printed), size);
+				oslDrawString(470 - oslGetStringWidth(size), 86 + (42 * printed), size);
 			}
 			
 			oslIntraFontSetStyle(font, 0.6f, config_dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);

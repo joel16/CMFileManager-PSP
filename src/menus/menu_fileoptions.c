@@ -6,6 +6,7 @@
 #include "dirbrowse.h"
 #include "fs.h"
 #include "osl_helper.h"
+#include "progress_bar.h"
 #include "textures.h"
 #include "utils.h"
 
@@ -266,6 +267,7 @@ static int FileOptions_CopyFile(char *src, char *dst, bool display_anim)
 	char *buffer = (char *)malloc(chunksize); // Reading buffer
 
 	int totalwrite = 0, totalread = 0, ret = 0, input_file = 0, output_file = 0;
+	SceOff size = FS_GetFileSize(src);
 
 	if (R_SUCCEEDED(input_file = sceIoOpen(src, PSP_O_RDONLY, 0777))) {
 		sceIoRemove(dst); // Delete Output File (if existing)
@@ -278,6 +280,9 @@ static int FileOptions_CopyFile(char *src, char *dst, bool display_anim)
 				// Accumulate Read Data
 				totalread += read;
 				totalwrite += sceIoWrite(output_file, buffer, read);
+
+				if (display_anim)
+					ProgressBar_DisplayProgress(copymode == 1? "Moving" : "Copying", Utils_Basename(src), totalread, size);
 			}
 
 			sceIoClose(output_file);
@@ -351,6 +356,8 @@ static int FileOptions_CopyDir(char *src, char *dst) {
 				free(inbuffer);
 				free(outbuffer);
 			}
+
+			ProgressBar_DisplayProgress(copymode == 1? "Moving" : "Copying", Utils_Basename(entries[i].d_name), i, entryCount);
 		}
 
 		free(entries);

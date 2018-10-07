@@ -16,9 +16,9 @@ void ProgressBar_DisplayProgress(char *msg, char *src, u32 offset, u32 size) {
 	oslDrawString(((480 - (text_width)) / 2), ((272 - oslGetImageHeight(dialog)) / 2) + 30, src);
 
 	OSL_DawFillRect(((480 - oslGetImageWidth(dialog)) / 2) + 20, ((272 - oslGetImageHeight(dialog)) / 2) + 60, 
-		272, 4, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		318, 4, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	OSL_DawFillRect(((480 - oslGetImageWidth(dialog)) / 2) + 20, ((272 - oslGetImageHeight(dialog)) / 2) + 60, 
-		((double)offset / (double)size * 272.0), 4, config_dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR);
+		((double)offset / (double)size * 318.0), 4, config_dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR);
 
 	oslSyncFrame();
 }
