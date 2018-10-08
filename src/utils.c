@@ -1,4 +1,9 @@
+#include <stdbool.h>
+
 #include "common.h"
+#include "config.h"
+
+bool psp_usb_cable_connection = false;
 
 void Utils_SetMax(int *set, int value, int max) {
 	if (*set > max)
@@ -53,4 +58,19 @@ int Utils_Alphasort(const void *p1, const void *p2) {
 		return 1;
 		
 	return strcasecmp(entryA->d_name, entryB->d_name);
+}
+
+void Utils_HandleUSB(void) {
+	if (config.auto_usb_mount) {
+		if (oslGetUsbState() & PSP_USB_CABLE_CONNECTED) {
+			if (psp_usb_cable_connection == false) {
+				oslStartUsbStorage();
+				psp_usb_cable_connection = true;
+			}
+		}
+		else {
+			psp_usb_cable_connection = false;
+			oslStopUsbStorage();
+		}
+	}
 }

@@ -49,9 +49,11 @@ void Textures_Load(void) {
 	battery_unknown = oslLoadImageFilePNG("data/battery_unknown.png", OSL_IN_VRAM, OSL_PF_8888);
 	wifi_off = oslLoadImageFilePNG("data/stat_sys_wifi_signal_off.png", OSL_IN_VRAM, OSL_PF_8888);
 	wifi_on = oslLoadImageFilePNG("data/stat_sys_wifi_signal_on.png", OSL_IN_VRAM, OSL_PF_8888);
+	usb_icon = oslLoadImageFilePNG("data/ic_material_light_usb.png", OSL_IN_VRAM, OSL_PF_8888);
 }
 
 void Textures_Free(void) {
+	oslDeleteImage(usb_icon);
 	oslDeleteImage(wifi_on);
 	oslDeleteImage(wifi_off);
 	oslDeleteImage(battery_unknown);

@@ -7,18 +7,16 @@
 #include "fs.h"
 #include "utils.h"
 
-bool config_dark_theme;
-int config_sort_by;
-
 const char *configFile =
 	"theme = %d\n"
-	"sortBy = %d\n";
+	"sort = %d\n"
+	"usb = %d\n";
 
-int Config_Save(bool config_dark_theme, int config_sort_by) {
+int Config_Save(config_t config) {
 	int ret = 0;
 	char *buf = (char *)malloc(64);
 
-	int len = snprintf(buf, 64, configFile, config_dark_theme, config_sort_by);
+	int len = snprintf(buf, 64, configFile, config.dark_theme, config.sort, config.auto_usb_mount);
 
 	if (R_FAILED(ret = FS_WriteFile("config.cfg", buf, len))) {
 		free(buf);
@@ -33,21 +31,22 @@ int Config_Load(void) {
 	int ret = 0;
 
 	if (!FS_FileExists("config.cfg")) {
-		config_dark_theme = false;
-		config_sort_by = 0;
-		return Config_Save(config_dark_theme, config_sort_by);
+		config.dark_theme = false;
+		config.sort = 0;
+		config.auto_usb_mount = true;
+		return Config_Save(config);
 	}
 
 	u64 size = FS_GetFileSize("config.cfg");
 	char *buf = (char *)malloc(size + 1);
 
-	if (R_FAILED(ret = FS_ReadFile("config.cfg", buf, 128))) {
+	if (R_FAILED(ret = FS_ReadFile("config.cfg", buf, size))) {
 		free(buf);
 		return ret;
 	}
 
 	buf[size] = '\0';
-	sscanf(buf, configFile, &config_dark_theme, &config_sort_by);
+	sscanf(buf, configFile, &config.dark_theme, &config.sort, &config.auto_usb_mount);
 	free(buf);
 
 	return 0;

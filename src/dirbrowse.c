@@ -31,13 +31,13 @@ static int cmpstringp(const void *p1, const void *p2) {
 	else if (!(FIO_S_ISDIR(entryA->d_stat.st_mode)) && (FIO_S_ISDIR(entryB->d_stat.st_mode)))
 		return 1;
 	else {
-		if (config_sort_by == 0) // Sort alphabetically (ascending - A to Z)
+		if (config.sort == 0) // Sort alphabetically (ascending - A to Z)
 			return strcasecmp(entryA->d_name, entryB->d_name);
-		else if (config_sort_by == 1) // Sort alphabetically (descending - Z to A)
+		else if (config.sort == 1) // Sort alphabetically (descending - Z to A)
 			return strcasecmp(entryB->d_name, entryA->d_name);
-		else if (config_sort_by == 2) // Sort by file size (largest first)
+		else if (config.sort == 2) // Sort by file size (largest first)
 			return entryA->d_stat.st_size > entryB->d_stat.st_size ? -1 : entryA->d_stat.st_size < entryB->d_stat.st_size ? 1 : 0;
-		else if (config_sort_by == 3) // Sort by file size (smallest first)
+		else if (config.sort == 3) // Sort by file size (smallest first)
 			return entryB->d_stat.st_size > entryA->d_stat.st_size ? -1 : entryB->d_stat.st_size < entryA->d_stat.st_size ? 1 : 0;
 	}
 
@@ -135,21 +135,21 @@ void Dirbrowse_DisplayFiles(void)
 
 		if (position < FILES_PER_PAGE || i > (position - FILES_PER_PAGE)) {
 			if (i == position)
-				OSL_DawFillRect(0, 62 + (42 * printed), 480, 42, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+				OSL_DawFillRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
 			if (strcmp(multi_select_dir, cwd) == 0) {
-				multi_select[i] == true? oslDrawImageXY(config_dark_theme? icon_check_dark : icon_check, 5, 71 + (42 * printed)) : 
-					oslDrawImageXY(config_dark_theme? icon_uncheck_dark : icon_uncheck, 5, 71 + (42 * printed));
+				multi_select[i] == true? oslDrawImageXY(config.dark_theme? icon_check_dark : icon_check, 5, 71 + (42 * printed)) : 
+					oslDrawImageXY(config.dark_theme? icon_uncheck_dark : icon_uncheck, 5, 71 + (42 * printed));
 			}
 			else
-				oslDrawImageXY(config_dark_theme? icon_uncheck_dark : icon_uncheck, 5, 71 + (42 * printed));
+				oslDrawImageXY(config.dark_theme? icon_uncheck_dark : icon_uncheck, 5, 71 + (42 * printed));
 
 			char path[512];
 			strcpy(path, cwd);
 			strcpy(path + strlen(path), file->name);
 
 			if (file->isDir)
-				oslDrawImageXY(config_dark_theme? icon_dir_dark : icon_dir, 34, 65 + (42 * printed));
+				oslDrawImageXY(config.dark_theme? icon_dir_dark : icon_dir, 34, 65 + (42 * printed));
 			else if (!strncasecmp(file->ext, "pbp", 3))
 				oslDrawImageXY(icon_app, 34, 65 + (42 * printed));
 			else if ((!strncasecmp(file->ext, "mp3", 3)) || (!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "flac", 3)))
@@ -171,13 +171,13 @@ void Dirbrowse_DisplayFiles(void)
 			strncpy(buf, file->name, sizeof(buf));
 			buf[sizeof(buf) - 1] = '\0';
 
-			oslIntraFontSetStyle(font, 0.5f, config_dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+			oslIntraFontSetStyle(font, 0.5f, config.dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 			if (!file->isDir) {
 				Utils_GetSizeString(size, file->size);
 				oslDrawString(470 - oslGetStringWidth(size), 86 + (42 * printed), size);
 			}
 			
-			oslIntraFontSetStyle(font, 0.6f, config_dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+			oslIntraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 			if (strncmp(file->name, "..", 2) == 0)
 				oslDrawString(80, 62 + ((42 - (font->charHeight - 6)) / 2) + (42 * printed), "Parent folder");
 			else 

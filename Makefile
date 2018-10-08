@@ -17,7 +17,8 @@ ASFLAGS  := -g $(ARCH)
 
 STDLIBS = -losl -lpng -lz \
           -lpsphprm -lpspsdk -lpspctrl -lpsprtc -lpsppower -lpspgu -lpspgum  -lpspaudiolib -lpspaudio -lpsphttp -lpspssl -lpspwlan \
-          -lpspnet_adhocmatching -lpspnet_adhoc -lpspnet_adhocctl -lm -ljpeg
+          -lpspnet_adhocmatching -lpspnet_adhoc -lpspnet_adhocctl -lm -ljpeg \
+          -lpspusb -lpspusbstor
 LIBS    = $(STDLIBS)
 
 EXTRA_TARGETS   = EBOOT.PBP

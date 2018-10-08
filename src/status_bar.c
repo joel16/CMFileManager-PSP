@@ -107,6 +107,9 @@ static void StatusBar_GetBatteryStatus(int x, int y) {
 }
 
 void StatusBar_DisplayTime(void) {
+	if (psp_usb_cable_connection)
+		oslDrawImageXY(usb_icon, 0, 0);
+
 	oslIntraFontSetStyle(font, 0.6f, WHITE, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 	int width = oslGetStringWidth(Clock_GetCurrentTime());
 	IsWlanConnected()? oslDrawImageXY(wifi_on, 475 - width - 22 - (percent_width + 6) - 22, 2) : oslDrawImageXY(wifi_off, 475 - width - 22 - (percent_width + 6) - 22, 2);

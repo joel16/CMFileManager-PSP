@@ -1,8 +1,13 @@
 #pragma once
 
-extern bool config_dark_theme;
-extern int config_sort_by;
+typedef struct {
+	bool dark_theme;
+	int sort;
+	bool auto_usb_mount;
+} config_t;
 
-int Config_Save(bool config_dark_theme, int config_sort_by);
+config_t config;
+
+int Config_Save(config_t config);
 int Config_Load(void);
 int Config_GetLastDirectory(void);

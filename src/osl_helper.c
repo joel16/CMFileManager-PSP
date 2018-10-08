@@ -28,8 +28,8 @@ void OSL_DisplayKeyboard(char *descStr, char *initialStr, char *text) {
 	while(!osl_quit && !done) {
 		if (!skip) {
 			oslStartDrawing();
-			OSL_DawFillRect(0, 0, 480, 20, config_dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
-			OSL_DawFillRect(0, 20, 480, 42, config_dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
+			OSL_DawFillRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
+			OSL_DawFillRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
 			if (oslOskIsActive())
 				oslDrawOsk();
 			if (oslGetOskStatus() == PSP_UTILITY_DIALOG_NONE) {

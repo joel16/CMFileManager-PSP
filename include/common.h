@@ -1,6 +1,7 @@
 #pragma once
 
 #include <oslib/oslib.h>
+#include <setjmp.h>
 
 #define ROOT_PATH "ms0:/"
 #define START_PATH ROOT_PATH
@@ -35,6 +36,8 @@
 #define TEXT_MIN_COLOUR_LIGHT RGBA(32, 32, 32, 255)
 #define TEXT_MIN_COLOUR_DARK  RGBA(185, 185, 185, 255)
 #define BAR_COLOUR            RGBA(200, 200, 200, 255)
+
+jmp_buf exitJmp;
 
 OSL_FONT *font;
 

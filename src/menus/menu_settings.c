@@ -25,9 +25,9 @@ static void Menu_DisplaySortSettings(void) {
 
 	while (!osl_quit) {
 		OSL_StartDrawing();
-		oslClearScreen(config_dark_theme? BLACK_BG : WHITE);
-		OSL_DawFillRect(0, 0, 480, 20, config_dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
-		OSL_DawFillRect(0, 20, 480, 42, config_dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
+		oslClearScreen(config.dark_theme? BLACK_BG : WHITE);
+		OSL_DawFillRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
+		OSL_DawFillRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
 
 		StatusBar_DisplayTime();
 
@@ -43,26 +43,26 @@ static void Menu_DisplaySortSettings(void) {
 
 			if (selection < FILES_PER_PAGE || i > (selection - FILES_PER_PAGE)) {
 				if (i == selection)
-					OSL_DawFillRect(0, 62 + (42 * printed), 480, 42, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+					OSL_DawFillRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 				
-				oslIntraFontSetStyle(font, 0.6f, config_dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+				oslIntraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 				oslDrawString(20, 62 + ((42 - (font->charHeight - 6)) / 2) + (42 * printed), main_menu_items[i]);
 
 				printed++;
 			}
 		}
 
-		config_sort_by == 0? oslDrawImageXY(config_dark_theme? icon_radio_dark_on : icon_radio_on, (460 - width), 69) : 
-			oslDrawImageXY(config_dark_theme? icon_radio_dark_off : icon_radio_off, (460 - width), 69);
+		config.sort == 0? oslDrawImageXY(config.dark_theme? icon_radio_dark_on : icon_radio_on, (460 - width), 69) : 
+			oslDrawImageXY(config.dark_theme? icon_radio_dark_off : icon_radio_off, (460 - width), 69);
 		
-		config_sort_by == 1? oslDrawImageXY(config_dark_theme? icon_radio_dark_on : icon_radio_on, (460 - width), 111) : 
-			oslDrawImageXY(config_dark_theme? icon_radio_dark_off : icon_radio_off, (460 - width), 111);
+		config.sort == 1? oslDrawImageXY(config.dark_theme? icon_radio_dark_on : icon_radio_on, (460 - width), 111) : 
+			oslDrawImageXY(config.dark_theme? icon_radio_dark_off : icon_radio_off, (460 - width), 111);
 
-		config_sort_by == 2? oslDrawImageXY(config_dark_theme? icon_radio_dark_on : icon_radio_on, (460 - width), 153) : 
-			oslDrawImageXY(config_dark_theme? icon_radio_dark_off : icon_radio_off, (460 - width), 153);
+		config.sort == 2? oslDrawImageXY(config.dark_theme? icon_radio_dark_on : icon_radio_on, (460 - width), 153) : 
+			oslDrawImageXY(config.dark_theme? icon_radio_dark_off : icon_radio_off, (460 - width), 153);
 		
-		config_sort_by == 3? oslDrawImageXY(config_dark_theme? icon_radio_dark_on : icon_radio_on, (460 - width), 195) : 
-			oslDrawImageXY(config_dark_theme? icon_radio_dark_off : icon_radio_off, (460 - width), 195);
+		config.sort == 3? oslDrawImageXY(config.dark_theme? icon_radio_dark_on : icon_radio_on, (460 - width), 195) : 
+			oslDrawImageXY(config.dark_theme? icon_radio_dark_off : icon_radio_off, (460 - width), 195);
 		
 		OSL_EndDrawing();
 
@@ -85,20 +85,20 @@ static void Menu_DisplaySortSettings(void) {
 		if (osl_keys->pressed.cross) {
 			switch (selection) {
 				case 0:
-					config_sort_by = 0;
+					config.sort = 0;
 					break;
 				case 1:
-					config_sort_by = 1;
+					config.sort = 1;
 					break;
 				case 2:
-					config_sort_by = 2;
+					config.sort = 2;
 					break;
 				case 3:
-					config_sort_by = 3;
+					config.sort = 3;
 					break;
 			}
 
-			Config_Save(config_dark_theme, config_sort_by);
+			Config_Save(config);
 		}
 	}
 	Dirbrowse_PopulateFiles(true);
@@ -114,28 +114,29 @@ static void Menu_DisplayAboutDialog(void) {
 	int text_width = oslGetStringWidth("CM File Manager PSP vX.X.X");
 	int author_width = oslGetStringWidth("Author: Joel16");
 
-	oslDrawImageXY(config_dark_theme? dialog_dark : dialog, ((480 - oslGetImageWidth(dialog)) / 2), ((272 - oslGetImageHeight(dialog)) / 2));
+	oslDrawImageXY(config.dark_theme? dialog_dark : dialog, ((480 - oslGetImageWidth(dialog)) / 2), ((272 - oslGetImageHeight(dialog)) / 2));
 
-	oslIntraFontSetStyle(font, 0.6f, config_dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 	oslDrawString(((480 - oslGetImageWidth(dialog)) / 2) + 6, ((272 - oslGetImageHeight(dialog)) / 2) + 6, "About");
 
-	oslIntraFontSetStyle(font, 0.6f, config_dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 	oslDrawStringf(((480 - (text_width)) / 2), ((272 - oslGetImageHeight(dialog)) / 2) + 40, "CM File Manager PSP v%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO);
 	oslDrawStringf(((480 - (author_width)) / 2), ((272 - oslGetImageHeight(dialog)) / 2) + 40 + 16, "Author: Joel16");
 
 	OSL_DawFillRect((409 - (oslGetStringWidth("OK"))) - 5, (191 - (font->charHeight - 6)) - 5, oslGetStringWidth("OK") + 10, (font->charHeight - 6) + 10, 
-		config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
-	oslIntraFontSetStyle(font, 0.6f, config_dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 	oslDrawString(409 - (oslGetStringWidth("OK")), (191 - (font->charHeight - 6)), "OK");
 }
 
 void Menu_DisplaySettings(void) {
-	int selection = 0, max_items = 2, i = 0;
+	int selection = 0, max_items = 3, i = 0;
 
 	const char *main_menu_items[] = {
 		"Sorting options",
 		"Dark theme",
+		"Auto USB mount",
 		"About"
 	};
 
@@ -146,9 +147,9 @@ void Menu_DisplaySettings(void) {
 
 	while (!osl_quit) {
 		OSL_StartDrawing();
-		oslClearScreen(config_dark_theme? BLACK_BG : WHITE);
-		OSL_DawFillRect(0, 0, 480, 20, config_dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
-		OSL_DawFillRect(0, 20, 480, 42, config_dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
+		oslClearScreen(config.dark_theme? BLACK_BG : WHITE);
+		OSL_DawFillRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
+		OSL_DawFillRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
 
 		StatusBar_DisplayTime();
 
@@ -164,19 +165,24 @@ void Menu_DisplaySettings(void) {
 
 			if (selection < FILES_PER_PAGE || i > (selection - FILES_PER_PAGE)) {
 				if (i == selection)
-					OSL_DawFillRect(0, 62 + (42 * printed), 480, 42, config_dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+					OSL_DawFillRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
-				oslIntraFontSetStyle(font, 0.6f, config_dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+				oslIntraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 				oslDrawString(20, 62 + ((42 - (font->charHeight - 6)) / 2) + (42 * printed), main_menu_items[i]);
 
 				printed++;
 			}
 		}
 
-		if (config_dark_theme)
-			oslDrawImageXY(config_dark_theme? icon_toggle_dark_on : icon_toggle_off, 455 - width, 104 + ((42 - height) / 2));
+		if (config.dark_theme)
+			oslDrawImageXY(config.dark_theme? icon_toggle_dark_on : icon_toggle_off, 455 - width, 104 + ((42 - height) / 2));
 		else
-			oslDrawImageXY(config_dark_theme? icon_toggle_on : icon_toggle_off, 455 - width,  104 + ((42 - height) / 2));
+			oslDrawImageXY(config.dark_theme? icon_toggle_on : icon_toggle_off, 455 - width,  104 + ((42 - height) / 2));
+
+		if (config.auto_usb_mount)
+			oslDrawImageXY(config.auto_usb_mount? icon_toggle_dark_on : icon_toggle_off, 455 - width, 146 + ((42 - height) / 2));
+		else
+			oslDrawImageXY(config.auto_usb_mount? icon_toggle_on : icon_toggle_off, 455 - width,  146 + ((42 - height) / 2));
 
 		oslReadKeys();
 
@@ -206,10 +212,14 @@ void Menu_DisplaySettings(void) {
 						Menu_DisplaySortSettings();
 						break;
 					case 1:
-						config_dark_theme = !config_dark_theme;
-						Config_Save(config_dark_theme, config_sort_by);
+						config.dark_theme = !config.dark_theme;
+						Config_Save(config);
 						break;
 					case 2:
+						config.auto_usb_mount = !config.auto_usb_mount;
+						Config_Save(config);
+						break;
+					case 3:
 						displayAbout = true;
 						break;
 				}
