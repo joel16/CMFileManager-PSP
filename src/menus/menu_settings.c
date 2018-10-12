@@ -179,7 +179,7 @@ void Menu_DisplaySettings(void) {
 		else
 			oslDrawImageXY(config.dark_theme? icon_toggle_on : icon_toggle_off, 455 - width,  104 + ((42 - height) / 2));
 
-		if (config.auto_usb_mount)
+		if (config.dark_theme)
 			oslDrawImageXY(config.auto_usb_mount? icon_toggle_dark_on : icon_toggle_off, 455 - width, 146 + ((42 - height) / 2));
 		else
 			oslDrawImageXY(config.auto_usb_mount? icon_toggle_on : icon_toggle_off, 455 - width,  146 + ((42 - height) / 2));
