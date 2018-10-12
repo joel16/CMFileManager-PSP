@@ -222,8 +222,11 @@ static void HandleDelete(void) {
 		for (i = 0; i < multi_select_index; i++) {
 			if (strlen(multi_select_paths[i]) != 0) {
 				if (strncmp(multi_select_paths[i], "..", 2) != 0) {
-					if (FS_DirExists(multi_select_paths[i]))
+					if (FS_DirExists(multi_select_paths[i])) {
+						multi_select_paths[i][strlen(multi_select_paths[i]) + 1] = 0;
+						multi_select_paths[i][strlen(multi_select_paths[i])] = '/';
 						FileOptions_RmdirRecursive(multi_select_paths[i]);
+					}
 					else if (FS_FileExists(multi_select_paths[i]))
 						sceIoRemove(multi_select_paths[i]);
 				}
