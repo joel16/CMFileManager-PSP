@@ -263,6 +263,45 @@ void Menu_ControlDeleteDialog(void) {
 	}
 }
 
+static int sceIoMove(const char *src, const char *dest) {
+	int ret = 0;
+	size_t i = 0;
+	char strage[32];
+	char *p1, *p2;
+	p1 = strchr(src, ':');
+
+	if (p1 == NULL)
+		return -1;
+
+	p2 = strchr(dest, ':');
+	if (p2 == NULL)
+		return -1;
+
+	if ((p1-src) != (p2-dest))
+		return -1;
+
+	for (i = 0; (src+i) <= p1; i++) {
+		if ((i+1) >= sizeof(strage))
+			return -1;
+		
+		if (src[i] != dest[i])
+			return -1;
+		strage[i] = src[i];
+	}
+
+	strage[i] = '\0';
+
+	// Thanks to TN for finding this.
+	u32 data[2];
+	data[0] = (u32)(p1+1);
+	data[1] = (u32)(p2+1);
+
+	if (R_FAILED(ret = sceIoDevctl(strage, 0x02415830, &data, sizeof(data), NULL, 0)))
+		return ret;
+
+	return 0;
+}
+
 static int FileOptions_CopyFile(char *src, char *dst, bool display_anim)
 {
 	int chunksize = (512 * 1024); // Chunk size
@@ -432,8 +471,11 @@ static int FileOptions_Paste(void) {
 
 		ret = FileOptions_CopyDir(copysource, copytarget); // Copy folder recursively
 
-		if ((R_SUCCEEDED(ret)) && (copymode & COPY_DELETE_ON_FINISH) == COPY_DELETE_ON_FINISH)
+		if ((R_SUCCEEDED(ret)) && (copymode & COPY_DELETE_ON_FINISH) == COPY_DELETE_ON_FINISH) {
+			copysource[strlen(copysource) + 1] = 0;
+			copysource[strlen(copysource)] = '/';
 			FileOptions_RmdirRecursive(copysource); // Delete dir
+		}
 	}
 
 	// Simple file copy
@@ -509,9 +551,9 @@ static void HandleCut(void) {
 					snprintf(dest, 512, "%s%s", cwd, Utils_Basename(multi_select_paths[i]));
 					
 					if (FS_DirExists(multi_select_paths[i]))
-						sceIoRename(multi_select_paths[i], dest);
+						sceIoMove(multi_select_paths[i], dest);
 					else if (FS_FileExists(multi_select_paths[i]))
-						sceIoRename(multi_select_paths[i], dest);
+						sceIoMove(multi_select_paths[i], dest);
 				}
 			}
 
@@ -521,9 +563,9 @@ static void HandleCut(void) {
 			snprintf(dest, 512, "%s%s", cwd, Utils_Basename(copysource));
 
 			if (FS_DirExists(copysource))
-				sceIoRename(copysource, dest);
+				sceIoMove(copysource, dest);
 			else if (FS_FileExists(copysource))
-				sceIoRename(copysource, dest);
+				sceIoMove(copysource, dest);
 		}
 
 		cut_status = false;
