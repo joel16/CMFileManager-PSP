@@ -1,5 +1,5 @@
 TARGET = CMFileManager
-OBJS   = src/config.o src/dirbrowse.o src/fs.o src/main.o src/osl_helper.o src/progress_bar.o src/screenshot.o src/status_bar.o src/textures.o src/utils.o \
+OBJS   = src/config.o src/dirbrowse.o src/fs.o src/log.o src/main.o src/osl_helper.o src/progress_bar.o src/screenshot.o src/status_bar.o src/textures.o src/utils.o \
          src/menus/menu_fileoptions.o src/menus/menu_gallery.o src/menus/menu_main.o src/menus/menu_settings.o \
          src/archive/archive.o src/archive/ioapi.o src/archive/unzip.o 
 

@@ -49,7 +49,6 @@ static void Term_Services(void) {
 }
 
 int main(int argc, char **argv) {
-
 	Init_Services();
 
 	if (setjmp(exitJmp)) {

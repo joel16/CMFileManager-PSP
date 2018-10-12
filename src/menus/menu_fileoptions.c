@@ -95,7 +95,8 @@ static int FileOptions_Rename(void) {
 
 static int FileOptions_RmdirRecursive(char *path)
 {
-	int dir = 0, i = 0;
+	SceUID dir = 0;
+	int i = 0;
 	File *filelist = NULL;
 
 	if (R_SUCCEEDED(dir = sceIoDopen(path))) {
@@ -106,12 +107,11 @@ static int FileOptions_RmdirRecursive(char *path)
 			entryCount++;
 
 		sceIoDclose(dir);
-
 		qsort(entries, entryCount, sizeof(SceIoDirent), Utils_Alphasort);
 
 		for (i = 0; i < entryCount; i++) {
 			if (strlen(entries[i].d_name) > 0) {
-				if (strcmp(entries[i].d_name, ".") == 0 || strcmp(entries[i].d_name, "..") == 0)
+				if ((!strcmp(entries[i].d_name, ".")) || (!strcmp(entries[i].d_name, "..")))
 					continue;
 
 				// Allocate Memory
@@ -181,8 +181,8 @@ static int FileOptions_RmdirRecursive(char *path)
 		}
 	}
 
-	// Free temporary List
 	Dirbrowse_RecursiveFree(filelist);
+	path[strlen(path) - 1] = '\0';
 	return sceIoRmdir(path);
 }
 
@@ -202,6 +202,9 @@ static int FileOptions_DeleteFile(void) {
 	int ret = 0;
 
 	if (file->isDir) {
+		// Add Trailing Slash
+		path[strlen(path) + 1] = 0;
+		path[strlen(path)] = '/';
 		if (R_FAILED(ret = FileOptions_RmdirRecursive(path)))
 			return ret;
 	}
@@ -215,7 +218,6 @@ static int FileOptions_DeleteFile(void) {
 
 static void HandleDelete(void) {
 	int i = 0;
-
 	if ((multi_select_index > 0) && (strlen(multi_select_dir) != 0)) {
 		for (i = 0; i < multi_select_index; i++) {
 			if (strlen(multi_select_paths[i]) != 0) {

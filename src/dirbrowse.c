@@ -45,7 +45,8 @@ static int cmpstringp(const void *p1, const void *p2) {
 }
 
 int Dirbrowse_PopulateFiles(bool refresh) {
-	int dir = 0, i = 0;
+	SceUID dir = 0;
+	int i = 0;
 	Dirbrowse_RecursiveFree(files);
 	files = NULL;
 	fileCount = 0;
@@ -58,7 +59,6 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 			entryCount++;
 
 		sceIoDclose(dir);
-
 		qsort(entries, entryCount, sizeof(SceIoDirent), cmpstringp);
 
 		for (i = 0; i < entryCount; i++) {
@@ -67,11 +67,11 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 				continue;
 
 			// Ignore "." in all directories
-			if (strcmp(entries[i].d_name, ".") == 0) 
+			if (!strcmp(entries[i].d_name, ".")) 
 				continue;
 
 			// Ignore ".." in Root Directory
-			if (strcmp(cwd, ROOT_PATH) == 0 && strncmp(entries[i].d_name, "..", 2) == 0) // Ignore ".." in Root Directory
+			if ((!strcmp(cwd, ROOT_PATH)) && (!strncmp(entries[i].d_name, "..", 2))) // Ignore ".." in Root Directory
 				continue;
 
 			// Allocate Memory

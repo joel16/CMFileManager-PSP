@@ -69,7 +69,6 @@ static void Menu_ControlHome(void) {
 
 	if (osl_keys->pressed.start)
 		MENU_STATE = MENU_STATE_SETTINGS;
-		//longjmp(exitJmp, 1);
 	else if (osl_keys->pressed.triangle)
 		MENU_STATE = MENU_STATE_FILEOPTIONS;
 }
@@ -108,6 +107,9 @@ void Menu_Main(void) {
 
 		if (((osl_keys->held.L) && (osl_keys->pressed.R)) || ((osl_keys->held.R) && (osl_keys->pressed.L)))
 			Screenshot_Capture();
+
+		else if (((osl_keys->held.start) && (osl_keys->pressed.select)) || ((osl_keys->held.select) && (osl_keys->pressed.start)))
+			longjmp(exitJmp, 1);
 
 		Utils_HandleUSB();
 		OSL_EndDrawing();
