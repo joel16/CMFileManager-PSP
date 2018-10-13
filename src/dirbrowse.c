@@ -46,13 +46,12 @@ static int cmpstringp(const void *p1, const void *p2) {
 
 int Dirbrowse_PopulateFiles(bool refresh) {
 	SceUID dir = 0;
-	int i = 0;
 	Dirbrowse_RecursiveFree(files);
 	files = NULL;
 	fileCount = 0;
 
 	if (R_SUCCEEDED(dir = sceIoDopen(cwd))) {
-		int entryCount = 0;
+		int entryCount = 0, i = 0;
 		SceIoDirent *entries = (SceIoDirent *)calloc(MAX_FILES, sizeof(SceIoDirent));
 
 		while (sceIoDread(dir, &entries[entryCount]) > 0)
