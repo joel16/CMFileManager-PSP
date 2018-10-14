@@ -11,3 +11,4 @@ SceOff FS_GetFileSize(const char *path);
 char *FS_GetFileTimestamp(const char *path, int time);
 int FS_ReadFile(char *path, void *buf, int size);
 int FS_WriteFile(char *path, void *buf, int size);
+char *FS_GetFilePermission(char *path);

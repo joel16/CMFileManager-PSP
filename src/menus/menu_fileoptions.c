@@ -621,19 +621,20 @@ void Menu_DisplayFileProperties(void) {
 
 	oslIntraFontSetStyle(font, 0.5f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 	oslDrawStringf(140, 64, "Name: %s", file->name);
-	oslDrawStringf(140, 80, "Parent: %s", cwd);
 
 	if (!file->isDir) {
 		Utils_GetSizeString(size, file->size);
-		oslDrawStringf(140, 96, "Size: %s", size);
-		oslDrawStringf(140, 112, "Creation time: %s", FS_GetFileTimestamp(path, 0));
-		oslDrawStringf(140, 128, "Access time: %s", FS_GetFileTimestamp(path, 1));
-		oslDrawStringf(140, 144, "Modification time: %s", FS_GetFileTimestamp(path, 2));
+		oslDrawStringf(140, 80, "Size: %s", size);
+		oslDrawStringf(140, 96, "Created: %s", FS_GetFileTimestamp(path, 0));
+		oslDrawStringf(140, 112, "Accessed: %s", FS_GetFileTimestamp(path, 1));
+		oslDrawStringf(140, 128, "Modified: %s", FS_GetFileTimestamp(path, 2));
+		oslDrawStringf(140, 144, "Perms: %s", FS_GetFilePermission(path));
 	}
 	else {
-		oslDrawStringf(140, 96, "Creation time: %s", FS_GetFileTimestamp(path, 0));
-		oslDrawStringf(140, 112, "Access time: %s", FS_GetFileTimestamp(path, 1));
-		oslDrawStringf(140, 128, "Modification time: %s", FS_GetFileTimestamp(path, 2));
+		oslDrawStringf(140, 80, "Created: %s", FS_GetFileTimestamp(path, 0));
+		oslDrawStringf(140, 96, "Accessed: %s", FS_GetFileTimestamp(path, 1));
+		oslDrawStringf(140, 112, "Modified: %s", FS_GetFileTimestamp(path, 2));
+		oslDrawStringf(140, 128, "Perms: %s", FS_GetFilePermission(path));
 	}
 }
 

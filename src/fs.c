@@ -121,3 +121,18 @@ int FS_WriteFile(char *path, void *buf, int size) {
 		
 	return file;
 }
+
+char *FS_GetFilePermission(char *path) {
+	static char perms[11];
+	SceIoStat stat;
+
+	if (R_FAILED(sceIoGetstat(path, &stat)))
+		return NULL;
+
+	snprintf(perms, 11, "%s%s%s%s%s%s%s%s%s%s", (FIO_S_ISDIR(stat.st_mode)) ? "d" : "-", (stat.st_mode & FIO_S_IRUSR) ? "r" : "-",
+		(stat.st_mode & FIO_S_IWUSR) ? "w" : "-", (stat.st_mode & FIO_S_IXUSR) ? "x" : "-", (stat.st_mode & FIO_S_IRGRP) ? "r" : "-",
+		(stat.st_mode & FIO_S_IWGRP) ? "w" : "-", (stat.st_mode & FIO_S_IXGRP) ? "x" : "-", (stat.st_mode & FIO_S_IROTH) ? "r" : "-",
+		(stat.st_mode & FIO_S_IWOTH) ? "w" : "-", (stat.st_mode & FIO_S_IXOTH) ? "x" : "-");
+
+	return perms;
+}
