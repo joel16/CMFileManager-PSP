@@ -42,7 +42,7 @@ static void Term_Services(void) {
 	Textures_Free();
 	pspSdkInetTerm();
 	oslDeinitUsbStorage();
-	scePowerSetClockFrequency(cpu_clock, cpu_clock, bus_clock);
+	scePowerSetClockFrequency(cpu_clock, cpu_clock, bus_clock); // Restore previous clock frequency. 
 	oslIntraFontShutdown();
 	oslDeinitAudio();
 	oslEndGfx();

@@ -26,8 +26,8 @@ static void Menu_DisplaySortSettings(void) {
 	while (!osl_quit) {
 		OSL_StartDrawing();
 		oslClearScreen(config.dark_theme? BLACK_BG : WHITE);
-		OSL_DawFillRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
-		OSL_DawFillRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
+		OSL_DrawFillRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
+		OSL_DrawFillRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
 
 		StatusBar_DisplayTime();
 
@@ -43,7 +43,7 @@ static void Menu_DisplaySortSettings(void) {
 
 			if (selection < FILES_PER_PAGE || i > (selection - FILES_PER_PAGE)) {
 				if (i == selection)
-					OSL_DawFillRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+					OSL_DrawFillRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 				
 				oslIntraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 				oslDrawString(20, 62 + ((42 - (font->charHeight - 6)) / 2) + (42 * printed), main_menu_items[i]);
@@ -123,7 +123,7 @@ static void Menu_DisplayAboutDialog(void) {
 	oslDrawStringf(((480 - (text_width)) / 2), ((272 - oslGetImageHeight(dialog)) / 2) + 40, "CM File Manager PSP v%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO);
 	oslDrawStringf(((480 - (author_width)) / 2), ((272 - oslGetImageHeight(dialog)) / 2) + 40 + 16, "Author: Joel16");
 
-	OSL_DawFillRect((409 - (oslGetStringWidth("OK"))) - 5, (191 - (font->charHeight - 6)) - 5, oslGetStringWidth("OK") + 10, (font->charHeight - 6) + 10, 
+	OSL_DrawFillRect((409 - (oslGetStringWidth("OK"))) - 5, (191 - (font->charHeight - 6)) - 5, oslGetStringWidth("OK") + 10, (font->charHeight - 6) + 10, 
 		config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
 	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
@@ -148,8 +148,8 @@ void Menu_DisplaySettings(void) {
 	while (!osl_quit) {
 		OSL_StartDrawing();
 		oslClearScreen(config.dark_theme? BLACK_BG : WHITE);
-		OSL_DawFillRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
-		OSL_DawFillRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
+		OSL_DrawFillRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
+		OSL_DrawFillRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
 
 		StatusBar_DisplayTime();
 
@@ -165,7 +165,7 @@ void Menu_DisplaySettings(void) {
 
 			if (selection < FILES_PER_PAGE || i > (selection - FILES_PER_PAGE)) {
 				if (i == selection)
-					OSL_DawFillRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+					OSL_DrawFillRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
 				oslIntraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 				oslDrawString(20, 62 + ((42 - (font->charHeight - 6)) / 2) + (42 * printed), main_menu_items[i]);

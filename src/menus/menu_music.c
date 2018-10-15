@@ -33,17 +33,17 @@ void Menu_PlayMusic(char *path){
 	while (!osl_quit) {
 		OSL_StartDrawing();
 		oslClearScreen(RGBA(54, 68, 76, 255));
-		OSL_DawFillRect(0, 0, 480, 20, MUSIC_GENRE_COLOUR);
-		OSL_DawFillRect(0, 61, 480, 1, MUSIC_SEPARATOR_COLOUR);
+		OSL_DrawFillRect(0, 0, 480, 20, MUSIC_GENRE_COLOUR);
+		OSL_DrawFillRect(0, 61, 480, 1, MUSIC_SEPARATOR_COLOUR);
 
 		oslDrawImageXY(icon_back, 5, 25);
 		StatusBar_DisplayTime();
 
-		OSL_DawFillRect(0, 62, 200, 200, MUSIC_GENRE_COLOUR);
+		OSL_DrawFillRect(0, 62, 200, 200, MUSIC_GENRE_COLOUR);
 		oslDrawImageXY(default_artwork, 0, 62);
 
-		OSL_DawFillRect(205, 62, 275, 200, RGBA(45, 48, 50, 255)); // Draw info box (outer)
-		OSL_DawFillRect(210, 67, 265, 190, RGBA(46, 49, 51, 255)); // Draw info box (inner)
+		OSL_DrawFillRect(205, 62, 275, 200, RGBA(45, 48, 50, 255)); // Draw info box (outer)
+		OSL_DrawFillRect(210, 67, 265, 190, RGBA(46, 49, 51, 255)); // Draw info box (inner)
 
 		if (isPlaying)
 			oslDrawImageXY(btn_pause, 205 + ((275 - btn_width) / 2), 62 + ((200 - btn_height) / 2)); // Playing

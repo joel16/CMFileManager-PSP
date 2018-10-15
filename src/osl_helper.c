@@ -15,7 +15,7 @@ void OSL_EndDrawing(void) {
 	oslSyncFrame();
 }
 
-void OSL_DawFillRect(int x, int y, int w, int h, OSL_COLOR color) {
+void OSL_DrawFillRect(int x, int y, int w, int h, OSL_COLOR color) {
 	return oslDrawFillRect(x, y, x + w, y + h, color);
 }
 
@@ -28,8 +28,8 @@ void OSL_DisplayKeyboard(char *descStr, char *initialStr, char *text) {
 	while(!osl_quit && !done) {
 		if (!skip) {
 			oslStartDrawing();
-			OSL_DawFillRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
-			OSL_DawFillRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
+			OSL_DrawFillRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
+			OSL_DrawFillRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
 			if (oslOskIsActive())
 				oslDrawOsk();
 			if (oslGetOskStatus() == PSP_UTILITY_DIALOG_NONE) {

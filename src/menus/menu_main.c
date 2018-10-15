@@ -80,8 +80,8 @@ void Menu_Main(void) {
 	while (!osl_quit) {
 		OSL_StartDrawing();
 		oslClearScreen(config.dark_theme? BLACK_BG : WHITE);
-		OSL_DawFillRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
-		OSL_DawFillRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
+		OSL_DrawFillRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
+		OSL_DrawFillRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
 		oslDrawImageXY(icon_nav_drawer, 5, 25);
 
 		StatusBar_DisplayTime();
