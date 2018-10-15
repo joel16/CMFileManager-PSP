@@ -50,9 +50,27 @@ void Textures_Load(void) {
 	wifi_off = oslLoadImageFilePNG("data/stat_sys_wifi_signal_off.png", OSL_IN_VRAM, OSL_PF_8888);
 	wifi_on = oslLoadImageFilePNG("data/stat_sys_wifi_signal_on.png", OSL_IN_VRAM, OSL_PF_8888);
 	usb_icon = oslLoadImageFilePNG("data/ic_material_light_usb.png", OSL_IN_VRAM, OSL_PF_8888);
+	default_artwork = oslLoadImageFilePNG("data/default_artwork.png", OSL_IN_VRAM, OSL_PF_8888);
+	btn_play = oslLoadImageFilePNG("data/btn_playback_play.png", OSL_IN_VRAM, OSL_PF_8888);
+	btn_pause = oslLoadImageFilePNG("data/btn_playback_pause.png", OSL_IN_VRAM, OSL_PF_8888);
+	btn_rewind = oslLoadImageFilePNG("data/btn_playback_rewind.png", OSL_IN_VRAM, OSL_PF_8888);
+	btn_forward = oslLoadImageFilePNG("data/btn_playback_forward.png", OSL_IN_VRAM, OSL_PF_8888);
+	btn_repeat = oslLoadImageFilePNG("data/btn_playback_repeat.png", OSL_IN_VRAM, OSL_PF_8888);
+	btn_shuffle = oslLoadImageFilePNG("data/btn_playback_shuffle.png", OSL_IN_VRAM, OSL_PF_8888);
+	btn_repeat_overlay = oslLoadImageFilePNG("data/btn_playback_repeat_overlay.png", OSL_IN_VRAM, OSL_PF_8888);
+	btn_shuffle_overlay = oslLoadImageFilePNG("data/btn_playback_shuffle_overlay.png", OSL_IN_VRAM, OSL_PF_8888);
 }
 
 void Textures_Free(void) {
+	oslDeleteImage(btn_shuffle_overlay);
+	oslDeleteImage(btn_repeat_overlay);
+	oslDeleteImage(btn_shuffle);
+	oslDeleteImage(btn_repeat);
+	oslDeleteImage(btn_forward);
+	oslDeleteImage(btn_rewind);
+	oslDeleteImage(btn_pause);
+	oslDeleteImage(btn_play);
+	oslDeleteImage(default_artwork);
 	oslDeleteImage(usb_icon);
 	oslDeleteImage(wifi_on);
 	oslDeleteImage(wifi_off);

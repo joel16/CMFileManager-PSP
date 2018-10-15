@@ -22,10 +22,11 @@ static void Init_Services(void) {
 	oslInit(0);
 	oslInitGfx(OSL_PF_8888, 1);
 	oslInitAudio();
+	oslInitAudioME(OSL_FMT_ALL);
 	oslSetQuitOnLoadFailure(1);
 	oslSetKeyAutorepeatInit(40);
 	oslSetKeyAutorepeatInterval(10);
-	oslIntraFontInit(INTRAFONT_CACHE_LARGE);
+	oslIntraFontInit(INTRAFONT_CACHE_LARGE | INTRAFONT_STRING_UTF8);
 
 	oslInitUsbStorage();
 	pspSdkInetInit();
