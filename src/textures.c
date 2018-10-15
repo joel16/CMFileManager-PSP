@@ -2,16 +2,16 @@
 
 void Textures_Load(void) {
 
-	icon_app = oslLoadImageFilePNG("data/ic_fso_type_app.png", OSL_IN_RAM, OSL_PF_8888);
-	icon_archive = oslLoadImageFilePNG("data/ic_fso_type_compress.png", OSL_IN_RAM, OSL_PF_8888);
-	icon_audio = oslLoadImageFilePNG("data/ic_fso_type_audio.png", OSL_IN_RAM, OSL_PF_8888);
-	icon_cd = oslLoadImageFilePNG("data/ic_fso_type_cdimage.png", OSL_IN_RAM, OSL_PF_8888);
-	icon_dir = oslLoadImageFilePNG("data/ic_fso_folder.png", OSL_IN_RAM, OSL_PF_8888);
-	icon_dir_dark = oslLoadImageFilePNG("data/ic_fso_folder_dark.png", OSL_IN_RAM, OSL_PF_8888);
-	icon_file = oslLoadImageFilePNG("data/ic_fso_default.png", OSL_IN_RAM, OSL_PF_8888);
-	icon_image = oslLoadImageFilePNG("data/ic_fso_type_image.png", OSL_IN_RAM, OSL_PF_8888);
-	icon_prx = oslLoadImageFilePNG("data/ic_fso_type_system.png", OSL_IN_RAM, OSL_PF_8888);
-	icon_text = oslLoadImageFilePNG("data/ic_fso_type_text.png", OSL_IN_RAM, OSL_PF_8888);
+	icon_app = oslLoadImageFilePNG("data/ic_fso_type_app.png", OSL_IN_VRAM, OSL_PF_8888);
+	icon_archive = oslLoadImageFilePNG("data/ic_fso_type_compress.png", OSL_IN_VRAM, OSL_PF_8888);
+	icon_audio = oslLoadImageFilePNG("data/ic_fso_type_audio.png", OSL_IN_VRAM, OSL_PF_8888);
+	icon_cd = oslLoadImageFilePNG("data/ic_fso_type_cdimage.png", OSL_IN_VRAM, OSL_PF_8888);
+	icon_dir = oslLoadImageFilePNG("data/ic_fso_folder.png", OSL_IN_VRAM, OSL_PF_8888);
+	icon_dir_dark = oslLoadImageFilePNG("data/ic_fso_folder_dark.png", OSL_IN_VRAM, OSL_PF_8888);
+	icon_file = oslLoadImageFilePNG("data/ic_fso_default.png", OSL_IN_VRAM, OSL_PF_8888);
+	icon_image = oslLoadImageFilePNG("data/ic_fso_type_image.png", OSL_IN_VRAM, OSL_PF_8888);
+	icon_prx = oslLoadImageFilePNG("data/ic_fso_type_system.png", OSL_IN_VRAM, OSL_PF_8888);
+	icon_text = oslLoadImageFilePNG("data/ic_fso_type_text.png", OSL_IN_VRAM, OSL_PF_8888);
 	icon_check = oslLoadImageFilePNG("data/btn_material_light_check_on_normal.png", OSL_IN_VRAM, OSL_PF_8888);
 	icon_check_dark = oslLoadImageFilePNG("data/btn_material_light_check_on_normal_dark.png", OSL_IN_VRAM, OSL_PF_8888);
 	icon_uncheck = oslLoadImageFilePNG("data/btn_material_light_check_off_normal.png", OSL_IN_VRAM, OSL_PF_8888);
