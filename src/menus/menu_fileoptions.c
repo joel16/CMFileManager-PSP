@@ -368,6 +368,9 @@ static int FileOptions_CopyDir(char *src, char *dst) {
 		for (i = 0; i < entryCount; i++) {
 			if (strlen(entries[i].d_name) > 0) {
 
+				if ((!strcmp(entries[i].d_name, ".")) || (!strcmp(entries[i].d_name, "..")))
+					continue;
+
 				// Calculate Buffer Size
 				int insize = strlen(src) + strlen(entries[i].d_name) + 2;
 				int outsize = strlen(dst) + strlen(entries[i].d_name) + 2;
