@@ -3,6 +3,7 @@
 #include "common.h"
 #include "config.h"
 #include "dirbrowse.h"
+#include "fs.h"
 #include "menu_settings.h"
 #include "menu_fileoptions.h"
 #include "osl_helper.h"
@@ -11,7 +12,11 @@
 #include "textures.h"
 #include "utils.h"
 
+#define MENUBAR_X_BOUNDARY  0
+
 static char multi_select_dir_old[512];
+static int menubar_selection = 0;
+static float menubar_x = -180.0;
 
 static void Menu_HandleMultiSelect(void) {
 	// multi_select_dir can only hold one dir
@@ -41,6 +46,63 @@ static void Menu_HandleMultiSelect(void) {
 	Utils_SetMin(&multi_select_index, 50, 0);
 }
 
+static void Menu_ControlMenubar(void) {
+	char *buf;
+
+	if (osl_keys->pressed.up)
+		menubar_selection--;
+	else if (osl_keys->pressed.down)
+		menubar_selection++;
+
+	Utils_SetMax(&menubar_selection, 0, 2);
+	Utils_SetMin(&menubar_selection, 2, 0);
+
+	if (osl_keys->pressed.cross) {
+		switch (menubar_selection) {
+			case 0:
+				buf = (char *)malloc(256);
+				strcpy(root_path, "ms0:/");
+
+				if (FS_FileExists("lastdir.txt")) {
+					if (R_FAILED(FS_ReadFile("lastdir.txt", buf, 256))) {
+						free(buf);
+						strcpy(cwd, START_PATH);
+					}
+
+					char tempPath[256];
+					sscanf(buf, "%[^\n]s", tempPath);
+
+					if (FS_DirExists(tempPath)) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
+						strcpy(cwd, tempPath);
+					else
+						strcpy(cwd, START_PATH);
+
+					free(buf);
+				}
+
+				BROWSE_STATE = BROWSE_STATE_SD;
+				break;
+			case 1:
+				strcpy(root_path, "flash0:/");
+				strcpy(cwd, "flash0:/");
+				BROWSE_STATE = BROWSE_STATE_FLASH0;
+				break;
+			case 2:
+				strcpy(root_path, "flash1:/");
+				strcpy(cwd, "flash1:/");
+				BROWSE_STATE = BROWSE_STATE_FLASH1;
+				break;
+		}
+
+		Dirbrowse_PopulateFiles(true);
+	}
+	else if ((osl_keys->pressed.circle) || (osl_keys->pressed.select)) {
+		menubar_x = -180;
+		menubar_selection = 0;
+		MENU_STATE = MENU_STATE_HOME;
+	}
+}
+
 static void Menu_ControlHome(void) {
 	if (fileCount > 0) {
 		if (osl_keys->pressed.up)
@@ -61,16 +123,35 @@ static void Menu_ControlHome(void) {
 
 		if (osl_keys->pressed.cross)
 			Dirbrowse_OpenFile();
-		else if ((strcmp(cwd, ROOT_PATH) != 0) && (osl_keys->pressed.circle)) {
+		else if ((strcmp(cwd, root_path) != 0) && (osl_keys->pressed.circle)) {
 			Dirbrowse_Navigate(true);
 			Dirbrowse_PopulateFiles(true);
 		}
 	}
 
-	if (osl_keys->pressed.start)
+	if (osl_keys->pressed.select)
+		MENU_STATE = MENU_STATE_MENUBAR;
+	else if (osl_keys->pressed.start)
 		MENU_STATE = MENU_STATE_SETTINGS;
 	else if (osl_keys->pressed.triangle)
 		MENU_STATE = MENU_STATE_FILEOPTIONS;
+}
+
+static void Menu_DisplayMenubar(void) {
+	oslDrawImageXY(bg_header, menubar_x, 20);
+	OSL_DrawFillRect(menubar_x, 90, 180, 252, config.dark_theme? BLACK_BG : WHITE);
+	OSL_DrawFillRect(menubar_x + 180, 20, 1, 252, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+	OSL_DrawFillRect(menubar_x, 90 + (30 * menubar_selection), 180, 30, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+
+	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+	oslDrawImageXY(config.dark_theme? icon_sd_dark : icon_sd, menubar_x + 10, 92);
+	oslDrawString(menubar_x + 50, 90 + ((30 - (font->charHeight - 6)) / 2), "ms0:/");
+
+	oslDrawImageXY(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 122);
+	oslDrawString(menubar_x + 50, 90 + ((30 - (font->charHeight - 6)) / 2) + 30, "flash0:/");
+
+	oslDrawImageXY(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 152);
+	oslDrawString(menubar_x + 50, 90 + ((30 - (font->charHeight - 6)) / 2) + 60, "flash1:/");
 }
 
 void Menu_Main(void) {
@@ -101,6 +182,14 @@ void Menu_Main(void) {
 		else if (MENU_STATE == MENU_STATE_DELETE) {
 			Menu_DisplayDeleteDialog();
 			Menu_ControlDeleteDialog();
+		}
+		else if (MENU_STATE == MENU_STATE_MENUBAR) {
+			menubar_x += 10.0;
+
+			if (menubar_x > -1)
+				menubar_x = MENUBAR_X_BOUNDARY;
+			Menu_ControlMenubar();
+			Menu_DisplayMenubar();
 		}
 		else if (MENU_STATE == MENU_STATE_SETTINGS)
 			Menu_DisplaySettings();

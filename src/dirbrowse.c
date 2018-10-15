@@ -71,7 +71,7 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 				continue;
 
 			// Ignore ".." in Root Directory
-			if ((!strcmp(cwd, ROOT_PATH)) && (!strncmp(entries[i].d_name, "..", 2))) // Ignore ".." in Root Directory
+			if ((!strcmp(cwd, root_path)) && (!strncmp(entries[i].d_name, "..", 2))) // Ignore ".." in Root Directory
 				continue;
 
 			// Allocate Memory
@@ -191,10 +191,12 @@ void Dirbrowse_DisplayFiles(void)
 }
 
 static void Dirbrowse_SaveLastDirectory(void) {
-	char *buf = (char *)malloc(256);
-	int len = snprintf(buf, 256, "%s\n", cwd);
-	FS_WriteFile("lastdir.txt", buf, len);
-	free(buf);
+	if (BROWSE_STATE == BROWSE_STATE_SD) {
+		char *buf = (char *)malloc(256);
+		int len = snprintf(buf, 256, "%s\n", cwd);
+		FS_WriteFile("lastdir.txt", buf, len);
+		free(buf);
+	}
 }
 
 File *Dirbrowse_GetFileIndex(int index) {

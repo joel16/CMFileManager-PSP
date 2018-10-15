@@ -3,24 +3,27 @@
 #include <oslib/oslib.h>
 #include <setjmp.h>
 
-#define ROOT_PATH "ms0:/"
-#define START_PATH ROOT_PATH
+#define START_PATH "ms0:/"
 #define MAX_FILES 1024
 #define FILES_PER_PAGE 5
 
 #define MENU_STATE_HOME        0
-#define MENU_STATE_FILEOPTIONS 1
-#define MENU_STATE_SETTINGS    2
-#define MENU_STATE_FTP         3
-#define MENU_STATE_SORT        4
-#define MENU_STATE_DELETE      5
-#define MENU_STATE_PROPERTIES  6
-#define MENU_STATE_UPDATE      7
-#define MENU_STATE_UPDATE_2    8
-#define MENU_STATE_ABOUT       9
+#define MENU_STATE_MENUBAR     1
+#define MENU_STATE_FILEOPTIONS 2
+#define MENU_STATE_SETTINGS    3
+#define MENU_STATE_FTP         4
+#define MENU_STATE_SORT        5
+#define MENU_STATE_DELETE      6
+#define MENU_STATE_PROPERTIES  7
+#define MENU_STATE_UPDATE      8
+#define MENU_STATE_UPDATE_2    9
+#define MENU_STATE_ABOUT       10
 
-#define BROWSE_STATE_SD   0
-#define BROWSE_STATE_NAND 1
+#define BROWSE_STATE_SD     0
+#define BROWSE_STATE_FLASH0 1
+#define BROWSE_STATE_FLASH1 1
+#define BROWSE_STATE_FLASH2 1
+#define BROWSE_STATE_FLASH3 1
 
 #define WHITE                 RGBA(255, 255, 255, 255)
 #define BLACK_BG              RGBA(48, 48, 48, 255)
@@ -45,3 +48,4 @@ int MENU_STATE;
 int BROWSE_STATE;
 
 char cwd[512];
+char root_path[10];

@@ -55,7 +55,8 @@ int Config_Load(void) {
 int Config_GetLastDirectory(void) {
 	int ret = 0;
 	char *buf = (char *)malloc(256);
-
+	strcpy(root_path, START_PATH);
+	
 	if (FS_FileExists("lastdir.txt")) {
 		if (R_FAILED(ret = FS_ReadFile("lastdir.txt", buf, 256))) {
 			free(buf);
@@ -79,7 +80,7 @@ int Config_GetLastDirectory(void) {
 			free(buf);
 			return ret;
 		}
-		
+
 		strcpy(cwd, buf); // Set Start Path to "ms0:/" if lastDir.txt hasn't been created.
 		free(buf);
 	}

@@ -59,9 +59,19 @@ void Textures_Load(void) {
 	btn_shuffle = oslLoadImageFilePNG("data/btn_playback_shuffle.png", OSL_IN_VRAM, OSL_PF_8888);
 	btn_repeat_overlay = oslLoadImageFilePNG("data/btn_playback_repeat_overlay.png", OSL_IN_VRAM, OSL_PF_8888);
 	btn_shuffle_overlay = oslLoadImageFilePNG("data/btn_playback_shuffle_overlay.png", OSL_IN_VRAM, OSL_PF_8888);
+	bg_header = oslLoadImageFilePNG("data/bg_header.png", OSL_IN_VRAM, OSL_PF_8888);
+	icon_sd = oslLoadImageFilePNG("data/ic_material_light_sdcard.png", OSL_IN_VRAM, OSL_PF_8888);
+	icon_secure = oslLoadImageFilePNG("data/ic_material_light_secure.png", OSL_IN_VRAM, OSL_PF_8888);
+	icon_sd_dark = oslLoadImageFilePNG("data/ic_material_light_sdcard_dark.png", OSL_IN_VRAM, OSL_PF_8888);
+	icon_secure_dark = oslLoadImageFilePNG("data/ic_material_light_secure_dark.png", OSL_IN_VRAM, OSL_PF_8888);
 }
 
 void Textures_Free(void) {
+	oslDeleteImage(icon_secure_dark);
+	oslDeleteImage(icon_sd_dark);
+	oslDeleteImage(icon_secure);
+	oslDeleteImage(icon_sd);
+	oslDeleteImage(bg_header);
 	oslDeleteImage(btn_shuffle_overlay);
 	oslDeleteImage(btn_repeat_overlay);
 	oslDeleteImage(btn_shuffle);

@@ -8,7 +8,9 @@ OSL_IMAGE *icon_app, *icon_archive, *icon_audio, *icon_cd, *icon_dir, *icon_dir_
           *battery_60, *battery_60_charging, *battery_80, *battery_80_charging, *battery_90, *battery_90_charging, \
           *battery_full, *battery_full_charging, *battery_low, *battery_unknown, *wifi_off, *wifi_on, *usb_icon, \
           *default_artwork, *btn_play, *btn_pause, *btn_rewind, *btn_forward, \
-          *btn_repeat, *btn_shuffle, *btn_repeat_overlay, *btn_shuffle_overlay;
+          *btn_repeat, *btn_shuffle, *btn_repeat_overlay, *btn_shuffle_overlay, \
+          *bg_header, *icon_sd, *icon_secure, *icon_sd_dark, *icon_secure_dark;
+
 
 void Textures_Load(void);
 void Textures_Free(void);
