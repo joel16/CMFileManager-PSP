@@ -3,7 +3,6 @@
 #include <oslib/oslib.h>
 #include <setjmp.h>
 
-#define START_PATH "ms0:/"
 #define MAX_FILES 1024
 #define FILES_PER_PAGE 5
 

@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "config.h"
+#include "kubridge.h"
 
 bool psp_usb_cable_connection = false;
 
@@ -73,4 +74,21 @@ void Utils_HandleUSB(void) {
 			oslStopUsbStorage();
 		}
 	}
+}
+
+bool Utils_IsEF0(void) {
+	int init_apitype = kuKernelInitApitype();
+
+	if (init_apitype == 0x125) // NP9660/ISO MODE
+		return true;
+	else if (init_apitype == 0x155) // POPS
+		return true;
+	else if (init_apitype == 0x151) // UPDATER
+		return true;
+	else if (init_apitype == 0x152) // GAME
+		return true;
+	else
+		return false;
+
+	return false;
 }

@@ -11,17 +11,18 @@ VERSION_MAJOR :=  1
 VERSION_MINOR :=  0
 VERSION_MICRO :=  0
 
-INCDIR   = include include/archive include/menus
+INCDIR   = common include include/archive include/menus
 CFLAGS   = -O2 -G0 -Wall -Werror -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
 CXXFLAGS = $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 ASFLAGS  := -g $(ARCH)
 
-STDLIBS = -losl -lpng -lz \
+LIBDIR  = libs
+LIBS    = -losl -lpng -lz \
           -lpsphprm -lpspsdk -lpspctrl -lpsprtc -lpsppower -lpspgu -lpspgum -lpsphttp -lpspssl -lpspwlan \
           -lpspnet_adhocmatching -lpspnet_adhoc -lpspnet_adhocctl -lm -ljpeg \
           -lpspusb -lpspusbstor \
-          -lpspmp3 -lmad -lpspaudiolib -lpspaudio -lpspaudiocodec
-LIBS    = $(STDLIBS)
+          -lpspmp3 -lmad -lpspaudiolib -lpspaudio -lpspaudiocodec \
+          -lpspkubridge -lpspsystemctrl_user
 
 EXTRA_TARGETS   = EBOOT.PBP
 PSP_EBOOT_TITLE = CM File Manager PSP

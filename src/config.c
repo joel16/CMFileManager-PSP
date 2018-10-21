@@ -55,7 +55,7 @@ int Config_Load(void) {
 int Config_GetLastDirectory(void) {
 	int ret = 0;
 	char *buf = (char *)malloc(256);
-	strcpy(root_path, START_PATH);
+	strcpy(root_path, Utils_IsEF0()? "ef0:/" : "ms0:/");
 	
 	if (FS_FileExists("lastdir.txt")) {
 		if (R_FAILED(ret = FS_ReadFile("lastdir.txt", buf, 256))) {
@@ -69,12 +69,12 @@ int Config_GetLastDirectory(void) {
 		if (FS_DirExists(tempPath)) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
 			strcpy(cwd, tempPath);
 		else
-			strcpy(cwd, START_PATH);
+			strcpy(cwd, Utils_IsEF0()? "ef0:/" : "ms0:/");
 		
 		free(buf);
 	}
 	else {
-		int len = snprintf(buf, 256, START_PATH);
+		int len = snprintf(buf, 256, Utils_IsEF0()? "ef0:/" : "ms0:/");
 
 		if (R_FAILED(ret = FS_WriteFile("lastdir.txt", buf, len))) {
 			free(buf);

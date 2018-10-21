@@ -61,12 +61,12 @@ static void Menu_ControlMenubar(void) {
 		switch (menubar_selection) {
 			case 0:
 				buf = (char *)malloc(256);
-				strcpy(root_path, "ms0:/");
+				strcpy(root_path, Utils_IsEF0()? "ef0:/" : "ms0:/");
 
 				if (FS_FileExists("lastdir.txt")) {
 					if (R_FAILED(FS_ReadFile("lastdir.txt", buf, 256))) {
 						free(buf);
-						strcpy(cwd, START_PATH);
+						strcpy(cwd, Utils_IsEF0()? "ef0:/" : "ms0:/");
 					}
 
 					char tempPath[256];
@@ -75,7 +75,7 @@ static void Menu_ControlMenubar(void) {
 					if (FS_DirExists(tempPath)) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
 						strcpy(cwd, tempPath);
 					else
-						strcpy(cwd, START_PATH);
+						strcpy(cwd, Utils_IsEF0()? "ef0:/" : "ms0:/");
 
 					free(buf);
 				}
@@ -145,7 +145,7 @@ static void Menu_DisplayMenubar(void) {
 
 	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 	oslDrawImageXY(config.dark_theme? icon_sd_dark : icon_sd, menubar_x + 10, 92);
-	oslDrawString(menubar_x + 50, 90 + ((30 - (font->charHeight - 6)) / 2), "ms0:/");
+	oslDrawString(menubar_x + 50, 90 + ((30 - (font->charHeight - 6)) / 2), Utils_IsEF0()? "ef0:/" : "ms0:/");
 
 	oslDrawImageXY(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 122);
 	oslDrawString(menubar_x + 50, 90 + ((30 - (font->charHeight - 6)) / 2) + 30, "flash0:/");
