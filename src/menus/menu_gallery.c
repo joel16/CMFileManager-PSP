@@ -64,7 +64,7 @@ static void Gallery_HandleNext(bool forward) {
 	oslDeleteImage(image);
 	selection = Gallery_GetCurrentIndex(album[selection]);
 
-	image = oslLoadImageFile(album[selection], OSL_IN_RAM, OSL_PF_8888);
+	image = oslLoadImageFile(album[selection], OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
 	width = oslGetImageWidth(image);
 	height = oslGetImageHeight(image);
 }
@@ -72,7 +72,7 @@ static void Gallery_HandleNext(bool forward) {
 void Gallery_DisplayImage(char *path) {
 	Gallery_GetImageList();
 	selection = Gallery_GetCurrentIndex(path);
-	image = oslLoadImageFile(path, OSL_IN_RAM, OSL_PF_8888);
+	image = oslLoadImageFile(path, OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
 	width = oslGetImageWidth(image);
 	height = oslGetImageHeight(image);
 
