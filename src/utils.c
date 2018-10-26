@@ -3,6 +3,9 @@
 #include "common.h"
 #include "config.h"
 #include "kubridge.h"
+#include "systemctrl.h"
+#include "systemctrl_se.h"
+#include "utils.h"
 
 bool psp_usb_cable_connection = false;
 
@@ -91,4 +94,56 @@ bool Utils_IsEF0(void) {
 		return false;
 
 	return false;
+}
+
+int Utils_LaunchEboot(const char *path) {
+	int ret = 0;
+	struct SceKernelLoadExecVSHParam param;
+	memset(&param, 0, sizeof(param));
+
+	param.size = sizeof(param);
+	param.args = strlen(path) + 1;
+	param.argp = (void *)path;
+	param.key = "game";
+
+	if (R_FAILED(ret = sctrlKernelLoadExecVSHWithApitype(Utils_IsEF0()? 0x152 : 0x141, path, &param)))
+		return ret;
+
+	return 0;
+}
+
+int Utils_LaunchPOPS(const char *path) {
+	int ret = 0;
+	struct SceKernelLoadExecVSHParam param;
+	memset(&param, 0, sizeof(param));
+
+	param.size = sizeof(param);
+	param.args = strlen(path) + 1;
+	param.argp = (void *)path;
+	param.key = "pops";
+
+	if (R_FAILED(ret = sctrlKernelLoadExecVSHWithApitype(Utils_IsEF0()? 0x155 : 0x144, path, &param)))
+		return ret;
+
+	return 0;
+}
+
+int Utils_LaunchISO(const char *path) {
+	int ret = 0;
+	struct SceKernelLoadExecVSHParam param;
+	memset(&param, 0, sizeof(param));
+
+	param.size = sizeof(param);
+	char *eboot_path = "disc0:/PSP_GAME/SYSDIR/EBOOT.BIN";
+    param.args = strlen(eboot_path) + 1;
+    param.argp = eboot_path;
+	param.key = "umdemu";
+
+	sctrlSESetBootConfFileIndex(MODE_INFERNO);
+    sctrlSESetUmdFile((char *)path);
+
+	if (R_FAILED(ret = sctrlKernelLoadExecVSHWithApitype(Utils_IsEF0()? 0x125 : 0x123, path, &param)))
+		return ret;
+
+	return 0;
 }

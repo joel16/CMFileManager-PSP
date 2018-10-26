@@ -18,11 +18,12 @@
 #define MENU_STATE_UPDATE_2    9
 #define MENU_STATE_ABOUT       10
 
-#define BROWSE_STATE_SD     0
-#define BROWSE_STATE_FLASH0 1
-#define BROWSE_STATE_FLASH1 1
-#define BROWSE_STATE_FLASH2 1
-#define BROWSE_STATE_FLASH3 1
+#define BROWSE_STATE_INTERNAL 0
+#define BROWSE_STATE_SD       1
+#define BROWSE_STATE_FLASH0   2
+#define BROWSE_STATE_FLASH1   3
+#define BROWSE_STATE_FLASH2   4
+#define BROWSE_STATE_FLASH3   5
 
 #define WHITE                 RGBA(255, 255, 255, 255)
 #define BLACK_BG              RGBA(48, 48, 48, 255)
