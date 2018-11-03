@@ -26,7 +26,7 @@ LIBS    = -losl -lpng -lz \
 
 EXTRA_TARGETS   = EBOOT.PBP
 PSP_EBOOT_TITLE = CM File Manager PSP
-#PSP_EBOOT_ICON = ICON0.PNG
+PSP_EBOOT_ICON = ICON0.PNG
 PSP_LARGE_MEMORY = 1
 PSPSDK=$(shell psp-config --pspsdk-path)
 include $(PSPSDK)/lib/build.mak
