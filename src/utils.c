@@ -7,6 +7,18 @@
 #include "systemctrl_se.h"
 #include "utils.h"
 
+typedef struct {
+	unsigned long maxclusters;
+	unsigned long freeclusters;
+	int unk1;
+	unsigned int sectorsize;
+	u64 sectorcount;
+} SystemDevCtl;
+
+typedef struct {
+	SystemDevCtl *pdevinf;    
+} SystemDevCommand;
+
 bool psp_usb_cable_connection = false;
 
 void Utils_SetMax(int *set, int value, int max) {
@@ -135,15 +147,47 @@ int Utils_LaunchISO(const char *path) {
 
 	param.size = sizeof(param);
 	char *eboot_path = "disc0:/PSP_GAME/SYSDIR/EBOOT.BIN";
-    param.args = strlen(eboot_path) + 1;
-    param.argp = eboot_path;
+	param.args = strlen(eboot_path) + 1;
+	param.argp = eboot_path;
 	param.key = "umdemu";
 
 	sctrlSESetBootConfFileIndex(MODE_INFERNO);
-    sctrlSESetUmdFile((char *)path);
+	sctrlSESetUmdFile((char *)path);
 
 	if (R_FAILED(ret = sctrlKernelLoadExecVSHWithApitype(Utils_IsEF0()? 0x125 : 0x123, path, &param)))
 		return ret;
 
 	return 0;
+}
+
+u64 Utils_GetTotalStorage(void) {
+	int ret = 0;
+	SystemDevCtl devctl;
+	memset(&devctl, 0, sizeof(SystemDevCtl));
+	SystemDevCommand command;
+	command.pdevinf = &devctl;
+
+	if (R_FAILED(ret = sceIoDevctl("ms0:", 0x02425818, &command, sizeof(SystemDevCommand), NULL, 0)))
+		return 0;
+
+	u64 size = (devctl.maxclusters * devctl.sectorcount) * devctl.sectorsize;
+	return size;
+}
+
+static u64 Utils_GetFreeStorage(void) {
+	int ret = 0;
+	SystemDevCtl devctl;
+	memset(&devctl, 0, sizeof(SystemDevCtl));
+	SystemDevCommand command;
+	command.pdevinf = &devctl;
+
+	if (R_FAILED(ret = sceIoDevctl("ms0:", 0x02425818, &command, sizeof(SystemDevCommand), NULL, 0)))
+		return 0;
+
+	u64 size = (devctl.freeclusters * devctl.sectorcount) * devctl.sectorsize; 
+	return size;
+}
+
+u64 Utils_GetUsedStorage(void) {
+	return (Utils_GetTotalStorage() - Utils_GetFreeStorage());
 }

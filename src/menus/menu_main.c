@@ -17,6 +17,7 @@
 static char multi_select_dir_old[512];
 static int menubar_selection = 0;
 static float menubar_x = -180.0;
+u64 total_storage = 0, used_storage = 0;
 
 static void Menu_HandleMultiSelect(void) {
 	// multi_select_dir can only hold one dir
@@ -61,6 +62,7 @@ static void Menu_ControlMenubar(void) {
 		switch (menubar_selection) {
 			case 0:
 				buf = (char *)malloc(256);
+				memset(root_path, 0, strlen(root_path));
 				strcpy(root_path, Utils_IsEF0()? "ef0:/" : "ms0:/");
 
 				if (FS_FileExists("lastdir.txt")) {
@@ -83,11 +85,13 @@ static void Menu_ControlMenubar(void) {
 				BROWSE_STATE = BROWSE_STATE_SD;
 				break;
 			case 1:
+				memset(root_path, 0, strlen(root_path));
 				strcpy(root_path, "flash0:/");
 				strcpy(cwd, "flash0:/");
 				BROWSE_STATE = BROWSE_STATE_FLASH0;
 				break;
 			case 2:
+				memset(root_path, 0, strlen(root_path));
 				strcpy(root_path, "flash1:/");
 				strcpy(cwd, "flash1:/");
 				BROWSE_STATE = BROWSE_STATE_FLASH1;
@@ -157,6 +161,9 @@ static void Menu_DisplayMenubar(void) {
 void Menu_Main(void) {
 	Dirbrowse_PopulateFiles(false);
 	memset(multi_select, 0, sizeof(multi_select)); // Reset all multi selected items
+
+	total_storage = Utils_GetTotalStorage();
+	used_storage = Utils_GetUsedStorage();
 
 	while (!osl_quit) {
 		OSL_StartDrawing();

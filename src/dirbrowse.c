@@ -121,10 +121,14 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 	return 0;
 }
 
-void Dirbrowse_DisplayFiles(void)
-{
+void Dirbrowse_DisplayFiles(void) {
 	oslIntraFontSetStyle(font, 0.6f, WHITE, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 	oslDrawString(40, 20 + ((40 - (font->charHeight - 6)) / 2), cwd);
+
+	OSL_DrawFillRect(40, 20 + ((40 - (font->charHeight - 6)) / 2) + (40 - (font->charHeight - 6)), 400, 3, config.dark_theme? 
+		SELECTOR_COLOUR_DARK : RGBA(10, 73, 163, 255));
+	OSL_DrawFillRect(40, 20 + ((40 - (font->charHeight - 6)) / 2) + (40 - (font->charHeight - 6)), (((double)used_storage/(double)total_storage) * 400.0), 
+		3, config.dark_theme? TITLE_COLOUR_DARK : RGBA(49, 161, 224, 255));
 
 	int i = 0, printed = 0;
 	File *file = files; // Draw file list

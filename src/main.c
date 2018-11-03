@@ -7,7 +7,7 @@
 #include "menus/menu_main.h"
 #include "textures.h"
 
-PSP_MODULE_INFO("CMFileManager", 0, 1, 0);
+PSP_MODULE_INFO("CMFileManager", 0, 1, 1);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
 PSP_HEAP_SIZE_KB(-1);
 
