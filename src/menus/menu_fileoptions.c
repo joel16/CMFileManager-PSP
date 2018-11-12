@@ -31,7 +31,7 @@ static int copymode = NOTHING_TO_COPY;
 static char copysource[1024];
 
 static int delete_dialog_selection = 0, row = 0, column = 0;
-static bool copy_status = false, cut_status = false;
+static bool copy_status = false, cut_status = false, options_more = false;
 
 void FileOptions_ResetClipboard(void) {
 	multi_select_index = 0;
@@ -43,7 +43,7 @@ void FileOptions_ResetClipboard(void) {
 
 static int FileOptions_CreateFolder(void) {
 	char *buf = (char *)malloc(256);
-	OSL_DisplayKeyboard("Enter name", "", buf);
+	OSL_DisplayKeyboard("Enter name", "New folder", buf);
 
 	if (strncmp(buf, "", 1) == 0)
 		return -1;
@@ -55,6 +55,30 @@ static int FileOptions_CreateFolder(void) {
 
 	FS_RecursiveMakeDir(path);
 	Dirbrowse_PopulateFiles(true);
+	options_more = false;
+	MENU_STATE = MENU_STATE_HOME;
+	return 0;
+}
+
+static int FileOptions_CreateFile(void) {
+	int ret = 0;
+	char *buf = (char *)malloc(256);
+	OSL_DisplayKeyboard("Enter name", "New file", buf);
+
+	if (strncmp(buf, "", 1) == 0)
+		return -1;
+
+	char path[512];
+	strcpy(path, cwd);
+	strcat(path, buf);
+	free(buf);
+
+	if (R_FAILED(ret = FS_CreateFile(path)))
+		return ret;
+
+	Dirbrowse_PopulateFiles(true);
+	options_more = false;
+	MENU_STATE = MENU_STATE_HOME;
 	return 0;
 }
 
@@ -76,7 +100,7 @@ static int FileOptions_Rename(void) {
 	strcpy(newPath, cwd);
 	strcat(oldPath, file->name);
 	
-	OSL_DisplayKeyboard("Enter name", "", buf);
+	OSL_DisplayKeyboard("Enter name", file->name, buf);
 	strcat(newPath, buf);
 	free(buf);
 
@@ -90,6 +114,8 @@ static int FileOptions_Rename(void) {
 	}
 
 	Dirbrowse_PopulateFiles(true);
+	options_more = false;
+	MENU_STATE = MENU_STATE_HOME;
 	return 0;
 }
 
@@ -652,33 +678,75 @@ void Menu_ControlFileOptions(void) {
 	else if (osl_keys->pressed.up)
 		column--;
 
-	Utils_SetMax(&row, 0, 1);
-	Utils_SetMin(&row, 1, 0);
+	if (!options_more) {
+		Utils_SetMax(&row, 0, 1);
+		Utils_SetMin(&row, 1, 0);
 
-	Utils_SetMax(&column, 0, 2);
-	Utils_SetMin(&column, 2, 0);
+		Utils_SetMax(&column, 0, 2);
+		Utils_SetMin(&column, 2, 0);
+	}
+	else {
+		Utils_SetMax(&column, 0, 1);
+		Utils_SetMin(&column, 1, 0);
+
+		if (column == 0) {
+			Utils_SetMax(&row, 0, 1);
+			Utils_SetMin(&row, 1, 0);
+		}
+		else if (column == 1) {
+			Utils_SetMax(&row, 0, 0);
+			Utils_SetMin(&row, 0, 0);
+		}
+	}
 	
 	if (osl_keys->pressed.cross) {
-		if (row == 0 && column == 0)
-			MENU_STATE = MENU_STATE_PROPERTIES;
-		else if (row == 1 && column == 0)
-			FileOptions_CreateFolder();
-		else if (row == 0 && column == 1)
-			FileOptions_Rename();
+		if (row == 0 && column == 0) {
+			if (options_more)
+				FileOptions_CreateFolder();
+			else
+				MENU_STATE = MENU_STATE_PROPERTIES;
+		}
+		else if (row == 1 && column == 0) {
+			if (options_more)
+				FileOptions_CreateFile();
+			else {
+				options_more = false;
+				row = 0;
+				column = 0;
+				Dirbrowse_PopulateFiles(true);
+				MENU_STATE = MENU_STATE_HOME;
+			}
+		}
+		else if (row == 0 && column == 1) {
+			if (options_more)
+				FileOptions_Rename();
+			else
+				HandleCopy();
+		}
 		else if (row == 1 && column == 1)
-			HandleCopy();
-		else if (row == 0 && column == 2)
 			HandleCut();
-		else if (row == 1 && column == 2)
+		else if (row == 0 && column == 2)
 			MENU_STATE = MENU_STATE_DELETE;
+		else if (row == 1 && column == 2) {
+			row = 0;
+			column = 0;
+			options_more = true;
+		}
 	}
 
 	if (osl_keys->pressed.circle) {
-		copy_status = false;
-		cut_status = false;
-		row = 0;
-		column = 0;
-		MENU_STATE = MENU_STATE_HOME;
+		if (!options_more) {
+			copy_status = false;
+			cut_status = false;
+			row = 0;
+			column = 0;
+			MENU_STATE = MENU_STATE_HOME;
+		}
+		else {
+			row = 0;
+			column = 0;
+			options_more = false;
+		}
 	}
 
 	if (osl_keys->pressed.triangle)
@@ -707,11 +775,19 @@ void Menu_DisplayFileOptions(void) {
 
 	oslIntraFontSetStyle(font, 0.5f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 
-	oslDrawString(143, 82, "Properties");
-	oslDrawString(143, 118, "Rename");
-	oslDrawString(143, 154, cut_status? "Paste" : "Move");
+	if (!options_more) {
+		oslDrawString(143, 82, "Properties");
+		oslDrawString(143, 118, copy_status? "Paste" : "Copy");
+		oslDrawString(143, 154, "Delete");
 		
-	oslDrawString(247, 82, "New folder");
-	oslDrawString(247, 118, copy_status? "Paste" : "Copy");
-	oslDrawString(247, 154, "Delete");
+		oslDrawString(247, 82, "Refresh");
+		oslDrawString(247, 118, cut_status? "Paste" : "Move");
+		oslDrawString(247, 154, "More...");
+	}
+	else {
+		oslDrawString(143, 82, "New folder");
+		oslDrawString(143, 118, "Rename");
+
+		oslDrawString(247, 82, "New file");
+	}
 }

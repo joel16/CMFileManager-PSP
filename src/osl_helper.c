@@ -1,7 +1,6 @@
 #include <stdbool.h>
 
 #include "common.h"
-#include "config.h"
 
 void OSL_StartDrawing(void) {
 	oslStartDrawing();
@@ -28,18 +27,18 @@ void OSL_DisplayKeyboard(char *descStr, char *initialStr, char *text) {
 	while(!osl_quit && !done) {
 		if (!skip) {
 			oslStartDrawing();
-			OSL_DrawFillRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
-			OSL_DrawFillRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
+			oslClearScreen(RGBA(39, 50, 56, 255));
+
 			if (oslOskIsActive())
 				oslDrawOsk();
 			if (oslGetOskStatus() == PSP_UTILITY_DIALOG_NONE) {
 				if (oslOskGetResult() == OSL_OSK_CANCEL) {
 					strcpy(text, "");
-					done = 1;
+					done = true;
 				}
 				else {
 					oslOskGetText(text);
-					done = 1;
+					done = true;
 				}
 				oslEndOsk();
 			}

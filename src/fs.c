@@ -57,6 +57,17 @@ void FS_RecursiveMakeDir(const char *path) {
 	}
 }
 
+int FS_CreateFile(const char *path) {
+	SceUID file = 0;
+
+	if (R_SUCCEEDED(file = sceIoOpen(path, PSP_O_WRONLY | PSP_O_CREAT, 0777))) {
+		sceIoClose(file);
+		return 0;
+	}
+
+	return file;
+}
+
 const char *FS_GetFileExt(const char *filename) {
 	const char *dot = strrchr(filename, '.');
 	
