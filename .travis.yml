@@ -17,7 +17,7 @@ install:
   fi
 
 script:
-  - sh .travis/build.sh
+  - sh .travis/.build.sh
 
 deploy:
   provider: pages
