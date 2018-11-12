@@ -5,7 +5,7 @@ before_install:
   - sudo apt-get update -qq
   - chmod +x .travis/.build.sh
   # Building for PSP here
-  - if [ "$BUILD_PSP" == "YES" ]; then
+  - if ["$BUILD_PSP" == "YES"]; then
       export PSPDEV="$TRAVIS_BUILD_DIR/opt/pspsdk" &&
       export PSPSDK="$PSPDEV/psp/sdk" &&
       export PATH="$PATH:$PSPDEV/bin:$PSPSDK/bin" &&
