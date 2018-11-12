@@ -3,7 +3,7 @@ language: c
 before_install:
   - export BUILD_PSP=YES
   - sudo apt-get update -qq
-  - chmod +x travis/travis-build.sh
+  - chmod +x .travis/.build.sh
   # Building for PSP here
   - if [ "$BUILD_PSP" == "YES" ]; then
       export PSPDEV="$TRAVIS_BUILD_DIR/opt/pspsdk" &&
