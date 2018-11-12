@@ -11,4 +11,4 @@ if [ "$BUILD_PSP" = "YES" ]; then
 	make -j 4
 fi
 
-rm -rf .git common include libs src .gitattributes .gitignore CMFileManager.elf CMFileManager.prx ICON0.png LICENSE Makefile PARAM.SFO
+rm -rf .git .travis common include libs opt src .gitattributes .gitignore .travis.yml CMFileManager.elf CMFileManager.prx ICON0.PNG LICENSE Makefile PARAM.SFO README.md sdk.lzma
