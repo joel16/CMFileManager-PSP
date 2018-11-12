@@ -243,7 +243,9 @@ static int FileOptions_DeleteFile(void) {
 }
 
 static void HandleDelete(void) {
+	scePowerLock(0);
 	int i = 0;
+
 	if ((multi_select_index > 0) && (strlen(multi_select_dir) != 0)) {
 		for (i = 0; i < multi_select_index; i++) {
 			if (strlen(multi_select_paths[i]) != 0) {
@@ -261,10 +263,13 @@ static void HandleDelete(void) {
 
 		FileOptions_ResetClipboard();
 	}
-	else if (FileOptions_DeleteFile() != 0)
+	else if (R_FAILED(FileOptions_DeleteFile())) {
+		scePowerUnlock(0);
 		return;
+	}
 
 	Dirbrowse_PopulateFiles(true);
+	scePowerUnlock(0);
 	MENU_STATE = MENU_STATE_HOME;
 }
 
@@ -331,8 +336,7 @@ static int sceIoMove(const char *src, const char *dest) {
 	return 0;
 }
 
-static int FileOptions_CopyFile(char *src, char *dst, bool display_anim)
-{
+static int FileOptions_CopyFile(char *src, char *dst, bool display_anim) {
 	int chunksize = (512 * 1024); // Chunk size
 	char *buffer = (char *)malloc(chunksize); // Reading buffer
 
@@ -529,6 +533,7 @@ static int FileOptions_Paste(void) {
 }
 
 static void HandleCopy(void) {
+	scePowerLock(0);
 	int i = 0;
 
 	if ((!copy_status) && (!cut_status)) {
@@ -557,16 +562,21 @@ static void HandleCopy(void) {
 			copymode = NOTHING_TO_COPY;
 			
 		}
-		else if (FileOptions_Paste() != 0)
+		else if (R_FAILED(FileOptions_Paste())) {
+			scePowerUnlock(0);
 			return;
+		}
 
 		copy_status = false;
 		Dirbrowse_PopulateFiles(true);
 		MENU_STATE = MENU_STATE_HOME;
 	}
+
+	scePowerUnlock(0);
 }
 
 static void HandleCut(void) {
+	scePowerLock(0);
 	int i = 0;
 
 	if ((!cut_status) && (!copy_status)) {
@@ -605,6 +615,8 @@ static void HandleCut(void) {
 		Dirbrowse_PopulateFiles(true);
 		MENU_STATE = MENU_STATE_HOME;
 	}
+
+	scePowerUnlock(0);
 }
 
 void Menu_DisplayDeleteDialog(void) {

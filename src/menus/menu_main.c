@@ -144,7 +144,7 @@ static void Menu_ControlHome(void) {
 static void Menu_DisplayMenubar(void) {
 	oslDrawImageXY(bg_header, menubar_x, 20);
 	OSL_DrawFillRect(menubar_x, 90, 180, 252, config.dark_theme? BLACK_BG : WHITE);
-	OSL_DrawFillRect(menubar_x + 180, 20, 1, 252, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+	OSL_DrawFillRect(menubar_x + 180, 20, 1, 252, config.dark_theme? SELECTOR_COLOUR_DARK : RGBA(200, 200, 200, 255));
 	OSL_DrawFillRect(menubar_x, 90 + (30 * menubar_selection), 180, 30, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
 	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
