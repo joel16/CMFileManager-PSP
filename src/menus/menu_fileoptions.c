@@ -694,12 +694,12 @@ void Menu_ControlFileOptions(void) {
 		Utils_SetMax(&row, 0, 1);
 		Utils_SetMin(&row, 1, 0);
 
-		Utils_SetMax(&column, 0, 2);
-		Utils_SetMin(&column, 2, 0);
+		Utils_SetMax(&column, 0, 3);
+		Utils_SetMin(&column, 3, 0);
 	}
 	else {
-		Utils_SetMax(&column, 0, 1);
-		Utils_SetMin(&column, 1, 0);
+		Utils_SetMax(&column, 0, 2);
+		Utils_SetMin(&column, 2, 0);
 
 		if (column == 0) {
 			Utils_SetMax(&row, 0, 1);
@@ -737,12 +737,27 @@ void Menu_ControlFileOptions(void) {
 		}
 		else if (row == 1 && column == 1)
 			HandleCut();
-		else if (row == 0 && column == 2)
+		else if (row == 0 && column == 2 && !options_more)
 			MENU_STATE = MENU_STATE_DELETE;
-		else if (row == 1 && column == 2) {
+		else if (row == 1 && column == 2 && !options_more) {
 			row = 0;
 			column = 0;
 			options_more = true;
+		}
+		else if (column == 3 && !options_more) {
+			copy_status = false;
+			cut_status = false;
+			row = 0;
+			column = 0;
+			MENU_STATE = MENU_STATE_HOME;
+		}
+		else if (column == 2 && options_more) {
+			options_more = false;
+			copy_status = false;
+			cut_status = false;
+			row = 0;
+			column = 0;
+			MENU_STATE = MENU_STATE_HOME;
 		}
 	}
 
@@ -769,8 +784,6 @@ void Menu_DisplayFileOptions(void) {
 	oslDrawImageXY(config.dark_theme? options_dialog_dark : options_dialog, 131, 32);
 	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 	oslDrawString(138, 39, "Actions");
-
-	oslDrawString(345 - oslGetStringWidth("CANCEL"), 230 - (font->charHeight - 6), "CANCEL");
 	
 	if (row == 0 && column == 0)
 		OSL_DrawFillRect(133, 71, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
@@ -780,10 +793,18 @@ void Menu_DisplayFileOptions(void) {
 		OSL_DrawFillRect(133, 110, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	else if (row == 1 && column == 1)
 		OSL_DrawFillRect(241, 110, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
-	else if (row == 0 && column == 2)
+	else if (row == 0 && column == 2 && !options_more)
 		OSL_DrawFillRect(133, 148, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
-	else if (row == 1 && column == 2)
+	else if (row == 1 && column == 2 && !options_more)
 		OSL_DrawFillRect(241, 148, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+	else if (column == 3 && !options_more)
+		OSL_DrawFillRect((340 - oslGetStringWidth("CANCEL")) - 5, (230 - (font->charHeight - 6)) - 5, oslGetStringWidth("CANCEL") + 10, (font->charHeight - 6) + 10, 
+			config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+	else if (column == 2 && options_more)
+		OSL_DrawFillRect((340 - oslGetStringWidth("CANCEL")) - 5, (230 - (font->charHeight - 6)) - 5, oslGetStringWidth("CANCEL") + 10, (font->charHeight - 6) + 10, 
+			config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+
+	oslDrawString(340 - oslGetStringWidth("CANCEL"), 230 - (font->charHeight - 6), "CANCEL");
 
 	oslIntraFontSetStyle(font, 0.5f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 
