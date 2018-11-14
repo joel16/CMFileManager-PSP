@@ -14,15 +14,17 @@ static int Screenshot_GenFilename(int number, char *filename) {
 	if (R_FAILED(ret = sceRtcGetCurrentClockLocalTime(&time)))
 		return ret;
 
-	if (!(FS_DirExists("ms0:/PSP/SCREENSHOT/")))
-		FS_MakeDir("ms0:/PSP/SCREENSHOT/");
+	if (!(FS_DirExists(Utils_IsEF0()? "ef0:/PSP/PHOTO/CMFileManager/" : "ms0:/PSP/PHOTO/CMFileManager/")))
+		FS_MakeDir(Utils_IsEF0()? "ef0:/PSP/PHOTO/CMFileManager" : "ms0:/PSP/PHOTO/CMFileManager");
 	
-	sprintf(filename, "ms0:/PSP/SCREENSHOT/Screenshot_%02d%02d%02d-%i.png", time.year, time.month, time.day, num);
+	sprintf(filename, Utils_IsEF0()? "ef0:/PSP/PHOTO/CMFileManager/screenshot_%02d%02d%02d-%i.png" : 
+		"ms0:/PSP/PHOTO/CMFileManager/screenshot_%02d%02d%02d-%i.png", time.year, time.month, time.day, num);
+
 	return 0;
 }
 
 void Screenshot_Capture(void) {
-	if (BROWSE_STATE == BROWSE_STATE_SD) {
+	if ((BROWSE_STATE == BROWSE_STATE_INTERNAL) || (BROWSE_STATE == BROWSE_STATE_SD)) {
 		static char filename[256];
 
 		sprintf(filename, "%s", "screenshot");
