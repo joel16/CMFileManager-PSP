@@ -6,7 +6,6 @@
 #include "log.h"
 #include "utils.h"
 
-#define LOG_FILENAME   "ms0:/log.txt"
 #define LOG_BUFFER_LEN 4096
 
 int log_print(const char* format, ...) {
@@ -18,7 +17,8 @@ int log_print(const char* format, ...) {
 	va_end(list);
 
 	SceUID fd = 0;
-	if (R_FAILED(fd = sceIoOpen(LOG_FILENAME, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_APPEND, 0777))) 
+	if (R_FAILED(fd = sceIoOpen(Utils_IsEF0()? "ef0:/PSP/GAME/CMFileManager/debug.log" : "ms0:/PSP/GAME/CMFileManager/debug.log", 
+		PSP_O_WRONLY | PSP_O_CREAT | PSP_O_APPEND, 0777))) 
 		return fd;
 
 	sceIoWrite(fd, string, strlen(string));
