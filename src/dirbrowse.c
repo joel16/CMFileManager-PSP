@@ -195,7 +195,7 @@ void Dirbrowse_DisplayFiles(void) {
 }
 
 static void Dirbrowse_SaveLastDirectory(void) {
-	if (BROWSE_STATE == BROWSE_STATE_SD) {
+	if ((BROWSE_STATE == BROWSE_STATE_INTERNAL) || (BROWSE_STATE == BROWSE_STATE_SD)) {
 		char *buf = (char *)malloc(256);
 		int len = snprintf(buf, 256, "%s\n", cwd);
 		FS_WriteFile("lastdir.txt", buf, len);
@@ -236,12 +236,12 @@ void Dirbrowse_OpenFile(void) {
 		Utils_LaunchEboot(path);
 	else if ((!strncasecmp(file->ext, "iso", 3)) || (!strncasecmp(file->ext, "cso", 3)))
 		Utils_LaunchISO(path);
-	/*else if ((!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "mod", 3)) || (!strncasecmp(file->ext, "mp3", 3)))
-		Menu_PlayMusic(path);
 	else if (!strncasecmp(file->ext, "zip", 3)) {
 		Archive_ExtractZIP(path, cwd);
 		Dirbrowse_PopulateFiles(true);
-	}*/
+	}
+	/*else if ((!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "mod", 3)) || (!strncasecmp(file->ext, "mp3", 3)))
+		Menu_PlayMusic(path);*/
 }
 
 // Navigate to Folder

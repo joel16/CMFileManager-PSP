@@ -11,6 +11,17 @@
 #include "unzip.h"
 #include "utils.h"
 
+static const char *Archive_GetFilenameWithoutDir(const char *filename) {
+	if (!filename)
+		return 0;
+	char *p = strrchr(filename, '/');
+	if (!p)
+		return filename;
+	if (p[1] == '\0')
+		return 0;
+	return p + 1;
+}
+
 static int unzExtractCurrentFile(unzFile *unzHandle, int *path) {
 	int res = 0;
 	char filename[256];
@@ -110,19 +121,7 @@ static int unzExtractAll(const char *src, unzFile *unzHandle) {
 }
 
 int Archive_ExtractZIP(const char *src, const char *dst) {
-	char temp_file[512];
-	char temp_path[512];
-
-	FS_MakeDir(dst);
-
-	strncpy(temp_path, "ms0:/", sizeof(temp_path));
-	strncat(temp_path, (char *)dst, (1024 - strlen(temp_path) - 1));
-	sceIoChdir(temp_path);
-	
-	strncpy(temp_file, "", sizeof(temp_file));
-	strncat(temp_file, (char*)src, (1024 - strlen(temp_file) - 1));
-
-	unzFile *unzHandle = unzOpen(temp_file); // Open zip file
+	unzFile *unzHandle = unzOpen(src); // Open zip file
 
 	if (unzHandle == NULL) // not found
 		return -1;
