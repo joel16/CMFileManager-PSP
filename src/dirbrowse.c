@@ -196,7 +196,7 @@ void Dirbrowse_DisplayFiles(void) {
 
 static void Dirbrowse_SaveLastDirectory(void) {
 	if ((BROWSE_STATE == BROWSE_STATE_INTERNAL) || (BROWSE_STATE == BROWSE_STATE_SD)) {
-		char *buf = (char *)malloc(256);
+		char *buf = malloc(256);
 		int len = snprintf(buf, 256, "%s\n", cwd);
 		FS_WriteFile("lastdir.txt", buf, len);
 		free(buf);
@@ -237,7 +237,11 @@ void Dirbrowse_OpenFile(void) {
 	else if ((!strncasecmp(file->ext, "iso", 3)) || (!strncasecmp(file->ext, "cso", 3)))
 		Utils_LaunchISO(path);
 	else if (!strncasecmp(file->ext, "zip", 3)) {
-		Archive_ExtractZIP(path, cwd);
+		Archive_ExtractZIP(path);
+		Dirbrowse_PopulateFiles(true);
+	}
+	else if (!strncasecmp(file->ext, "rar", 3)) {
+		Archive_ExtractRAR(path);
 		Dirbrowse_PopulateFiles(true);
 	}
 	/*else if ((!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "mod", 3)) || (!strncasecmp(file->ext, "mp3", 3)))
