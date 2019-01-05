@@ -42,7 +42,7 @@ void FileOptions_ResetClipboard(void) {
 }
 
 static int FileOptions_CreateFolder(void) {
-	char *buf = (char *)malloc(256);
+	char *buf = malloc(256);
 	OSL_DisplayKeyboard("Enter name", "New folder", buf);
 
 	if (strncmp(buf, "", 1) == 0)
@@ -62,7 +62,7 @@ static int FileOptions_CreateFolder(void) {
 
 static int FileOptions_CreateFile(void) {
 	int ret = 0;
-	char *buf = (char *)malloc(256);
+	char *buf = malloc(256);
 	OSL_DisplayKeyboard("Enter name", "New file", buf);
 
 	if (strncmp(buf, "", 1) == 0)
@@ -94,7 +94,7 @@ static int FileOptions_Rename(void) {
 
 	char oldPath[512], newPath[512];
 
-	char *buf = (char *)malloc(256);
+	char *buf = malloc(256);
 
 	strcpy(oldPath, cwd);
 	strcpy(newPath, cwd);
@@ -180,7 +180,7 @@ static int FileOptions_RmdirRecursive(char *path)
 		if (node->isDir) {
 			// Required Buffer Size
 			int size = strlen(path) + strlen(node->name) + 2;
-			char *buffer = (char *)malloc(size);
+			char *buffer = malloc(size);
 
 			// Combine Path
 			strcpy(buffer, path);
@@ -195,7 +195,7 @@ static int FileOptions_RmdirRecursive(char *path)
 		else {
 			// Required Buffer Size
 			int size = strlen(path) + strlen(node->name) + 1;
-			char *buffer = (char *)malloc(size);
+			char *buffer = malloc(size);
 
 			// Combine Path
 			strcpy(buffer, path);
@@ -338,7 +338,7 @@ static int sceIoMove(const char *src, const char *dest) {
 
 static int FileOptions_CopyFile(char *src, char *dst, bool display_anim) {
 	int chunksize = (512 * 1024); // Chunk size
-	char *buffer = (char *)malloc(chunksize); // Reading buffer
+	char *buffer = malloc(chunksize); // Reading buffer
 
 	int totalwrite = 0, totalread = 0, ret = 0, input_file = 0, output_file = 0;
 	SceOff size = FS_GetFileSize(src);
@@ -406,8 +406,8 @@ static int FileOptions_CopyDir(char *src, char *dst) {
 				int outsize = strlen(dst) + strlen(entries[i].d_name) + 2;
 
 				// Allocate Buffer
-				char *inbuffer = (char *)malloc(insize);
-				char *outbuffer = (char *)malloc(outsize);
+				char *inbuffer = malloc(insize);
+				char *outbuffer = malloc(outsize);
 
 				// Puzzle Input Path
 				strcpy(inbuffer, src);
@@ -487,7 +487,7 @@ static int FileOptions_Paste(void) {
 	char *filename = lastslash + 1; // Source filename
 
 	int requiredlength = strlen(cwd) + strlen(filename) + 1; // Required target path buffer size
-	char *copytarget = (char *)malloc(requiredlength); // Allocate target path buffer
+	char *copytarget = malloc(requiredlength); // Allocate target path buffer
 
 	// Puzzle target path
 	strcpy(copytarget, cwd);

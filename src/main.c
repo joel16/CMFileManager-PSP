@@ -7,9 +7,9 @@
 #include "menus/menu_main.h"
 #include "textures.h"
 
-PSP_MODULE_INFO("CMFileManager", 0, 1, 1);
+PSP_MODULE_INFO("CMFileManager", PSP_MODULE_USER, VERSION_MAJOR, VERSION_MINOR);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
-PSP_HEAP_SIZE_KB(-1);
+PSP_HEAP_SIZE_MAX();
 
 static int cpu_clock = 0, bus_clock = 0;
 
