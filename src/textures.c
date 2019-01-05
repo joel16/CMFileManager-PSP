@@ -1,68 +1,106 @@
 #include "textures.h"
 
+extern unsigned char ic_fso_type_app_png_start[], ic_fso_type_compress_png_start[], ic_fso_type_audio_png_start[], ic_fso_type_cdimage_png_start[], 
+	ic_fso_folder_png_start[], ic_fso_folder_dark_png_start[], ic_fso_default_png_start[], ic_fso_type_image_png_start[], ic_fso_type_system_png_start[], 
+	ic_fso_type_text_png_start[], btn_material_light_check_on_normal_png_start[], btn_material_light_check_on_normal_dark_png_start[], 
+	btn_material_light_check_off_normal_png_start[], btn_material_light_check_off_normal_dark_png_start[], btn_material_light_toggle_on_normal_png_start[], 
+	btn_material_light_toggle_on_normal_dark_png_start[], btn_material_light_toggle_off_normal_png_start[], btn_material_light_radio_off_normal_png_start[], 
+	btn_material_light_radio_on_normal_png_start[], btn_material_light_radio_off_normal_dark_png_start[], btn_material_light_radio_on_normal_dark_png_start[], 
+	ic_material_light_navigation_drawer_png_start[], ic_arrow_back_normal_png_start[], ic_material_options_dialog_png_start[], 
+	ic_material_options_dialog_dark_png_start[], ic_material_properties_dialog_png_start[], ic_material_properties_dialog_dark_png_start[], 
+	ic_material_dialog_png_start[], ic_material_dialog_dark_png_start[], battery_20_png_start[], battery_20_charging_png_start[], battery_30_png_start[], 
+	battery_30_charging_png_start[], battery_50_png_start[], battery_50_charging_png_start[], battery_60_png_start[], battery_60_charging_png_start[], 
+	battery_80_png_start[], battery_80_charging_png_start[], battery_90_png_start[], battery_90_charging_png_start[], battery_full_png_start[], 
+	battery_full_charging_png_start[], battery_low_png_start[], battery_unknown_png_start[], stat_sys_wifi_signal_off_png_start[], 
+	stat_sys_wifi_signal_on_png_start[], ic_material_light_usb_png_start[], default_artwork_png_start[], btn_playback_play_png_start[], btn_playback_pause_png_start[], 
+	btn_playback_rewind_png_start[], btn_playback_forward_png_start[], btn_playback_repeat_png_start[], btn_playback_shuffle_png_start[], 
+	btn_playback_repeat_overlay_png_start[], btn_playback_shuffle_overlay_png_start[], bg_header_png_start[], ic_material_light_sdcard_png_start[], 
+	ic_material_light_secure_png_start[], ic_material_light_sdcard_dark_png_start[], ic_material_light_secure_dark_png_start[];
+
+extern unsigned int ic_fso_type_app_png_size, ic_fso_type_compress_png_size, ic_fso_type_audio_png_size, ic_fso_type_cdimage_png_size, ic_fso_folder_png_size, 
+	ic_fso_folder_dark_png_size, ic_fso_default_png_size, ic_fso_type_image_png_size, ic_fso_type_system_png_size, ic_fso_type_text_png_size, 
+	btn_material_light_check_on_normal_png_size, btn_material_light_check_on_normal_dark_png_size, btn_material_light_check_off_normal_png_size, 
+	btn_material_light_check_off_normal_dark_png_size, btn_material_light_toggle_on_normal_png_size, btn_material_light_toggle_on_normal_dark_png_size, 
+	btn_material_light_toggle_off_normal_png_size, btn_material_light_radio_off_normal_png_size, btn_material_light_radio_on_normal_png_size, 
+	btn_material_light_radio_off_normal_dark_png_size, btn_material_light_radio_on_normal_dark_png_size, ic_material_light_navigation_drawer_png_size, 
+	ic_arrow_back_normal_png_size, ic_material_options_dialog_png_size, ic_material_options_dialog_dark_png_size, ic_material_properties_dialog_png_size, 
+	ic_material_properties_dialog_dark_png_size, ic_material_dialog_png_size, ic_material_dialog_dark_png_size, battery_20_png_size, 
+	battery_20_charging_png_size, battery_30_png_size, battery_30_charging_png_size, battery_50_png_size, battery_50_charging_png_size, 
+	battery_60_png_size, battery_60_charging_png_size, battery_80_png_size, battery_80_charging_png_size, battery_90_png_size, battery_90_charging_png_size, 
+	battery_full_png_size, battery_full_charging_png_size, battery_low_png_size, battery_unknown_png_size, stat_sys_wifi_signal_off_png_size, 
+	stat_sys_wifi_signal_on_png_size, ic_material_light_usb_png_size, default_artwork_png_size, btn_playback_play_png_size, btn_playback_pause_png_size, 
+	btn_playback_rewind_png_size, btn_playback_forward_png_size, btn_playback_repeat_png_size, btn_playback_shuffle_png_size, btn_playback_repeat_overlay_png_size, 
+	btn_playback_shuffle_overlay_png_size, bg_header_png_size, ic_material_light_sdcard_png_size, ic_material_light_secure_png_size, 
+	ic_material_light_sdcard_dark_png_size, ic_material_light_secure_dark_png_size;
+
+static void oslLoadImageFilePNGMemory(OSL_IMAGE **image, void *data, int size) {
+	oslSetTempFileData(data, size, &VF_MEMORY);
+	*image = oslLoadImageFilePNG(oslGetTempFileName(), OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
+}
+
 void Textures_Load(void) {
-	icon_app = oslLoadImageFilePNG("data/ic_fso_type_app.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_archive = oslLoadImageFilePNG("data/ic_fso_type_compress.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_audio = oslLoadImageFilePNG("data/ic_fso_type_audio.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_cd = oslLoadImageFilePNG("data/ic_fso_type_cdimage.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_dir = oslLoadImageFilePNG("data/ic_fso_folder.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_dir_dark = oslLoadImageFilePNG("data/ic_fso_folder_dark.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_file = oslLoadImageFilePNG("data/ic_fso_default.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_image = oslLoadImageFilePNG("data/ic_fso_type_image.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_prx = oslLoadImageFilePNG("data/ic_fso_type_system.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_text = oslLoadImageFilePNG("data/ic_fso_type_text.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_check = oslLoadImageFilePNG("data/btn_material_light_check_on_normal.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_check_dark = oslLoadImageFilePNG("data/btn_material_light_check_on_normal_dark.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_uncheck = oslLoadImageFilePNG("data/btn_material_light_check_off_normal.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_uncheck_dark = oslLoadImageFilePNG("data/btn_material_light_check_off_normal_dark.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_toggle_on = oslLoadImageFilePNG("data/btn_material_light_toggle_on_normal.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_toggle_dark_on = oslLoadImageFilePNG("data/btn_material_light_toggle_on_normal_dark.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_toggle_off = oslLoadImageFilePNG("data/btn_material_light_toggle_off_normal.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_radio_off = oslLoadImageFilePNG("data/btn_material_light_radio_off_normal.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_radio_on = oslLoadImageFilePNG("data/btn_material_light_radio_on_normal.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_radio_dark_off = oslLoadImageFilePNG("data/btn_material_light_radio_off_normal_dark.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_radio_dark_on = oslLoadImageFilePNG("data/btn_material_light_radio_on_normal_dark.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_nav_drawer = oslLoadImageFilePNG("data/ic_material_light_navigation_drawer.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_back = oslLoadImageFilePNG("data/ic_arrow_back_normal.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	options_dialog = oslLoadImageFilePNG("data/ic_material_options_dialog.png", OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
-	options_dialog_dark = oslLoadImageFilePNG("data/ic_material_options_dialog_dark.png", OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
-	properties_dialog = oslLoadImageFilePNG("data/ic_material_properties_dialog.png", OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
-	properties_dialog_dark = oslLoadImageFilePNG("data/ic_material_properties_dialog_dark.png", OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
-	dialog = oslLoadImageFilePNG("data/ic_material_dialog.png", OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
-	dialog_dark = oslLoadImageFilePNG("data/ic_material_dialog_dark.png", OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_20 = oslLoadImageFilePNG("data/battery_20.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_20_charging = oslLoadImageFilePNG("data/battery_20_charging.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_30 = oslLoadImageFilePNG("data/battery_30.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_30_charging = oslLoadImageFilePNG("data/battery_30_charging.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_50 = oslLoadImageFilePNG("data/battery_50.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_50_charging = oslLoadImageFilePNG("data/battery_50_charging.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_60 = oslLoadImageFilePNG("data/battery_60.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_60_charging = oslLoadImageFilePNG("data/battery_60_charging.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_80 = oslLoadImageFilePNG("data/battery_80.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_80_charging = oslLoadImageFilePNG("data/battery_80_charging.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_90 = oslLoadImageFilePNG("data/battery_90.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_90_charging = oslLoadImageFilePNG("data/battery_90_charging.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_full = oslLoadImageFilePNG("data/battery_full.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_full_charging = oslLoadImageFilePNG("data/battery_full_charging.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_low = oslLoadImageFilePNG("data/battery_low.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	battery_unknown = oslLoadImageFilePNG("data/battery_unknown.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	wifi_off = oslLoadImageFilePNG("data/stat_sys_wifi_signal_off.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	wifi_on = oslLoadImageFilePNG("data/stat_sys_wifi_signal_on.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	usb_icon = oslLoadImageFilePNG("data/ic_material_light_usb.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	default_artwork = oslLoadImageFilePNG("data/default_artwork.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	btn_play = oslLoadImageFilePNG("data/btn_playback_play.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	btn_pause = oslLoadImageFilePNG("data/btn_playback_pause.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	btn_rewind = oslLoadImageFilePNG("data/btn_playback_rewind.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	btn_forward = oslLoadImageFilePNG("data/btn_playback_forward.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	btn_repeat = oslLoadImageFilePNG("data/btn_playback_repeat.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	btn_shuffle = oslLoadImageFilePNG("data/btn_playback_shuffle.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	btn_repeat_overlay = oslLoadImageFilePNG("data/btn_playback_repeat_overlay.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	btn_shuffle_overlay = oslLoadImageFilePNG("data/btn_playback_shuffle_overlay.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	bg_header = oslLoadImageFilePNG("data/bg_header.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_sd = oslLoadImageFilePNG("data/ic_material_light_sdcard.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_secure = oslLoadImageFilePNG("data/ic_material_light_secure.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_sd_dark = oslLoadImageFilePNG("data/ic_material_light_sdcard_dark.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
-	icon_secure_dark = oslLoadImageFilePNG("data/ic_material_light_secure_dark.png", OSL_IN_VRAM | OSL_SWIZZLED, OSL_PF_8888);
+	oslLoadImageFilePNGMemory(&icon_app, ic_fso_type_app_png_start, ic_fso_type_app_png_size);
+	oslLoadImageFilePNGMemory(&icon_archive, ic_fso_type_compress_png_start, ic_fso_type_compress_png_size);
+	oslLoadImageFilePNGMemory(&icon_audio, ic_fso_type_audio_png_start, ic_fso_type_audio_png_size);
+	oslLoadImageFilePNGMemory(&icon_cd, ic_fso_type_cdimage_png_start, ic_fso_type_cdimage_png_size);
+	oslLoadImageFilePNGMemory(&icon_dir, ic_fso_folder_png_start, ic_fso_folder_png_size);
+	oslLoadImageFilePNGMemory(&icon_dir_dark, ic_fso_folder_dark_png_start, ic_fso_folder_dark_png_size);
+	oslLoadImageFilePNGMemory(&icon_file, ic_fso_default_png_start, ic_fso_default_png_size);
+	oslLoadImageFilePNGMemory(&icon_image, ic_fso_type_image_png_start, ic_fso_type_image_png_size);
+	oslLoadImageFilePNGMemory(&icon_prx, ic_fso_type_system_png_start, ic_fso_type_system_png_size);
+	oslLoadImageFilePNGMemory(&icon_text, ic_fso_type_text_png_start, ic_fso_type_text_png_size);
+	oslLoadImageFilePNGMemory(&icon_check, btn_material_light_check_on_normal_png_start, btn_material_light_check_on_normal_png_size);
+	oslLoadImageFilePNGMemory(&icon_check_dark, btn_material_light_check_on_normal_dark_png_start, btn_material_light_check_on_normal_dark_png_size);
+	oslLoadImageFilePNGMemory(&icon_uncheck, btn_material_light_check_off_normal_png_start, btn_material_light_check_off_normal_png_size);
+	oslLoadImageFilePNGMemory(&icon_uncheck_dark, btn_material_light_check_off_normal_dark_png_start, btn_material_light_check_off_normal_dark_png_size);
+	oslLoadImageFilePNGMemory(&icon_toggle_on, btn_material_light_toggle_on_normal_png_start, btn_material_light_toggle_on_normal_png_size);
+	oslLoadImageFilePNGMemory(&icon_toggle_dark_on, btn_material_light_toggle_on_normal_dark_png_start, btn_material_light_toggle_on_normal_dark_png_size);
+	oslLoadImageFilePNGMemory(&icon_toggle_off, btn_material_light_toggle_off_normal_png_start, btn_material_light_toggle_off_normal_png_size);
+	oslLoadImageFilePNGMemory(&icon_radio_off, btn_material_light_radio_off_normal_png_start, btn_material_light_radio_off_normal_png_size);
+	oslLoadImageFilePNGMemory(&icon_radio_on, btn_material_light_radio_on_normal_png_start, btn_material_light_radio_on_normal_png_size);
+	oslLoadImageFilePNGMemory(&icon_radio_dark_off, btn_material_light_radio_off_normal_dark_png_start, btn_material_light_radio_off_normal_dark_png_size);
+	oslLoadImageFilePNGMemory(&icon_radio_dark_on, btn_material_light_radio_on_normal_dark_png_start, btn_material_light_radio_on_normal_dark_png_size);
+	oslLoadImageFilePNGMemory(&icon_nav_drawer, ic_material_light_navigation_drawer_png_start, ic_material_light_navigation_drawer_png_size);
+	oslLoadImageFilePNGMemory(&icon_back, ic_arrow_back_normal_png_start, ic_arrow_back_normal_png_size);
+	oslLoadImageFilePNGMemory(&options_dialog, ic_material_options_dialog_png_start, ic_material_options_dialog_png_size);
+	oslLoadImageFilePNGMemory(&options_dialog_dark, ic_material_options_dialog_dark_png_start, ic_material_options_dialog_dark_png_size);
+	oslLoadImageFilePNGMemory(&properties_dialog, ic_material_properties_dialog_png_start, ic_material_properties_dialog_png_size);
+	oslLoadImageFilePNGMemory(&properties_dialog_dark, ic_material_properties_dialog_dark_png_start, ic_material_properties_dialog_dark_png_size);
+	oslLoadImageFilePNGMemory(&dialog, ic_material_dialog_png_start, ic_material_dialog_png_size);
+	oslLoadImageFilePNGMemory(&dialog_dark, ic_material_dialog_dark_png_start, ic_material_dialog_dark_png_size);
+	oslLoadImageFilePNGMemory(&battery_20, battery_20_png_start, battery_20_png_size);
+	oslLoadImageFilePNGMemory(&battery_20_charging, battery_20_charging_png_start, battery_20_charging_png_size);
+	oslLoadImageFilePNGMemory(&battery_30, battery_30_png_start, battery_30_png_size);
+	oslLoadImageFilePNGMemory(&battery_30_charging, battery_30_charging_png_start, battery_30_charging_png_size);
+	oslLoadImageFilePNGMemory(&battery_50, battery_50_png_start, battery_50_png_size);
+	oslLoadImageFilePNGMemory(&battery_50_charging, battery_50_charging_png_start, battery_50_charging_png_size);
+	oslLoadImageFilePNGMemory(&battery_60, battery_60_png_start, battery_60_png_size);
+	oslLoadImageFilePNGMemory(&battery_60_charging, battery_60_charging_png_start, battery_60_charging_png_size);
+	oslLoadImageFilePNGMemory(&battery_80, battery_80_png_start, battery_80_png_size);
+	oslLoadImageFilePNGMemory(&battery_80_charging, battery_80_charging_png_start, battery_80_charging_png_size);
+	oslLoadImageFilePNGMemory(&battery_90, battery_90_png_start, battery_90_png_size);
+	oslLoadImageFilePNGMemory(&battery_90_charging, battery_90_charging_png_start, battery_90_charging_png_size);
+	oslLoadImageFilePNGMemory(&battery_full, battery_full_png_start, battery_full_png_size);
+	oslLoadImageFilePNGMemory(&battery_full_charging, battery_full_charging_png_start, battery_full_charging_png_size);
+	oslLoadImageFilePNGMemory(&battery_low, battery_low_png_start, battery_low_png_size);
+	oslLoadImageFilePNGMemory(&battery_unknown, battery_unknown_png_start, battery_unknown_png_size);
+	oslLoadImageFilePNGMemory(&wifi_off, stat_sys_wifi_signal_off_png_start, stat_sys_wifi_signal_off_png_size);
+	oslLoadImageFilePNGMemory(&wifi_on, stat_sys_wifi_signal_on_png_start, stat_sys_wifi_signal_on_png_size);
+	oslLoadImageFilePNGMemory(&usb_icon, ic_material_light_usb_png_start, ic_material_light_usb_png_size);
+	oslLoadImageFilePNGMemory(&default_artwork, default_artwork_png_start, default_artwork_png_size);
+	oslLoadImageFilePNGMemory(&btn_play, btn_playback_play_png_start, btn_playback_play_png_size);
+	oslLoadImageFilePNGMemory(&btn_pause, btn_playback_pause_png_start, btn_playback_pause_png_size);
+	oslLoadImageFilePNGMemory(&btn_rewind, btn_playback_rewind_png_start, btn_playback_rewind_png_size);
+	oslLoadImageFilePNGMemory(&btn_forward, btn_playback_forward_png_start, btn_playback_forward_png_size);
+	oslLoadImageFilePNGMemory(&btn_repeat, btn_playback_repeat_png_start, btn_playback_repeat_png_size);
+	oslLoadImageFilePNGMemory(&btn_shuffle, btn_playback_shuffle_png_start, btn_playback_shuffle_png_size);
+	oslLoadImageFilePNGMemory(&btn_repeat_overlay, btn_playback_repeat_overlay_png_start, btn_playback_repeat_overlay_png_size);
+	oslLoadImageFilePNGMemory(&btn_shuffle_overlay, btn_playback_shuffle_overlay_png_start, btn_playback_shuffle_overlay_png_size);
+	oslLoadImageFilePNGMemory(&bg_header, bg_header_png_start, bg_header_png_size);
+	oslLoadImageFilePNGMemory(&icon_sd, ic_material_light_sdcard_png_start, ic_material_light_sdcard_png_size);
+	oslLoadImageFilePNGMemory(&icon_secure, ic_material_light_secure_png_start, ic_material_light_secure_png_size);
+	oslLoadImageFilePNGMemory(&icon_sd_dark, ic_material_light_sdcard_dark_png_start, ic_material_light_sdcard_dark_png_size);
+	oslLoadImageFilePNGMemory(&icon_secure_dark, ic_material_light_secure_dark_png_start, ic_material_light_secure_dark_png_size);
 }
 
 void Textures_Free(void) {
