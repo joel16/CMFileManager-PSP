@@ -7,16 +7,21 @@
 #include "fs.h"
 #include "utils.h"
 
+#define CONFIG_VERSION 0
+
 const char *configFile =
+	"config_ver = %d\n"
 	"theme = %d\n"
 	"sort = %d\n"
 	"usb = %d\n";
 
+static int config_version_holder = 0;
+
 int Config_Save(config_t config) {
 	int ret = 0;
-	char *buf = (char *)malloc(64);
+	char *buf = malloc(64);
 
-	int len = snprintf(buf, 64, configFile, config.dark_theme, config.sort, config.auto_usb_mount);
+	int len = snprintf(buf, 64, configFile, CONFIG_VERSION, config.dark_theme, config.sort, config.auto_usb_mount);
 
 	if (R_FAILED(ret = FS_WriteFile("config.cfg", buf, len))) {
 		free(buf);
@@ -38,7 +43,7 @@ int Config_Load(void) {
 	}
 
 	u64 size = FS_GetFileSize("config.cfg");
-	char *buf = (char *)malloc(size + 1);
+	char *buf = malloc(size + 1);
 
 	if (R_FAILED(ret = FS_ReadFile("config.cfg", buf, size))) {
 		free(buf);
@@ -46,15 +51,24 @@ int Config_Load(void) {
 	}
 
 	buf[size] = '\0';
-	sscanf(buf, configFile, &config.dark_theme, &config.sort, &config.auto_usb_mount);
+	sscanf(buf, configFile, &config_version_holder, &config.dark_theme, &config.sort, &config.auto_usb_mount);
 	free(buf);
+
+	// Delete config file if config file is updated. This will rarely happen.
+	if (config_version_holder  < CONFIG_VERSION) {
+		sceIoRemove("config.cfg");
+		config.dark_theme = false;
+		config.sort = 0;
+		config.auto_usb_mount = true;
+		return Config_Save(config);
+	}
 
 	return 0;
 }
 
 int Config_GetLastDirectory(void) {
 	int ret = 0;
-	char *buf = (char *)malloc(256);
+	char *buf = malloc(256);
 	strcpy(root_path, Utils_IsEF0()? "ef0:/" : "ms0:/");
 	
 	if (FS_FileExists("lastdir.txt")) {
