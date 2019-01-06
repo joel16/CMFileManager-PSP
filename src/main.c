@@ -13,6 +13,9 @@ PSP_HEAP_SIZE_MAX();
 
 static int cpu_clock = 0, bus_clock = 0;
 
+extern unsigned char Roboto_pgf_start[];
+extern unsigned int Roboto_pgf_size;
+
 static void Init_Services(void) {
 	// Set to max clock frequency.
 	cpu_clock = scePowerGetCpuClockFrequency();
@@ -34,7 +37,10 @@ static void Init_Services(void) {
 	Config_GetLastDirectory();
 	Textures_Load();
 
-	font = oslLoadFontFile("data/Roboto.pgf");
+	OSL_VIRTUALFILENAME roboto_font_mem[] = {{"ram:/Roboto.pgf", Roboto_pgf_start, Roboto_pgf_size, &VF_MEMORY}};
+	oslAddVirtualFileList(roboto_font_mem, oslNumberof(roboto_font_mem));
+
+	font = oslLoadFontFile("ram:/Roboto.pgf");
 	oslSetFont(font);
 }
 

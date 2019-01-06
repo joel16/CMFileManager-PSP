@@ -19,7 +19,7 @@ DATA_OBJS = data/battery_20.o data/battery_30.o data/battery_50.o data/battery_6
             data/ic_material_dialog_dark.o data/ic_material_light_navigation_drawer.o data/ic_material_light_sdcard.o data/ic_material_light_sdcard_dark.o \
             data/ic_material_light_secure.o data/ic_material_light_secure_dark.o data/ic_material_light_usb.o data/ic_material_options_dialog.o \
             data/ic_material_options_dialog_dark.o data/ic_material_properties_dialog.o data/ic_material_properties_dialog_dark.o \
-            data/stat_sys_wifi_signal_off.o data/stat_sys_wifi_signal_on.o
+            data/stat_sys_wifi_signal_off.o data/stat_sys_wifi_signal_on.o data/Roboto.o
 
 PSP_LARGE_MEMORY = 1
 
@@ -51,3 +51,6 @@ include $(PSPSDK)/lib/build.mak
 
 %.o: %.png
 	bin2o -i $< $@ $(addsuffix _png, $(basename $(notdir $<) ))
+
+%.o: %.pgf
+	bin2o -i $< $@ $(addsuffix _pgf, $(basename $(notdir $<) ))
