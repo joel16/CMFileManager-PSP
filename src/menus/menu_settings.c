@@ -9,7 +9,7 @@
 #include "textures.h"
 #include "utils.h"
 
-static bool displayAbout;
+static bool displayAbout, displaySupport;
 
 static void Menu_DisplaySortSettings(void) {
 	int selection = 0, max_items = 3, i = 0;
@@ -104,8 +104,7 @@ static void Menu_DisplaySortSettings(void) {
 	Dirbrowse_PopulateFiles(true);
 }
 
-static void Menu_ControlAboutDialog(void)
-{
+static void Menu_ControlAboutDialog(void) {
 	if ((osl_keys->pressed.cross) || (osl_keys->pressed.circle))
 		displayAbout = false;
 }
@@ -130,14 +129,41 @@ static void Menu_DisplayAboutDialog(void) {
 	oslDrawString(409 - (oslGetStringWidth("OK")), (191 - (font->charHeight - 6)), "OK");
 }
 
+static void Menu_ControlSupportDialog(void) {
+	if ((osl_keys->pressed.cross) || (osl_keys->pressed.circle))
+		displaySupport = false;
+}
+
+static void Menu_DisplaySupportDialog(void) {
+	oslDrawImageXY(config.dark_theme? properties_dialog_dark : properties_dialog, 131, 32);
+	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+
+	OSL_DrawFillRect((340 - oslGetStringWidth("OK")) - 5, (230 - (font->charHeight - 6)) - 5, oslGetStringWidth("OK") + 10, (font->charHeight - 6) + 10, 
+		config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+
+	oslDrawString(138, 39, "Support");
+	oslDrawString(340 - oslGetStringWidth("OK"), 230 - (font->charHeight - 6), "OK");
+
+	oslIntraFontSetStyle(font, 0.5f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+	oslDrawStringf(140, 64, "DPAD Up: Cursor up");
+	oslDrawStringf(140, 80, "DPAD Down: Cursor down");
+	oslDrawStringf(140, 96, "DPAD Left: Start of listing");
+	oslDrawStringf(140, 112, "DPAD Right: End of listing");
+	oslDrawStringf(140, 128, "Triangle: File options");
+	oslDrawStringf(140, 144, "Start: Open settings");
+	oslDrawStringf(140, 160, "Select: Open menu bar");
+	oslDrawStringf(140, 176, "L + R: Screenshot");
+}
+
 void Menu_DisplaySettings(void) {
-	int selection = 0, max_items = 3, i = 0;
+	int selection = 0, max_items = 4, i = 0;
 
 	const char *main_menu_items[] = {
 		"Sorting options",
 		"Dark theme",
 		"Auto USB mount",
-		"About"
+		"Support",
+		"About",
 	};
 
 	displayAbout = false;
@@ -193,6 +219,10 @@ void Menu_DisplaySettings(void) {
 			Menu_DisplayAboutDialog();
 			Menu_ControlAboutDialog();
 		}
+		else if (displaySupport) {
+			Menu_DisplaySupportDialog();
+			Menu_ControlSupportDialog();
+		}
 		else
 		{
 			if ((osl_keys->pressed.circle) || (osl_keys->pressed.start))
@@ -220,6 +250,9 @@ void Menu_DisplaySettings(void) {
 						Config_Save(config);
 						break;
 					case 3:
+						displaySupport = true;
+						break;
+					case 4:
 						displayAbout = true;
 						break;
 				}

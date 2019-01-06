@@ -657,8 +657,12 @@ void Menu_DisplayFileProperties(void) {
 
 	oslDrawImageXY(config.dark_theme? properties_dialog_dark : properties_dialog, 131, 32);
 	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+
+	OSL_DrawFillRect((340 - oslGetStringWidth("OK")) - 5, (230 - (font->charHeight - 6)) - 5, oslGetStringWidth("OK") + 10, (font->charHeight - 6) + 10, 
+		config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+	
 	oslDrawString(138, 39, "Properties");
-	oslDrawString(345 - oslGetStringWidth("OK"), 230 - (font->charHeight - 6), "OK");
+	oslDrawString(340 - oslGetStringWidth("OK"), 230 - (font->charHeight - 6), "OK");
 
 	oslIntraFontSetStyle(font, 0.5f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 	oslDrawStringf(140, 64, "Name: %s", file->name);
