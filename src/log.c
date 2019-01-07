@@ -6,7 +6,7 @@
 #include "log.h"
 #include "utils.h"
 
-#define LOG_BUFFER_LEN 4096
+#define LOG_BUFFER_LEN 1024
 
 int log_print(const char* format, ...) {
 	va_list list;
