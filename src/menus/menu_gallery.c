@@ -90,7 +90,7 @@ void Gallery_DisplayImage(char *path) {
 		else if ((osl_keys->pressed.right) || (osl_keys->pressed.R))
 			Gallery_HandleNext(true);
 
-		if (osl_keys->pressed.circle)
+		if (osl_keys->pressed.value & OSL_KEYMASK_CANCEL)
 			break;
 	}
 

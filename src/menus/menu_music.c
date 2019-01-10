@@ -59,7 +59,7 @@ void Menu_PlayMusic(char *path){
 		OSL_EndDrawing();
 		oslReadKeys();
 
-		if (osl_keys->pressed.cross) {
+		if (osl_keys->pressed.value & OSL_KEYMASK_ENTER) {
 			if (isPlaying) {
 				isPlaying = false;
 				oslPauseSound(audio, -1);
@@ -83,7 +83,7 @@ void Menu_PlayMusic(char *path){
 				state = MUSIC_STATE_SHUFFLE;
 		}
 
-		if (osl_keys->pressed.circle)
+		if (osl_keys->pressed.value & OSL_KEYMASK_CANCEL)
 			break;
 	}
 

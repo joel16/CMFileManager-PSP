@@ -68,7 +68,7 @@ static void Menu_DisplaySortSettings(void) {
 
 		oslReadKeys();
 
-		if (osl_keys->pressed.circle)
+		if (osl_keys->pressed.value & OSL_KEYMASK_CANCEL)
 			break;
 			
 		if (osl_keys->pressed.down)
@@ -82,7 +82,7 @@ static void Menu_DisplaySortSettings(void) {
 		Utils_SetMax(&selection, 0, max_items);
 		Utils_SetMin(&selection, max_items, 0);
 
-		if (osl_keys->pressed.cross) {
+		if (osl_keys->pressed.value & OSL_KEYMASK_ENTER) {
 			switch (selection) {
 				case 0:
 					config.sort = 0;
@@ -105,7 +105,7 @@ static void Menu_DisplaySortSettings(void) {
 }
 
 static void Menu_ControlAboutDialog(void) {
-	if ((osl_keys->pressed.cross) || (osl_keys->pressed.circle))
+	if ((osl_keys->pressed.value & OSL_KEYMASK_ENTER) || (osl_keys->pressed.value & OSL_KEYMASK_CANCEL))
 		displayAbout = false;
 }
 
@@ -130,7 +130,7 @@ static void Menu_DisplayAboutDialog(void) {
 }
 
 static void Menu_ControlSupportDialog(void) {
-	if ((osl_keys->pressed.cross) || (osl_keys->pressed.circle))
+	if ((osl_keys->pressed.value & OSL_KEYMASK_ENTER) || (osl_keys->pressed.value & OSL_KEYMASK_CANCEL))
 		displaySupport = false;
 }
 
@@ -223,9 +223,8 @@ void Menu_DisplaySettings(void) {
 			Menu_DisplaySupportDialog();
 			Menu_ControlSupportDialog();
 		}
-		else
-		{
-			if ((osl_keys->pressed.circle) || (osl_keys->pressed.start))
+		else {
+			if ((osl_keys->pressed.value & OSL_KEYMASK_CANCEL) || (osl_keys->pressed.start))
 				break;
 			
 			if (osl_keys->pressed.down)
@@ -236,7 +235,7 @@ void Menu_DisplaySettings(void) {
 			Utils_SetMax(&selection, 0, max_items);
 			Utils_SetMin(&selection, max_items, 0);
 
-			if (osl_keys->pressed.cross) {
+			if (osl_keys->pressed.value & OSL_KEYMASK_ENTER) {
 				switch (selection) {
 					case 0:
 						Menu_DisplaySortSettings();

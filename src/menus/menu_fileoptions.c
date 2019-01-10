@@ -282,12 +282,12 @@ void Menu_ControlDeleteDialog(void) {
 	Utils_SetMax(&delete_dialog_selection, 0, 1);
 	Utils_SetMin(&delete_dialog_selection, 1, 0);
 
-	if (osl_keys->pressed.circle) {
+	if (osl_keys->pressed.value & OSL_KEYMASK_CANCEL) {
 		delete_dialog_selection = 0;
 		MENU_STATE = MENU_STATE_FILEOPTIONS;
 	}
 
-	if (osl_keys->pressed.cross) {
+	if (osl_keys->pressed.value & OSL_KEYMASK_ENTER) {
 		if (delete_dialog_selection == 1)
 			HandleDelete();
 		else
@@ -644,7 +644,7 @@ void Menu_DisplayDeleteDialog(void) {
 }
 
 void Menu_ControlFileProperties(void) {
-	if ((osl_keys->pressed.cross) || (osl_keys->pressed.circle))
+	if ((osl_keys->pressed.value & OSL_KEYMASK_ENTER) || (osl_keys->pressed.value & OSL_KEYMASK_CANCEL))
 		MENU_STATE = MENU_STATE_FILEOPTIONS;
 }
 
@@ -715,7 +715,7 @@ void Menu_ControlFileOptions(void) {
 		}
 	}
 	
-	if (osl_keys->pressed.cross) {
+	if (osl_keys->pressed.value & OSL_KEYMASK_ENTER) {
 		if (row == 0 && column == 0) {
 			if (options_more)
 				FileOptions_CreateFolder();
@@ -765,7 +765,7 @@ void Menu_ControlFileOptions(void) {
 		}
 	}
 
-	if (osl_keys->pressed.circle) {
+	if (osl_keys->pressed.value & OSL_KEYMASK_CANCEL) {
 		if (!options_more) {
 			copy_status = false;
 			cut_status = false;

@@ -40,7 +40,7 @@ LIBS    = -losl -lpng -lz -lm -lpspvram \
           -lpspnet_adhocmatching -lpspnet_adhoc -lpspnet_adhocctl -ljpeg \
           -lpspusb -lpspusbstor \
           -lpspmp3 -lmad -lpspaudiolib -lpspaudio -lpspaudiocodec \
-          -lpspsystemctrl_user -lpspkubridge
+          -lpspreg -lpspsystemctrl_user -lpspkubridge
 
 EXTRA_TARGETS    = EBOOT.PBP
 PSP_EBOOT_TITLE  = CM File Manager PSP

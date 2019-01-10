@@ -1,7 +1,10 @@
+#include <pspkernel.h>
+#include <pspreg.h>
 #include <stdbool.h>
 
 #include "common.h"
 #include "config.h"
+#include "log.h"
 #include "kubridge.h"
 #include "systemctrl.h"
 #include "systemctrl_se.h"
@@ -188,4 +191,65 @@ static u64 Utils_GetFreeStorage(void) {
 
 u64 Utils_GetUsedStorage(void) {
 	return (Utils_GetTotalStorage() - Utils_GetFreeStorage());
+}
+
+static int Utils_GetRegistryValue(const char *dir, const char *name, unsigned int *value) {
+	int ret = 0;
+	struct RegParam reg;
+	REGHANDLE h;
+
+	memset(&reg, 0, sizeof(reg));
+	reg.regtype = 1;
+	reg.namelen = strlen("/system");
+	reg.unk2 = 1;
+	reg.unk3 = 1;
+	strcpy(reg.name, "/system");
+	
+	if (R_SUCCEEDED(sceRegOpenRegistry(&reg, 2, &h) == 0)) {
+		REGHANDLE hd;
+		
+		if (R_SUCCEEDED(sceRegOpenCategory(h, dir, 2, &hd))) {
+			REGHANDLE hk;
+			unsigned int type, size;
+
+			if (R_SUCCEEDED(sceRegGetKeyInfo(hd, name, &hk, &type, &size))) {
+				if (!sceRegGetKeyValue(hd, hk, value, 4)) {
+					ret = 1;
+					sceRegFlushCategory(hd);
+				}
+			}
+
+			sceRegCloseCategory(hd);
+		}
+
+		sceRegFlushRegistry(h);
+		sceRegCloseRegistry(h);
+	}
+
+	return ret;
+}
+
+int Utils_GetEnterButton(void) {
+	unsigned int button = 0;
+	if (R_SUCCEEDED(Utils_GetRegistryValue("/CONFIG/SYSTEM/XMB", "button_assign", &button))) {
+		if (button == 0)
+			return 0x2000; // OSL_KEYMASK_CIRCLE
+		else
+			return 0x4000; // OSL_KEYMASK_CROSS
+	}
+
+	return 0x4000; // By default return OSL_KEYMASK_CROSS
+}
+
+// Basically the opposite of Utils_GetEnterButton();
+int Utils_GetCancelButton(void) {
+	unsigned int button = 0;
+	if (R_SUCCEEDED(Utils_GetRegistryValue("/CONFIG/SYSTEM/XMB", "button_assign", &button))) {
+		if (button == 0)
+			return 0x4000; // OSL_KEYMASK_CROSS
+		else
+			return 0x2000; // OSL_KEYMASK_CIRCLE
+	}
+
+	return 0x2000; // By default return OSL_KEYMASK_CIRCLE
 }

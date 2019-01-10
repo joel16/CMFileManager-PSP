@@ -6,6 +6,7 @@
 #include "fs.h"
 #include "menus/menu_main.h"
 #include "textures.h"
+#include "utils.h"
 
 PSP_MODULE_INFO("CMFileManager", PSP_MODULE_USER, VERSION_MAJOR, VERSION_MINOR);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
@@ -42,6 +43,9 @@ static void Init_Services(void) {
 
 	font = oslLoadFontFile("ram:/Roboto.pgf");
 	oslSetFont(font);
+
+	OSL_KEYMASK_ENTER = Utils_GetEnterButton();
+	OSL_KEYMASK_CANCEL = Utils_GetCancelButton();
 }
 
 static void Term_Services(void) {

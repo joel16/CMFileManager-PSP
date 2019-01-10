@@ -58,10 +58,10 @@ static void Menu_ControlMenubar(void) {
 	Utils_SetMax(&menubar_selection, 0, 2);
 	Utils_SetMin(&menubar_selection, 2, 0);
 
-	if (osl_keys->pressed.cross) {
+	if (osl_keys->pressed.value & OSL_KEYMASK_ENTER) {
 		switch (menubar_selection) {
 			case 0:
-				buf = (char *)malloc(256);
+				buf = malloc(256);
 				memset(root_path, 0, strlen(root_path));
 				strcpy(root_path, Utils_IsEF0()? "ef0:/" : "ms0:/");
 
@@ -100,7 +100,7 @@ static void Menu_ControlMenubar(void) {
 
 		Dirbrowse_PopulateFiles(true);
 	}
-	else if ((osl_keys->pressed.circle) || (osl_keys->pressed.select)) {
+	else if ((osl_keys->pressed.value & OSL_KEYMASK_CANCEL) || (osl_keys->pressed.select)) {
 		menubar_x = -180;
 		menubar_selection = 0;
 		MENU_STATE = MENU_STATE_HOME;
@@ -125,9 +125,9 @@ static void Menu_ControlHome(void) {
 		if (osl_keys->pressed.square)
 			Menu_HandleMultiSelect();
 
-		if (osl_keys->pressed.cross)
+		if (osl_keys->pressed.value & OSL_KEYMASK_ENTER)
 			Dirbrowse_OpenFile();
-		else if ((strcmp(cwd, root_path) != 0) && (osl_keys->pressed.circle)) {
+		else if ((strcmp(cwd, root_path) != 0) && (osl_keys->pressed.value & OSL_KEYMASK_CANCEL)) {
 			Dirbrowse_Navigate(true);
 			Dirbrowse_PopulateFiles(true);
 		}

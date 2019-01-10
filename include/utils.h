@@ -6,6 +6,7 @@
 #define R_FAILED(res)      ((res)<0)
 
 extern bool psp_usb_cable_connection;
+int OSL_KEYMASK_ENTER, OSL_KEYMASK_CANCEL;
 
 void Utils_SetMax(int *set, int value, int max);
 void Utils_SetMin(int *set, int value, int min);
@@ -20,3 +21,5 @@ int Utils_LaunchPOPS(const char *path);
 int Utils_LaunchISO(const char *path);
 u64 Utils_GetTotalStorage(void);
 u64 Utils_GetUsedStorage(void);
+int Utils_GetEnterButton(void);
+int Utils_GetCancelButton(void);
