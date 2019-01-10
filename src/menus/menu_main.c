@@ -133,8 +133,10 @@ static void Menu_ControlHome(void) {
 		}
 	}
 
-	if (osl_keys->pressed.select)
+	if (osl_keys->pressed.select) {
+		menubar_selection = BROWSE_STATE;
 		MENU_STATE = MENU_STATE_MENUBAR;
+	}
 	else if (osl_keys->pressed.start)
 		MENU_STATE = MENU_STATE_SETTINGS;
 	else if (osl_keys->pressed.triangle)

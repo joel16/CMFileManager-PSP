@@ -24,7 +24,7 @@ static int Screenshot_GenFilename(int number, char *filename) {
 }
 
 void Screenshot_Capture(void) {
-	if ((BROWSE_STATE == BROWSE_STATE_INTERNAL) || (BROWSE_STATE == BROWSE_STATE_SD)) {
+	if (/*(BROWSE_STATE == BROWSE_STATE_INTERNAL) || */(BROWSE_STATE == BROWSE_STATE_SD)) {
 		static char filename[256];
 
 		sprintf(filename, "%s", "screenshot");
