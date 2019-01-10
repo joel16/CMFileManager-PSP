@@ -32,7 +32,7 @@ static void Init_Services(void) {
 	oslSetKeyAutorepeatInterval(10);
 	oslIntraFontInit(INTRAFONT_CACHE_LARGE | INTRAFONT_STRING_UTF8);
 
-	oslInitUsbStorage();
+	Utils_InitUSB();
 	pspSdkInetInit();
 	Config_Load();
 	Config_GetLastDirectory();
@@ -51,7 +51,7 @@ static void Init_Services(void) {
 static void Term_Services(void) {
 	Textures_Free();
 	pspSdkInetTerm();
-	oslDeinitUsbStorage();
+	Utils_ExitUSB();
 	scePowerSetClockFrequency(cpu_clock, cpu_clock, bus_clock); // Restore previous clock frequency. 
 	oslIntraFontShutdown();
 	oslDeinitAudio();

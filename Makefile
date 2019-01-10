@@ -38,9 +38,8 @@ LDFLAGS =
 LIBS    = -losl -lpng -lz -lm -lpspvram \
           -lpsphprm -lpspsdk -lpspctrl -lpsprtc -lpsppower -lpspgu -lpspgum -lpsphttp -lpspssl -lpspwlan \
           -lpspnet_adhocmatching -lpspnet_adhoc -lpspnet_adhocctl -ljpeg \
-          -lpspusb -lpspusbstor \
           -lpspmp3 -lmad -lpspaudiolib -lpspaudio -lpspaudiocodec \
-          -lpspreg -lpspsystemctrl_user -lpspkubridge
+          -lpspreg -lpspusb -lpspusbstor -lpspusbdevice -lpspumd -lpspkubridge -lpspsystemctrl_user
 
 EXTRA_TARGETS    = EBOOT.PBP
 PSP_EBOOT_TITLE  = CM File Manager PSP

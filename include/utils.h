@@ -14,6 +14,8 @@ char *Utils_Basename(const char *filename);
 void Utils_GetSizeString(char *string, u64 size);
 void Utils_AppendArr(char subject[], const char insert[], int pos);
 int Utils_Alphasort(const void *p1, const void *p2);
+void Utils_InitUSB(void);
+void Utils_ExitUSB(void);
 void Utils_HandleUSB(void);
 bool Utils_IsEF0(void);
 int Utils_LaunchEboot(const char *path);
