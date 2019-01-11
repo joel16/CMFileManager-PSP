@@ -10,9 +10,9 @@
 - Creating directories.
 - Renaming files/folders.
 - Image viewer.
-- Auto USB mount.
+- Auto USB mount (with ef0:/ and ms0:/ support for PSP GO).
 - Dark theme mode.
-- Browse other drives like flah0 and flash1.
+- Browse other drives like flah0, flash1 and UMD (if not using PSP GO).
 
 
 **Buttons:**
@@ -24,7 +24,7 @@
 - Press *Start* to open settings.
 - Press *Select* to open menubar.
 - Press *Triangle* to bring up file options.
-- Press *cross* to enter diretory/open file.
-- Press *circle* to go back to previous directory/menu.
+- Press *enter button (depending on your region)* to enter diretory/open file.
+- Press *cancel button (depending on your region)* to go back to previous directory/menu.
 - Press *L + R* to caputre screenshot.
 - Press *Start + Select* to exit.
