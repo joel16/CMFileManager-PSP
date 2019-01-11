@@ -352,9 +352,11 @@ static int FileOptions_CopyFile(char *src, char *dst, bool display_anim) {
 	SceOff size = FS_GetFileSize(src);
 
 	if (R_SUCCEEDED(input_file = sceIoOpen(src, PSP_O_RDONLY, 0777))) {
-		if (R_FAILED(ret = sceIoRemove(dst))) { // Delete Output File (if existing)
-			Menu_DisplayError("sceIoRemove() failed!", ret);
-			return ret;
+		if (FS_FileExists(dst)) {
+			if (R_FAILED(ret = sceIoRemove(dst))) { // Delete Output File (if existing)
+				Menu_DisplayError("sceIoRemove() failed!", ret);
+				return ret;
+			}
 		}
 
 		if (R_SUCCEEDED(output_file = sceIoOpen(dst, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777)) >= 0) {
