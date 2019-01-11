@@ -5,6 +5,7 @@
 #include "config.h"
 #include "dirbrowse.h"
 #include "fs.h"
+#include "menu_error.h"
 #include "menu_settings.h"
 #include "menu_fileoptions.h"
 #include "osl_helper.h"
@@ -115,6 +116,8 @@ static void Menu_ControlMenubar(void) {
 					strcpy(cwd, "disc0:/");
 					BROWSE_STATE = BROWSE_STATE_UMD;
 				}
+				else
+					Menu_DisplayError("Could not read UMD drive.", 0);
 				break;
 		}
 

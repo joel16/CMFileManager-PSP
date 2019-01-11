@@ -5,6 +5,7 @@
 #include "config.h"
 #include "dirbrowse.h"
 #include "fs.h"
+#include "menu_error.h"
 #include "menu_music.h"
 #include "menu_gallery.h"
 #include "osl_helper.h"
@@ -108,6 +109,7 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 	}
 	else {
 		sceIoDclose(dir);
+		Menu_DisplayError("sceIoDopen() failed!", dir);
 		return dir;
 	}
 

@@ -5,6 +5,7 @@
 #include "config.h"
 #include "dirbrowse.h"
 #include "fs.h"
+#include "menu_error.h"
 #include "osl_helper.h"
 #include "progress_bar.h"
 #include "textures.h"
@@ -73,8 +74,10 @@ static int FileOptions_CreateFile(void) {
 	strcat(path, buf);
 	free(buf);
 
-	if (R_FAILED(ret = FS_CreateFile(path)))
+	if (R_FAILED(ret = FS_CreateFile(path))) {
+		Menu_DisplayError("FS_CreateFile() failed!", ret);
 		return ret;
+	}
 
 	Dirbrowse_PopulateFiles(true);
 	options_more = false;
@@ -92,25 +95,21 @@ static int FileOptions_Rename(void) {
 	if (strncmp(file->name, "..", 2) == 0)
 		return -2;
 
-	char oldPath[512], newPath[512];
+	char old_path[512], new_path[512];
 
 	char *buf = malloc(256);
 
-	strcpy(oldPath, cwd);
-	strcpy(newPath, cwd);
-	strcat(oldPath, file->name);
+	strcpy(old_path, cwd);
+	strcpy(new_path, cwd);
+	strcat(old_path, file->name);
 	
 	OSL_DisplayKeyboard("Enter name", file->name, buf);
-	strcat(newPath, buf);
+	strcat(new_path, buf);
 	free(buf);
 
-	if (file->isDir) {
-		if (R_FAILED(ret = sceIoRename(oldPath, newPath)))
-			return ret;
-	}
-	else {
-		if (R_FAILED(ret = sceIoRename(oldPath, newPath)))
-			return ret;
+	if (R_FAILED(ret = sceIoRename(old_path, new_path))) {
+		Menu_DisplayError("sceIoRename() failed!", ret);
+		return ret;
 	}
 
 	Dirbrowse_PopulateFiles(true);
@@ -122,7 +121,7 @@ static int FileOptions_Rename(void) {
 static int FileOptions_RmdirRecursive(char *path)
 {
 	SceUID dir = 0;
-	int i = 0;
+	int i = 0, ret = 0;
 	File *filelist = NULL;
 
 	if (R_SUCCEEDED(dir = sceIoDopen(path))) {
@@ -169,6 +168,7 @@ static int FileOptions_RmdirRecursive(char *path)
 	}
 	else {
 		sceIoDclose(dir);
+		Menu_DisplayError("sceIoDopen() failed!", dir);
 		return dir;
 	}
 
@@ -202,7 +202,9 @@ static int FileOptions_RmdirRecursive(char *path)
 			strcpy(buffer + strlen(buffer), node->name);
 
 			// Delete File
-			sceIoRemove(buffer);
+			if (R_FAILED(ret = sceIoRemove(buffer))) 
+				Menu_DisplayError("sceIoRemove() failed!", ret);
+
 			free(buffer);
 		}
 	}
@@ -235,8 +237,10 @@ static int FileOptions_DeleteFile(void) {
 			return ret;
 	}
 	else {
-		if (R_FAILED(ret = sceIoRemove(path)))
+		if (R_FAILED(ret = sceIoRemove(path))) {
+			Menu_DisplayError("sceIoRemove() failed!", ret);
 			return ret;
+		}
 	}
 	
 	return 0;
@@ -244,7 +248,7 @@ static int FileOptions_DeleteFile(void) {
 
 static void HandleDelete(void) {
 	scePowerLock(0);
-	int i = 0;
+	int i = 0, ret = 0;
 
 	if ((multi_select_index > 0) && (strlen(multi_select_dir) != 0)) {
 		for (i = 0; i < multi_select_index; i++) {
@@ -255,8 +259,10 @@ static void HandleDelete(void) {
 						multi_select_paths[i][strlen(multi_select_paths[i])] = '/';
 						FileOptions_RmdirRecursive(multi_select_paths[i]);
 					}
-					else if (FS_FileExists(multi_select_paths[i]))
-						sceIoRemove(multi_select_paths[i]);
+					else if (FS_FileExists(multi_select_paths[i])) {
+						if (R_FAILED(ret = sceIoRemove(multi_select_paths[i])))
+							Menu_DisplayError("sceIoRemove() failed!", ret);
+					}
 				}
 			}
 		}
@@ -330,8 +336,10 @@ static int sceIoMove(const char *src, const char *dest) {
 	data[0] = (u32)(p1+1);
 	data[1] = (u32)(p2+1);
 
-	if (R_FAILED(ret = sceIoDevctl(strage, 0x02415830, &data, sizeof(data), NULL, 0)))
+	if (R_FAILED(ret = sceIoDevctl(strage, 0x02415830, &data, sizeof(data), NULL, 0))) {
+		Menu_DisplayError("sceIoDevctl() failed!", ret);
 		return ret;
+	}
 
 	return 0;
 }
@@ -340,11 +348,14 @@ static int FileOptions_CopyFile(char *src, char *dst, bool display_anim) {
 	int chunksize = (512 * 1024); // Chunk size
 	char *buffer = malloc(chunksize); // Reading buffer
 
-	int totalwrite = 0, totalread = 0, ret = 0, input_file = 0, output_file = 0;
+	int ret = 0, totalwrite = 0, totalread = 0, input_file = 0, output_file = 0;
 	SceOff size = FS_GetFileSize(src);
 
 	if (R_SUCCEEDED(input_file = sceIoOpen(src, PSP_O_RDONLY, 0777))) {
-		sceIoRemove(dst); // Delete Output File (if existing)
+		if (R_FAILED(ret = sceIoRemove(dst))) { // Delete Output File (if existing)
+			Menu_DisplayError("sceIoRemove() failed!", ret);
+			return ret;
+		}
 
 		if (R_SUCCEEDED(output_file = sceIoOpen(dst, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777)) >= 0) {
 			int read = 0;
@@ -363,18 +374,22 @@ static int FileOptions_CopyFile(char *src, char *dst, bool display_anim) {
 
 			// Insufficient Copy
 			if (totalread != totalwrite) 
-				ret = -3;
+				ret = -1;
 		}
-		else 
-			ret = -2;
+		else {
+			Menu_DisplayError("sceIoOpen() failed!", output_file);
+			return output_file;
+		}
 
 		sceIoClose(input_file);
 	}
-	else 
-		ret = -1;
+	else {
+		Menu_DisplayError("sceIoOpen() failed!", input_file);
+		return input_file;
+	}
 
 	free(buffer);
-	return ret;
+	return 0;
 }
 
 static int FileOptions_CopyDir(char *src, char *dst) {
@@ -441,6 +456,7 @@ static int FileOptions_CopyDir(char *src, char *dst) {
 	}
 	else {
 		sceIoDclose(dir);
+		Menu_DisplayError("sceIoDopen() failed!", dir);
 		return dir;
 	}
 
