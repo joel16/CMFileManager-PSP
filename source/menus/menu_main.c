@@ -55,8 +55,8 @@ static void Menu_ControlMenubar(void) {
 	else if (osl_keys->pressed.down)
 		menubar_selection++;
 
-	Utils_SetMax(&menubar_selection, 0, 2);
-	Utils_SetMin(&menubar_selection, 2, 0);
+	Utils_SetMax(&menubar_selection, 0, model_psp_go? 2 : 3);
+	Utils_SetMin(&menubar_selection, model_psp_go? 2 : 3, 0);
 
 	if (osl_keys->pressed.value & OSL_KEYMASK_ENTER) {
 		switch (menubar_selection) {
@@ -95,6 +95,12 @@ static void Menu_ControlMenubar(void) {
 				strcpy(root_path, "flash1:/");
 				strcpy(cwd, "flash1:/");
 				BROWSE_STATE = BROWSE_STATE_FLASH1;
+				break;
+			case 3:
+				memset(root_path, 0, strlen(root_path));
+				strcpy(root_path, "disc0:/");
+				strcpy(cwd, "disc0:/");
+				BROWSE_STATE = BROWSE_STATE_UMD;
 				break;
 		}
 
@@ -158,6 +164,11 @@ static void Menu_DisplayMenubar(void) {
 
 	oslDrawImageXY(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 152);
 	oslDrawString(menubar_x + 50, 90 + ((30 - (font->charHeight - 6)) / 2) + 60, "flash1:/");
+
+	if (!model_psp_go) {
+		oslDrawImageXY(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 182);
+		oslDrawString(menubar_x + 50, 90 + ((30 - (font->charHeight - 6)) / 2) + 90, "disc0:/");
+	}
 }
 
 void Menu_Main(void) {

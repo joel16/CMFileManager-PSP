@@ -46,6 +46,8 @@ static void Init_Services(void) {
 
 	OSL_KEYMASK_ENTER = Utils_GetEnterButton();
 	OSL_KEYMASK_CANCEL = Utils_GetCancelButton();
+
+	model_psp_go = Utils_IsModelPSPGo();
 }
 
 static void Term_Services(void) {

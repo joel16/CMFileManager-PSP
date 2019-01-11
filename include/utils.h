@@ -5,9 +5,9 @@
 /// Checks whether a result code indicates failure.
 #define R_FAILED(res)      ((res) < 0)
 
-#define MODEL_PSP_GO 4
+#define PSP_GO 4
 
-extern bool psp_usb_cable_connection;
+extern bool psp_usb_cable_connection, model_psp_go;
 int OSL_KEYMASK_ENTER, OSL_KEYMASK_CANCEL;
 
 void Utils_SetMax(int *set, int value, int max);
@@ -19,6 +19,7 @@ int Utils_Alphasort(const void *p1, const void *p2);
 void Utils_InitUSB(void);
 void Utils_ExitUSB(void);
 void Utils_HandleUSB(void);
+bool Utils_IsModelPSPGo(void);
 bool Utils_IsEF0(void);
 int Utils_LaunchEboot(const char *path);
 int Utils_LaunchPOPS(const char *path);
