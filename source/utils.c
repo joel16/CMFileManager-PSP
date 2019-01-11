@@ -20,8 +20,6 @@
 static bool g_usb_module_loaded = false;
 static bool g_usb_actived = false;
 
-bool model_psp_go = false;
-
 struct UsbModule {
 	char *path;
 	int modid;
@@ -221,7 +219,7 @@ bool Utils_IsModelPSPGo(void) {
 }
 
 bool Utils_IsEF0(void) {
-	if ((model_psp_go) && (kuKernelBootFrom() == 0x50))
+	if ((Utils_IsModelPSPGo()) && (kuKernelBootFrom() == 0x50))
 		return true;
 	else
 		return false;

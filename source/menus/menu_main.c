@@ -57,75 +57,111 @@ static void Menu_ControlMenubar(void) {
 	else if (osl_keys->pressed.down)
 		menubar_selection++;
 
-	Utils_SetMax(&menubar_selection, 0, model_psp_go? 2 : 3);
-	Utils_SetMin(&menubar_selection, model_psp_go? 2 : 3, 0);
+	Utils_SetMax(&menubar_selection, 0, Utils_IsModelPSPGo()? 2 : 3);
+	Utils_SetMin(&menubar_selection, Utils_IsModelPSPGo()? 2 : 3, 0);
 
 	if (osl_keys->pressed.value & OSL_KEYMASK_ENTER) {
 		switch (menubar_selection) {
 			case 0:
 				if (BROWSE_STATE == BROWSE_STATE_UMD)
 					sceUmdDeactivate(1, "disc0:");
-				
-				buf = malloc(256);
-				memset(root_path, 0, strlen(root_path));
-				strcpy(root_path, Utils_IsEF0()? "ef0:/" : "ms0:/");
+				if (BROWSE_STATE != BROWSE_STATE_SD) {
+					buf = malloc(256);
+					memset(root_path, 0, strlen(root_path));
+					strcpy(root_path, Utils_IsEF0()? "ef0:/" : "ms0:/");
 
-				if (FS_FileExists("lastdir.txt")) {
-					if (R_FAILED(FS_ReadFile("lastdir.txt", buf, 256))) {
+					if (FS_FileExists("lastdir.txt")) {
+						if (R_FAILED(FS_ReadFile("lastdir.txt", buf, 256))) {
+							free(buf);
+							strcpy(cwd, Utils_IsEF0()? "ef0:/" : "ms0:/");
+						}
+
+						char tempPath[256];
+						sscanf(buf, "%[^\n]s", tempPath);
+
+						if (FS_DirExists(tempPath)) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
+							strcpy(cwd, tempPath);
+						else
+							strcpy(cwd, Utils_IsEF0()? "ef0:/" : "ms0:/");
+
 						free(buf);
-						strcpy(cwd, Utils_IsEF0()? "ef0:/" : "ms0:/");
 					}
 
-					char tempPath[256];
-					sscanf(buf, "%[^\n]s", tempPath);
+					BROWSE_STATE = BROWSE_STATE_SD;
 
-					if (FS_DirExists(tempPath)) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
-						strcpy(cwd, tempPath);
-					else
-						strcpy(cwd, Utils_IsEF0()? "ef0:/" : "ms0:/");
+					menubar_x -= 10.0;
+					menubar_selection = 0;
+					menubar_x = -180;
 
-					free(buf);
+					Dirbrowse_PopulateFiles(true);
+					MENU_STATE = MENU_STATE_HOME;
 				}
-
-				BROWSE_STATE = BROWSE_STATE_SD;
 				break;
 			case 1:
 				if (BROWSE_STATE == BROWSE_STATE_UMD)
 					sceUmdDeactivate(1, "disc0:");
-				
-				memset(root_path, 0, strlen(root_path));
-				strcpy(root_path, "flash0:/");
-				strcpy(cwd, "flash0:/");
-				BROWSE_STATE = BROWSE_STATE_FLASH0;
+				if (BROWSE_STATE != BROWSE_STATE_FLASH0) {
+					memset(root_path, 0, strlen(root_path));
+					strcpy(root_path, "flash0:/");
+					strcpy(cwd, "flash0:/");
+					
+					BROWSE_STATE = BROWSE_STATE_FLASH0;
+					
+					menubar_x -= 10.0;
+					menubar_selection = 0;
+					menubar_x = -180;
+
+					Dirbrowse_PopulateFiles(true);
+					MENU_STATE = MENU_STATE_HOME;
+				}
 				break;
 			case 2:
-				memset(root_path, 0, strlen(root_path));
-				strcpy(root_path, "flash1:/");
-				strcpy(cwd, "flash1:/");
-				BROWSE_STATE = BROWSE_STATE_FLASH1;
-				break;
-			case 3:
 				if (BROWSE_STATE == BROWSE_STATE_UMD)
 					sceUmdDeactivate(1, "disc0:");
-
-				if (sceUmdCheckMedium() >= 0) {
-					sceUmdActivate(1, "disc0:");
-					sceUmdWaitDriveStat(UMD_WAITFORINIT);
+				if (BROWSE_STATE != BROWSE_STATE_FLASH1) {
 					memset(root_path, 0, strlen(root_path));
-					strcpy(root_path, "disc0:/");
-					strcpy(cwd, "disc0:/");
-					BROWSE_STATE = BROWSE_STATE_UMD;
+					strcpy(root_path, "flash1:/");
+					strcpy(cwd, "flash1:/");
+					
+					BROWSE_STATE = BROWSE_STATE_FLASH1;
+					
+					menubar_x -= 10.0;
+					menubar_selection = 0;
+					menubar_x = -180;
+
+					Dirbrowse_PopulateFiles(true);
+					MENU_STATE = MENU_STATE_HOME;
 				}
-				else
-					Menu_DisplayError("Could not read UMD drive.", 0);
+				break;
+			case 3:
+				if (BROWSE_STATE != BROWSE_STATE_UMD) {
+					if (sceUmdCheckMedium() != 0) {
+						sceUmdActivate(1, "disc0:");
+						sceUmdWaitDriveStat(UMD_WAITFORINIT);
+						
+						memset(root_path, 0, strlen(root_path));
+						strcpy(root_path, "disc0:/");
+						strcpy(cwd, "disc0:/");
+						
+						BROWSE_STATE = BROWSE_STATE_UMD;
+						
+						menubar_x -= 10.0;
+						menubar_selection = 0;
+						menubar_x = -180;
+
+						Dirbrowse_PopulateFiles(true);
+						MENU_STATE = MENU_STATE_HOME;
+					}
+					else
+						Menu_DisplayError("Could not read UMD drive.", 0);
+				}
 				break;
 		}
-
-		Dirbrowse_PopulateFiles(true);
 	}
 	else if ((osl_keys->pressed.value & OSL_KEYMASK_CANCEL) || (osl_keys->pressed.select)) {
-		menubar_x = -180;
+		menubar_x -= 10.0;
 		menubar_selection = 0;
+		menubar_x = -180;
 		MENU_STATE = MENU_STATE_HOME;
 	}
 }
@@ -182,7 +218,7 @@ static void Menu_DisplayMenubar(void) {
 	oslDrawImageXY(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 152);
 	oslDrawString(menubar_x + 50, 90 + ((30 - (font->charHeight - 6)) / 2) + 60, "flash1:/");
 
-	if (!model_psp_go) {
+	if (!Utils_IsModelPSPGo()) {
 		oslDrawImageXY(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 182);
 		oslDrawString(menubar_x + 50, 90 + ((30 - (font->charHeight - 6)) / 2) + 90, "disc0:/");
 	}

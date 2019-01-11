@@ -7,7 +7,7 @@
 
 #define PSP_GO 4
 
-extern bool psp_usb_cable_connection, model_psp_go;
+extern bool psp_usb_cable_connection;
 int OSL_KEYMASK_ENTER, OSL_KEYMASK_CANCEL;
 
 void Utils_SetMax(int *set, int value, int max);
