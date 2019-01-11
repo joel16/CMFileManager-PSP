@@ -1,3 +1,4 @@
+#include <pspumd.h>
 #include <stdbool.h>
 
 #include "common.h"
@@ -61,6 +62,9 @@ static void Menu_ControlMenubar(void) {
 	if (osl_keys->pressed.value & OSL_KEYMASK_ENTER) {
 		switch (menubar_selection) {
 			case 0:
+				if (BROWSE_STATE == BROWSE_STATE_UMD)
+					sceUmdDeactivate(1, "disc0:");
+				
 				buf = malloc(256);
 				memset(root_path, 0, strlen(root_path));
 				strcpy(root_path, Utils_IsEF0()? "ef0:/" : "ms0:/");
@@ -85,6 +89,9 @@ static void Menu_ControlMenubar(void) {
 				BROWSE_STATE = BROWSE_STATE_SD;
 				break;
 			case 1:
+				if (BROWSE_STATE == BROWSE_STATE_UMD)
+					sceUmdDeactivate(1, "disc0:");
+				
 				memset(root_path, 0, strlen(root_path));
 				strcpy(root_path, "flash0:/");
 				strcpy(cwd, "flash0:/");
@@ -97,10 +104,17 @@ static void Menu_ControlMenubar(void) {
 				BROWSE_STATE = BROWSE_STATE_FLASH1;
 				break;
 			case 3:
-				memset(root_path, 0, strlen(root_path));
-				strcpy(root_path, "disc0:/");
-				strcpy(cwd, "disc0:/");
-				BROWSE_STATE = BROWSE_STATE_UMD;
+				if (BROWSE_STATE == BROWSE_STATE_UMD)
+					sceUmdDeactivate(1, "disc0:");
+
+				if (sceUmdCheckMedium() >= 0) {
+					sceUmdActivate(1, "disc0:");
+					sceUmdWaitDriveStat(UMD_WAITFORINIT);
+					memset(root_path, 0, strlen(root_path));
+					strcpy(root_path, "disc0:/");
+					strcpy(cwd, "disc0:/");
+					BROWSE_STATE = BROWSE_STATE_UMD;
+				}
 				break;
 		}
 

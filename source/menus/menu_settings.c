@@ -120,7 +120,7 @@ static void Menu_DisplayAboutDialog(void) {
 
 	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
 	oslDrawStringf(((480 - (text_width)) / 2), ((272 - oslGetImageHeight(dialog)) / 2) + 40, "CM File Manager PSP v%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO);
-	oslDrawStringf(((480 - (author_width)) / 2), ((272 - oslGetImageHeight(dialog)) / 2) + 40 + 16, "Author: Joel16");
+	oslDrawString(((480 - (author_width)) / 2), ((272 - oslGetImageHeight(dialog)) / 2) + 40 + 16, "Author: Joel16");
 
 	OSL_DrawFillRect((409 - (oslGetStringWidth("OK"))) - 5, (191 - (font->charHeight - 6)) - 5, oslGetStringWidth("OK") + 10, (font->charHeight - 6) + 10, 
 		config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
@@ -145,14 +145,14 @@ static void Menu_DisplaySupportDialog(void) {
 	oslDrawString(340 - oslGetStringWidth("OK"), 230 - (font->charHeight - 6), "OK");
 
 	oslIntraFontSetStyle(font, 0.5f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
-	oslDrawStringf(140, 64, "DPAD Up: Cursor up");
-	oslDrawStringf(140, 80, "DPAD Down: Cursor down");
-	oslDrawStringf(140, 96, "DPAD Left: Start of listing");
-	oslDrawStringf(140, 112, "DPAD Right: End of listing");
-	oslDrawStringf(140, 128, "Triangle: File options");
-	oslDrawStringf(140, 144, "Start: Open settings");
-	oslDrawStringf(140, 160, "Select: Open menu bar");
-	oslDrawStringf(140, 176, "L + R: Screenshot");
+	oslDrawString(140, 64, "DPAD Up: Cursor up");
+	oslDrawString(140, 80, "DPAD Down: Cursor down");
+	oslDrawString(140, 96, "DPAD Left: Start of listing");
+	oslDrawString(140, 112, "DPAD Right: End of listing");
+	oslDrawString(140, 128, "Triangle: File options");
+	oslDrawString(140, 144, "Start: Open settings");
+	oslDrawString(140, 160, "Select: Open menu bar");
+	oslDrawString(140, 176, "L + R: Screenshot");
 }
 
 void Menu_DisplaySettings(void) {

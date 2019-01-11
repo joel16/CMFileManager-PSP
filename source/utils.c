@@ -168,7 +168,7 @@ static void Utils_StartUSBStorage(void) {
 
 static void Utils_StopUSBStorage(void) {
 	sceUsbDeactivate(0x1c8);
-	sceIoDevctl("fatms0:", 0x0240D81E, NULL, 0, NULL, 0 ); //Avoid corrupted files
+	sceIoDevctl("fatms0:", 0x0240D81E, NULL, 0, NULL, 0 ); // Avoid corrupted files
 	psp_usb_cable_connection = false;
 }
 
