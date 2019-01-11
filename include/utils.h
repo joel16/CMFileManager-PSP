@@ -1,9 +1,11 @@
 #pragma once
 
 /// Checks whether a result code indicates success.
-#define R_SUCCEEDED(res)   ((res)>=0)
+#define R_SUCCEEDED(res)   ((res) >= 0)
 /// Checks whether a result code indicates failure.
-#define R_FAILED(res)      ((res)<0)
+#define R_FAILED(res)      ((res) < 0)
+
+#define MODEL_PSP_GO 4
 
 extern bool psp_usb_cable_connection;
 int OSL_KEYMASK_ENTER, OSL_KEYMASK_CANCEL;

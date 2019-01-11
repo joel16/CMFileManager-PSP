@@ -210,19 +210,11 @@ void Utils_HandleUSB(void) {
 }
 
 bool Utils_IsEF0(void) {
-	int init_apitype = kuKernelInitApitype();
-
-	if (init_apitype == 0x125) // NP9660/ISO MODE
-		return true;
-	else if (init_apitype == 0x155) // POPS
-		return true;
-	else if (init_apitype == 0x151) // UPDATER
-		return true;
-	else if (init_apitype == 0x152) // GAME
+	if ((kuKernelGetModel() == MODEL_PSP_GO) && (kuKernelBootFrom() == 0x50))
 		return true;
 	else
 		return false;
-
+	
 	return false;
 }
 
