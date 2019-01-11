@@ -1,9 +1,9 @@
 TARGET = CMFileManager
 
-OBJS   = src/config.o src/dirbrowse.o src/fs.o src/log.o src/main.o src/osl_helper.o src/progress_bar.o src/screenshot.o \
-         src/status_bar.o src/textures.o src/utils.o \
-         src/menus/menu_fileoptions.o src/menus/menu_gallery.o src/menus/menu_main.o src/menus/menu_music.o src/menus/menu_settings.o \
-         src/archive/archive.o src/archive/ioapi.o src/archive/unzip.o 
+OBJS   = source/config.o source/dirbrowse.o source/fs.o source/log.o source/main.o source/osl_helper.o source/progress_bar.o source/screenshot.o \
+         source/status_bar.o source/textures.o source/utils.o \
+         source/menus/menu_fileoptions.o source/menus/menu_gallery.o source/menus/menu_main.o source/menus/menu_music.o source/menus/menu_settings.o \
+         source/archive/archive.o source/archive/ioapi.o source/archive/unzip.o 
 
 DATA_OBJS = data/battery_20.o data/battery_30.o data/battery_50.o data/battery_60.o data/battery_80.o data/battery_90.o data/battery_full.o \
             data/battery_low.o data/battery_unknown.o data/battery_20_charging.o data/battery_30_charging.o data/battery_50_charging.o \
