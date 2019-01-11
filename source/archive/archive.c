@@ -8,6 +8,7 @@
 #include "common.h"
 #include "fs.h"
 #include "log.h"
+#include "menu_error.h"
 #include "progress_bar.h"
 #include "unzip.h"
 #include "utils.h"
@@ -84,6 +85,7 @@ static int unzExtractCurrentFile(unzFile *unzHandle, int *path) {
 	unz_file_info file_info;
 	if ((res = unzGetCurrentFileInfo(unzHandle, &file_info, filename, sizeof(filename), NULL, 0, NULL, 0)) != 0) {
 		unzClose(unzHandle);
+		Menu_DisplayError("unzGetCurrentFileInfo failed:", res);
 		return res;
 	}
 
@@ -108,6 +110,7 @@ static int unzExtractCurrentFile(unzFile *unzHandle, int *path) {
 		if ((res = unzOpenCurrentFile(unzHandle)) != UNZ_OK) {
 			unzClose(unzHandle);
 			free(buf);
+			Menu_DisplayError("unzOpenCurrentFile failed:", res);
 			return res;
 		}
 
@@ -134,7 +137,11 @@ static int unzExtractCurrentFile(unzFile *unzHandle, int *path) {
 
 		fclose(out);
 
-		res = unzCloseCurrentFile(unzHandle);
+		if ((res = unzCloseCurrentFile(unzHandle)) != UNZ_OK) {
+			free(buf);
+			Menu_DisplayError("unzCloseCurrentFile failed:", res);
+			return res;
+		}
 	}
 	
 	if (buf)
@@ -154,6 +161,7 @@ static int unzExtractAll(const char *src, unzFile *unzHandle) {
 	
 	if ((res = unzGetGlobalInfo(unzHandle, &global_info)) != UNZ_OK) {// Get info about the zip file
 		unzClose(unzHandle);
+		Menu_DisplayError("unzGetGlobalInfo failed:", res);
 		return res;
 	}
 	
@@ -166,6 +174,7 @@ static int unzExtractAll(const char *src, unzFile *unzHandle) {
 		if ((i + 1) < global_info.number_entry) {
 			if ((res = unzGoToNextFile(unzHandle)) != UNZ_OK) {// Could not read next file.
 				unzClose(unzHandle);
+				Menu_DisplayError("unzGoToNextFile failed:", res);
 				return res;
 			}
 		}
@@ -192,7 +201,11 @@ int Archive_ExtractZIP(const char *src)
 	}
 
 	int res = unzExtractAll(src, unzHandle);
-	res = unzClose(unzHandle);
+	
+	if ((res = unzClose(unzHandle)) != UNZ_OK) {
+		Menu_DisplayError("unzClose failed:", res);
+		return res;
+	}
 
 	sceIoChdir(Utils_IsEF0()? "ef0:/PSP/GAME/CMFileManager" : "ef0:/PSP/GAME/CMFileManager");
 	return res;
@@ -213,6 +226,7 @@ int Archive_ExtractRAR(const char *src) {
 	if (ret != DMC_UNRAR_OK) {
 		free(path);
 		free(dirname_without_ext);
+		Menu_DisplayError("dmc_unrar_archive_init failed:", ret);
 		return -1;
 	}
 
@@ -220,6 +234,7 @@ int Archive_ExtractRAR(const char *src) {
 	if (ret != DMC_UNRAR_OK) {
 		free(path);
 		free(dirname_without_ext);
+		Menu_DisplayError("dmc_unrar_archive_open_path failed:", ret);
 		return -1;
 	}
 
