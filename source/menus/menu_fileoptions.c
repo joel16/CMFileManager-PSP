@@ -641,7 +641,7 @@ static void HandleCut(void) {
 }
 
 void Menu_DisplayDeleteDialog(void) {
-	int text_width = intraFontMeasureText(font, "Do you want to continue?");
+	int text_width = intraFontMeasureText(font, "Do you wish to continue?");
 
 	G2D_DrawImage(config.dark_theme? dialog_dark : dialog, ((480 - dialog->w) / 2), ((272 - dialog->h) / 2));
 
@@ -649,7 +649,7 @@ void Menu_DisplayDeleteDialog(void) {
 	intraFontPrint(font, ((480 - dialog->w) / 2) + 10, ((272 - dialog->h) / 2) + 20, "Confirm deletion");
 
 	intraFontSetStyle(font, 0.6f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-	intraFontPrint(font, ((480 - (text_width)) / 2), ((272 - dialog->h) / 2) + 50, "Do you wish to continue?");
+	intraFontPrint(font, ((480 - (text_width)) / 2), ((272 - dialog->h) / 2) + 60, "Do you wish to continue?");
 
 	intraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 

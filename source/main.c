@@ -33,12 +33,12 @@ static int Callbacks_Thread() {
   
 static int Callbacks_Setup(void) {
 	int id = 0;
-    id = sceKernelCreateThread("cb", Callbacks_Thread, 0x11, 0xFA0, 0, NULL);
+	id = sceKernelCreateThread("cb", Callbacks_Thread, 0x11, 0xFA0, 0, NULL);
 
-    if (id >= 0)
-    	sceKernelStartThread(id, 0, NULL);
+	if (id >= 0)
+		sceKernelStartThread(id, 0, NULL);
 
-    return id;
+	return id;
 }
 
 static void Init_Services(void) {

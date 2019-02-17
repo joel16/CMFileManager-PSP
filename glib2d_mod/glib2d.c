@@ -1652,7 +1652,6 @@ void g2dResetScissor(void) {
     scissor = false;
 }
 
-
 void g2dSetScissor(int x, int y, int w, int h) {
     sceGuScissor(x, y, x+w, y+h);
     scissor = true;

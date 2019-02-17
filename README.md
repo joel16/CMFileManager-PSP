@@ -9,7 +9,7 @@
 - File properties. (File size, creation time, modification time, access times, permissions)
 - Creating directories.
 - Renaming files/folders.
-- Image viewer.
+- Image viewer (BMP, GIF - not animated, JPG and PNG).
 - Auto USB mount (with ef0:/ and ms0:/ support for PSP GO).
 - Dark theme mode.
 - Browse other drives like flah0, flash1 and UMD (if not using PSP GO).
