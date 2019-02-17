@@ -1,5 +1,7 @@
 #pragma once
 
+#include <pspctrl.h>
+
 /// Checks whether a result code indicates success.
 #define R_SUCCEEDED(res)   ((res) >= 0)
 /// Checks whether a result code indicates failure.
@@ -8,7 +10,7 @@
 #define PSP_GO 4
 
 extern bool psp_usb_cable_connection;
-int OSL_KEYMASK_ENTER, OSL_KEYMASK_CANCEL;
+enum PspCtrlButtons PSP_CTRL_ENTER, PSP_CTRL_CANCEL;
 
 void Utils_SetMax(int *set, int value, int max);
 void Utils_SetMin(int *set, int value, int min);
@@ -26,5 +28,8 @@ int Utils_LaunchPOPS(const char *path);
 int Utils_LaunchISO(const char *path);
 u64 Utils_GetTotalStorage(void);
 u64 Utils_GetUsedStorage(void);
+void Utils_ReadControls(void);
+int Utils_IsButtonPressed(enum PspCtrlButtons buttons);
+int Utils_IsButtonHeld(enum PspCtrlButtons buttons);
 int Utils_GetEnterButton(void);
 int Utils_GetCancelButton(void);

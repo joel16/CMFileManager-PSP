@@ -88,7 +88,7 @@ SceOff FS_GetFileSize(const char *path) {
 }
 
 char *FS_GetFileTimestamp(const char *path, int time) {
-	static char timeStr[20];
+	static char timeStr[30];
 	SceIoStat stat;
 
 	if (R_FAILED(sceIoGetstat(path, &stat)))

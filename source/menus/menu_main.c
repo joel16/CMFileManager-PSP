@@ -1,14 +1,16 @@
 #include <pspumd.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "common.h"
 #include "config.h"
 #include "dirbrowse.h"
 #include "fs.h"
+#include "glib2d_helper.h"
 #include "menu_error.h"
 #include "menu_settings.h"
 #include "menu_fileoptions.h"
-#include "osl_helper.h"
 #include "screenshot.h"
 #include "status_bar.h"
 #include "textures.h"
@@ -52,15 +54,15 @@ static void Menu_HandleMultiSelect(void) {
 static void Menu_ControlMenubar(void) {
 	char *buf;
 
-	if (osl_keys->pressed.up)
+	if (Utils_IsButtonPressed(PSP_CTRL_UP))
 		menubar_selection--;
-	else if (osl_keys->pressed.down)
+	else if (Utils_IsButtonPressed(PSP_CTRL_DOWN))
 		menubar_selection++;
 
 	Utils_SetMax(&menubar_selection, 0, Utils_IsModelPSPGo()? 2 : 3);
 	Utils_SetMin(&menubar_selection, Utils_IsModelPSPGo()? 2 : 3, 0);
 
-	if (osl_keys->pressed.value & OSL_KEYMASK_ENTER) {
+	if (Utils_IsButtonPressed(PSP_CTRL_ENTER)) {
 		switch (menubar_selection) {
 			case 0:
 				if (BROWSE_STATE == BROWSE_STATE_UMD)
@@ -158,7 +160,7 @@ static void Menu_ControlMenubar(void) {
 				break;
 		}
 	}
-	else if ((osl_keys->pressed.value & OSL_KEYMASK_CANCEL) || (osl_keys->pressed.select)) {
+	else if ((Utils_IsButtonPressed(PSP_CTRL_CANCEL)) || (Utils_IsButtonPressed(PSP_CTRL_SELECT))) {
 		menubar_x -= 10.0;
 		menubar_selection = 0;
 		menubar_x = -180;
@@ -168,59 +170,59 @@ static void Menu_ControlMenubar(void) {
 
 static void Menu_ControlHome(void) {
 	if (fileCount > 0) {
-		if (osl_keys->pressed.up)
+		if (Utils_IsButtonPressed(PSP_CTRL_UP))
 			position--;
-		else if (osl_keys->pressed.down)
+		else if (Utils_IsButtonPressed(PSP_CTRL_DOWN))
 			position++;
 
 		Utils_SetMax(&position, 0, fileCount - 1);
 		Utils_SetMin(&position, fileCount - 1, 0);
 
-		if (osl_keys->pressed.left)
+		if (Utils_IsButtonPressed(PSP_CTRL_LEFT))
 			position = 0;
-		else if (osl_keys->pressed.right)
+		else if (Utils_IsButtonPressed(PSP_CTRL_RIGHT))
 			position = fileCount - 1;
 
-		if (osl_keys->pressed.square)
+		if (Utils_IsButtonPressed(PSP_CTRL_SQUARE))
 			Menu_HandleMultiSelect();
 
-		if (osl_keys->pressed.value & OSL_KEYMASK_ENTER)
+		if (Utils_IsButtonPressed(PSP_CTRL_ENTER))
 			Dirbrowse_OpenFile();
-		else if ((strcmp(cwd, root_path) != 0) && (osl_keys->pressed.value & OSL_KEYMASK_CANCEL)) {
+		else if ((strcmp(cwd, root_path) != 0) && (Utils_IsButtonPressed(PSP_CTRL_CANCEL))) {
 			Dirbrowse_Navigate(true);
 			Dirbrowse_PopulateFiles(true);
 		}
 	}
 
-	if (osl_keys->pressed.select) {
+	if (Utils_IsButtonPressed(PSP_CTRL_SELECT)) {
 		menubar_selection = BROWSE_STATE;
 		MENU_STATE = MENU_STATE_MENUBAR;
 	}
-	else if (osl_keys->pressed.start)
+	else if (Utils_IsButtonPressed(PSP_CTRL_START))
 		MENU_STATE = MENU_STATE_SETTINGS;
-	else if (osl_keys->pressed.triangle)
+	else if (Utils_IsButtonPressed(PSP_CTRL_TRIANGLE))
 		MENU_STATE = MENU_STATE_FILEOPTIONS;
 }
 
 static void Menu_DisplayMenubar(void) {
-	oslDrawImageXY(bg_header, menubar_x, 20);
-	OSL_DrawFillRect(menubar_x, 90, 180, 252, config.dark_theme? BLACK_BG : WHITE);
-	OSL_DrawFillRect(menubar_x + 180, 20, 1, 252, config.dark_theme? SELECTOR_COLOUR_DARK : RGBA(200, 200, 200, 255));
-	OSL_DrawFillRect(menubar_x, 90 + (30 * menubar_selection), 180, 30, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+	G2D_DrawImage(bg_header, menubar_x, 20);
+	G2D_DrawRect(menubar_x, 90, 180, 252, config.dark_theme? BLACK_BG : WHITE);
+	G2D_DrawRect(menubar_x + 180, 20, 1, 252, config.dark_theme? SELECTOR_COLOUR_DARK : G2D_RGBA(200, 200, 200, 255));
+	G2D_DrawRect(menubar_x, 90 + (30 * menubar_selection), 180, 30, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
-	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
-	oslDrawImageXY(config.dark_theme? icon_sd_dark : icon_sd, menubar_x + 10, 92);
-	oslDrawString(menubar_x + 50, 90 + ((30 - (font->charHeight - 6)) / 2), Utils_IsEF0()? "ef0:/" : "ms0:/");
+	intraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	G2D_DrawImage(config.dark_theme? icon_sd_dark : icon_sd, menubar_x + 10, 92);
+	intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2), Utils_IsEF0()? "ef0:/" : "ms0:/");
 
-	oslDrawImageXY(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 122);
-	oslDrawString(menubar_x + 50, 90 + ((30 - (font->charHeight - 6)) / 2) + 30, "flash0:/");
+	G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 122);
+	intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 30, "flash0:/");
 
-	oslDrawImageXY(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 152);
-	oslDrawString(menubar_x + 50, 90 + ((30 - (font->charHeight - 6)) / 2) + 60, "flash1:/");
+	G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 152);
+	intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 60, "flash1:/");
 
 	if (!Utils_IsModelPSPGo()) {
-		oslDrawImageXY(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 182);
-		oslDrawString(menubar_x + 50, 90 + ((30 - (font->charHeight - 6)) / 2) + 90, "disc0:/");
+		G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 182);
+		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 90, "disc0:/");
 	}
 }
 
@@ -231,17 +233,17 @@ void Menu_Main(void) {
 	total_storage = Utils_GetTotalStorage();
 	used_storage = Utils_GetUsedStorage();
 
-	while (!osl_quit) {
-		OSL_StartDrawing();
-		oslClearScreen(config.dark_theme? BLACK_BG : WHITE);
-		OSL_DrawFillRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
-		OSL_DrawFillRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
-		oslDrawImageXY(icon_nav_drawer, 5, 25);
+	while (1) {
+		g2dClear(config.dark_theme? BLACK_BG : WHITE);
+		G2D_DrawRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
+		G2D_DrawRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
+		G2D_DrawImage(icon_nav_drawer, 5, 25);
 
 		StatusBar_DisplayTime();
 		Dirbrowse_DisplayFiles();
 
-		oslReadKeys();
+		Utils_ReadControls();
+
 		if (MENU_STATE == MENU_STATE_HOME)
 			Menu_ControlHome();
 		else if (MENU_STATE == MENU_STATE_FILEOPTIONS) {
@@ -267,13 +269,13 @@ void Menu_Main(void) {
 		else if (MENU_STATE == MENU_STATE_SETTINGS)
 			Menu_DisplaySettings();
 
-		if (((osl_keys->held.L) && (osl_keys->pressed.R)) || ((osl_keys->held.R) && (osl_keys->pressed.L)))
+		if (((Utils_IsButtonHeld(PSP_CTRL_LTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_RTRIGGER))) || ((Utils_IsButtonHeld(PSP_CTRL_RTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER))))
 			Screenshot_Capture();
 
-		else if (((osl_keys->held.start) && (osl_keys->pressed.select)) || ((osl_keys->held.select) && (osl_keys->pressed.start)))
+		else if (((Utils_IsButtonHeld(PSP_CTRL_START)) && (Utils_IsButtonPressed(PSP_CTRL_SELECT))) || ((Utils_IsButtonHeld(PSP_CTRL_SELECT)) && (Utils_IsButtonPressed(PSP_CTRL_START))))
 			longjmp(exitJmp, 1);
 
 		Utils_HandleUSB();
-		OSL_EndDrawing();
+		g2dFlip(G2D_VSYNC);
 	}
 }

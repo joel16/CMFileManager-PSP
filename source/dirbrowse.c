@@ -1,14 +1,15 @@
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "archive.h"
 #include "common.h"
 #include "config.h"
 #include "dirbrowse.h"
 #include "fs.h"
+#include "glib2d_helper.h"
 #include "menu_error.h"
-#include "menu_music.h"
 #include "menu_gallery.h"
-#include "osl_helper.h"
 #include "textures.h"
 #include "utils.h"
 
@@ -124,13 +125,11 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 }
 
 void Dirbrowse_DisplayFiles(void) {
-	oslIntraFontSetStyle(font, 0.6f, WHITE, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
-	oslDrawString(40, 20 + ((40 - (font->charHeight - 6)) / 2), cwd);
+	intraFontSetStyle(font, 0.6f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontPrint(font, 40, 20 + ((40 - (font->texYSize - 30)) / 2), cwd);
 
-	OSL_DrawFillRect(40, 20 + ((40 - (font->charHeight - 6)) / 2) + (40 - (font->charHeight - 6)), 400, 3, config.dark_theme? 
-		SELECTOR_COLOUR_DARK : RGBA(10, 73, 163, 255));
-	OSL_DrawFillRect(40, 20 + ((40 - (font->charHeight - 6)) / 2) + (40 - (font->charHeight - 6)), (((double)used_storage/(double)total_storage) * 400.0), 
-		3, config.dark_theme? TITLE_COLOUR_DARK : RGBA(49, 161, 224, 255));
+	G2D_DrawRect(40, 52, 400, 3, config.dark_theme? SELECTOR_COLOUR_DARK : G2D_RGBA(10, 73, 163, 255));
+	G2D_DrawRect(40, 52, (((double)used_storage/(double)total_storage) * 400.0), 3, config.dark_theme? TITLE_COLOUR_DARK : G2D_RGBA(49, 161, 224, 255));
 
 	int i = 0, printed = 0;
 	File *file = files; // Draw file list
@@ -141,53 +140,52 @@ void Dirbrowse_DisplayFiles(void) {
 
 		if (position < FILES_PER_PAGE || i > (position - FILES_PER_PAGE)) {
 			if (i == position)
-				OSL_DrawFillRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+				G2D_DrawRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
-			if (strcmp(multi_select_dir, cwd) == 0) {
-				multi_select[i] == true? oslDrawImageXY(config.dark_theme? icon_check_dark : icon_check, 5, 71 + (42 * printed)) : 
-					oslDrawImageXY(config.dark_theme? icon_uncheck_dark : icon_uncheck, 5, 71 + (42 * printed));
+			// Do not allow parent dir to be multi-selected
+			if (strncmp(file->name, "..", 2)) {
+				if (strcmp(multi_select_dir, cwd) == 0) {
+					multi_select[i] == true? G2D_DrawImage(config.dark_theme? icon_check_dark : icon_check, 5, 71 + (42 * printed)) : 
+						G2D_DrawImage(config.dark_theme? icon_uncheck_dark : icon_uncheck, 5, 71 + (42 * printed));
+				}
+				else
+					G2D_DrawImage(config.dark_theme? icon_uncheck_dark : icon_uncheck, 5, 71 + (42 * printed));
 			}
-			else
-				oslDrawImageXY(config.dark_theme? icon_uncheck_dark : icon_uncheck, 5, 71 + (42 * printed));
-
-			char path[512];
-			strcpy(path, cwd);
-			strcpy(path + strlen(path), file->name);
 
 			if (file->isDir)
-				oslDrawImageXY(config.dark_theme? icon_dir_dark : icon_dir, 34, 65 + (42 * printed));
+				G2D_DrawImage(config.dark_theme? icon_dir_dark : icon_dir, 34, 65 + (42 * printed));
 			else if (!strncasecmp(file->ext, "pbp", 3))
-				oslDrawImageXY(icon_app, 34, 65 + (42 * printed));
+				G2D_DrawImage(icon_app, 34, 65 + (42 * printed));
 			else if ((!strncasecmp(file->ext, "mp3", 3)) || (!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "flac", 3)))
-				oslDrawImageXY(icon_audio, 34, 65 + (42 * printed));
+				G2D_DrawImage(icon_audio, 34, 65 + (42 * printed));
 			else if ((!strncasecmp(file->ext, "zip", 3)) || (!strncasecmp(file->ext, "rar", 3)))
-				oslDrawImageXY(icon_archive, 34, 65 + (42 * printed));
+				G2D_DrawImage(icon_archive, 34, 65 + (42 * printed));
 			else if ((!strncasecmp(file->ext, "iso", 3)) || (!strncasecmp(file->ext, "cso", 3)))
-				oslDrawImageXY(icon_cd, 34, 65 + (42 * printed));
-			else if ((!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3)) || (!strncasecmp(file->ext, "png", 3)))
-				oslDrawImageXY(icon_image, 34, 65 + (42 * printed));
+				G2D_DrawImage(icon_cd, 34, 65 + (42 * printed));
+			else if ((!strncasecmp(file->ext, "bmp", 3)) || (!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3)) || (!strncasecmp(file->ext, "png", 3)))
+				G2D_DrawImage(icon_image, 34, 65 + (42 * printed));
 			else if (!strncasecmp(file->ext, "prx", 3))
-				oslDrawImageXY(icon_prx, 34, 65 + (42 * printed));
+				G2D_DrawImage(icon_prx, 34, 65 + (42 * printed));
 			else if ((!strncasecmp(file->ext, "cfg", 3)) || (!strncasecmp(file->ext, "log", 3)) || (!strncasecmp(file->ext, "txt", 3)))
-				oslDrawImageXY(icon_text, 34, 65 + (42 * printed));
+				G2D_DrawImage(icon_text, 34, 65 + (42 * printed));
 			else
-				oslDrawImageXY(icon_file, 34, 65 + (42 * printed));
+				G2D_DrawImage(icon_file, 34, 65 + (42 * printed));
 
 			char buf[64], size[16];
 			strncpy(buf, file->name, sizeof(buf));
 			buf[sizeof(buf) - 1] = '\0';
 
-			oslIntraFontSetStyle(font, 0.5f, config.dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+			intraFontSetStyle(font, 0.5f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 			if (!file->isDir) {
 				Utils_GetSizeString(size, file->size);
-				oslDrawString(470 - oslGetStringWidth(size), 86 + (42 * printed), size);
+				intraFontPrint(font, 475 - intraFontMeasureText(font, size), 86 + (42 * printed), size);
 			}
 			
-			oslIntraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+			intraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 			if (strncmp(file->name, "..", 2) == 0)
-				oslDrawString(80, 62 + ((42 - (font->charHeight - 6)) / 2) + (42 * printed), "Parent folder");
+				intraFontPrint(font, 80, 62 + ((42 - (font->texYSize - 30)) / 2) + (42 * printed), "Parent folder");
 			else 
-				oslDrawString(80, 62 + ((42 - (font->charHeight - 6)) / 2) + (42 * printed), buf);
+				intraFontPrint(font, 80, 62 + ((42 - (font->texYSize - 30)) / 2) + (42 * printed), buf);
 
 			printed++; // Increase printed counter
 		}
@@ -232,7 +230,7 @@ void Dirbrowse_OpenFile(void) {
 			Dirbrowse_PopulateFiles(true);
 		}
 	}
-	else if ((!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3)) || (!strncasecmp(file->ext, "png", 3)))
+	else if ((!strncasecmp(file->ext, "bmp", 3)) || (!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3)) || (!strncasecmp(file->ext, "png", 3)))
 		Gallery_DisplayImage(path);
 	else if (!strncasecmp(file->ext, "pbp", 3))
 		Utils_LaunchEboot(path);

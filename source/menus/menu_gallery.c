@@ -1,14 +1,18 @@
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "common.h"
 #include "fs.h"
-#include "osl_helper.h"
+#include "glib2d_helper.h"
 #include "utils.h"
+
+#define BYTES_PER_PIXEL 4
+#define TRANSPARENT_COLOR 0xFFFFFFFF
 
 static char album[1024][512];
 static int count = 0, selection = 0;
-static OSL_IMAGE *image;
-static int width = 0, height = 0;
+static g2dTexture *image;
+static float width = 0, height = 0;
 
 static int Gallery_GetImageList(void) {
 	SceUID dir = 0;
@@ -24,8 +28,8 @@ static int Gallery_GetImageList(void) {
 		qsort(entries, entryCount, sizeof(SceIoDirent), Utils_Alphasort);
 
 		for (i = 0; i < entryCount; i++) {
-			if ((!strncasecmp(FS_GetFileExt(entries[i].d_name), "png", 3)) || (!strncasecmp(FS_GetFileExt(entries[i].d_name), "jpg", 3)) || 
-				(!strncasecmp(FS_GetFileExt(entries[i].d_name), "gif", 3))) {
+			if ((!strncasecmp(FS_GetFileExt(entries[i].d_name), "bmp", 3)) || (!strncasecmp(FS_GetFileExt(entries[i].d_name), "gif", 3)) || (!strncasecmp(FS_GetFileExt(entries[i].d_name), "jpg", 3)) 
+				|| (!strncasecmp(FS_GetFileExt(entries[i].d_name), "png", 3))) {
 				strcpy(album[count], cwd);
 				strcpy(album[count] + strlen(album[count]), entries[i].d_name);
 				count++;
@@ -61,39 +65,39 @@ static void Gallery_HandleNext(bool forward) {
 	Utils_SetMax(&selection, 0, (count - 1));
 	Utils_SetMin(&selection, (count - 1), 0);
 
-	oslDeleteImage(image);
+	g2dTexFree(&image);
 	selection = Gallery_GetCurrentIndex(album[selection]);
 
-	image = oslLoadImageFile(album[selection], OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
-	width = oslGetImageWidth(image);
-	height = oslGetImageHeight(image);
+	image = g2dTexLoad(album[selection], G2D_SWIZZLE);
+	width = image->w;
+	height = image->h;
 }
 
 void Gallery_DisplayImage(char *path) {
 	Gallery_GetImageList();
 	selection = Gallery_GetCurrentIndex(path);
-	image = oslLoadImageFile(path, OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_8888);
-	width = oslGetImageWidth(image);
-	height = oslGetImageHeight(image);
+	image = g2dTexLoad(path, G2D_SWIZZLE);
+	width = image->w;
+	height = image->h;
 
-	while (!osl_quit) {
-		OSL_StartDrawing();
-		oslClearScreen(RGBA(33, 39, 43, 255));
+	while (1) {
+		g2dClear(G2D_RGBA(33, 39, 43, 255));
 
-		oslDrawImageXY(image, (480 - width) / 2, (272 - height) / 2);
+		G2D_DrawImage(image, (G2D_SCR_W - width) / 2, (G2D_SCR_H - height) / 2);
 
-		OSL_EndDrawing();
-		oslReadKeys();
+		g2dFlip(G2D_VSYNC);
 
-		if ((osl_keys->pressed.left) || (osl_keys->pressed.L))
+		Utils_ReadControls();
+
+		if ((Utils_IsButtonPressed(PSP_CTRL_LEFT)) || (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER)))
 			Gallery_HandleNext(false);
-		else if ((osl_keys->pressed.right) || (osl_keys->pressed.R))
+		else if ((Utils_IsButtonPressed(PSP_CTRL_RIGHT)) || (Utils_IsButtonPressed(PSP_CTRL_RTRIGGER)))
 			Gallery_HandleNext(true);
 
-		if (osl_keys->pressed.value & OSL_KEYMASK_CANCEL)
+		if (Utils_IsButtonPressed(PSP_CTRL_CANCEL))
 			break;
 	}
 
-	oslDeleteImage(image);
+	g2dTexFree(&image);
 	MENU_STATE = MENU_STATE_HOME;
 }

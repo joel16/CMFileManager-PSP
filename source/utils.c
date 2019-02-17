@@ -3,6 +3,7 @@
 #include <pspusb.h>
 #include <pspusbstor.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "common.h"
 #include "config.h"
@@ -17,6 +18,7 @@
 #define PATH_USBDEVICE PATH_FLASH0 "kd/_usbdevice.prx"
 #define NELEMS(a) (sizeof(a) / sizeof(a[0]))
 
+static SceCtrlData current, previous;
 static bool g_usb_module_loaded = false;
 static bool g_usb_actived = false;
 
@@ -323,7 +325,7 @@ static int Utils_GetRegistryValue(const char *dir, const char *name, unsigned in
 	reg.unk3 = 1;
 	strcpy(reg.name, "/system");
 	
-	if (R_SUCCEEDED(sceRegOpenRegistry(&reg, 2, &h) == 0)) {
+	if (R_SUCCEEDED(sceRegOpenRegistry(&reg, 2, &h))) {
 		REGHANDLE hd;
 		
 		if (R_SUCCEEDED(sceRegOpenCategory(h, dir, 2, &hd))) {
@@ -347,16 +349,29 @@ static int Utils_GetRegistryValue(const char *dir, const char *name, unsigned in
 	return ret;
 }
 
+void Utils_ReadControls(void) {
+	previous = current;
+	sceCtrlReadBufferPositive(&current, 1);
+}
+
+int Utils_IsButtonPressed(enum PspCtrlButtons buttons) {
+	return (!(previous.Buttons & buttons)) && current.Buttons & buttons;
+}
+
+int Utils_IsButtonHeld(enum PspCtrlButtons buttons) {
+	return current.Buttons & buttons;
+}
+
 int Utils_GetEnterButton(void) {
 	unsigned int button = 0;
 	if (R_SUCCEEDED(Utils_GetRegistryValue("/CONFIG/SYSTEM/XMB", "button_assign", &button))) {
 		if (button == 0)
-			return 0x2000; // OSL_KEYMASK_CIRCLE
+			return 0x002000; // PSP_CTRL_CIRCLE
 		else
-			return 0x4000; // OSL_KEYMASK_CROSS
+			return 0x004000; // PSP_CTRL_CROSS
 	}
 
-	return 0x4000; // By default return OSL_KEYMASK_CROSS
+	return 0x004000; // By default return PSP_CTRL_CROSS
 }
 
 // Basically the opposite of Utils_GetEnterButton();
@@ -364,10 +379,10 @@ int Utils_GetCancelButton(void) {
 	unsigned int button = 0;
 	if (R_SUCCEEDED(Utils_GetRegistryValue("/CONFIG/SYSTEM/XMB", "button_assign", &button))) {
 		if (button == 0)
-			return 0x4000; // OSL_KEYMASK_CROSS
+			return 0x004000; // PSP_CTRL_CROSS
 		else
-			return 0x2000; // OSL_KEYMASK_CIRCLE
+			return 0x002000; // PSP_CTRL_CIRCLE
 	}
 
-	return 0x2000; // By default return OSL_KEYMASK_CIRCLE
+	return 0x002000; // By default return PSP_CTRL_CIRCLE
 }

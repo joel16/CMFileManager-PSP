@@ -1,6 +1,6 @@
-#include <oslib/oslib.h>
+#include <glib2d.h>
 
-OSL_IMAGE *icon_app, *icon_archive, *icon_audio, *icon_cd, *icon_dir, *icon_dir_dark, *icon_file, *icon_image, *icon_prx, *icon_text, \
+g2dTexture *icon_app, *icon_archive, *icon_audio, *icon_cd, *icon_dir, *icon_dir_dark, *icon_file, *icon_image, *icon_prx, *icon_text, \
           *icon_check, *icon_check_dark, *icon_uncheck, *icon_uncheck_dark, *icon_toggle_on, *icon_toggle_dark_on, *icon_toggle_off, \
           *icon_radio_off, *icon_radio_on, *icon_radio_dark_off, *icon_radio_dark_on, *icon_nav_drawer, *icon_back, \
           *options_dialog, *options_dialog_dark, *properties_dialog, *properties_dialog_dark, *dialog, *dialog_dark, \

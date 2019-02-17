@@ -1,5 +1,6 @@
-#include <oslib/oslib.h>
+#include <psptypes.h>
 #include <psprtc.h>
+#include <stdio.h>
 
 #include "common.h"
 #include "fs.h"
@@ -35,7 +36,7 @@ void Screenshot_Capture(void) {
 			Screenshot_GenFilename(num, filename);
 		}
 
-		oslWriteImageFilePNG(OSL_SECONDARY_BUFFER, filename, 0);
+		//oslWriteImageFilePNG(OSL_SECONDARY_BUFFER, filename, 0);
 		num++;
 	}
 }

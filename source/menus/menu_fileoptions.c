@@ -1,12 +1,15 @@
+#include <psppower.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "common.h"
 #include "config.h"
 #include "dirbrowse.h"
 #include "fs.h"
+#include "glib2d_helper.h"
 #include "menu_error.h"
-#include "osl_helper.h"
 #include "progress_bar.h"
 #include "textures.h"
 #include "utils.h"
@@ -44,7 +47,7 @@ void FileOptions_ResetClipboard(void) {
 
 static int FileOptions_CreateFolder(void) {
 	char *buf = malloc(256);
-	OSL_DisplayKeyboard("Enter name", "New folder", buf);
+	strcpy(buf, G2D_KeyboardGetText("Enter name", "New folder"));
 
 	if (strncmp(buf, "", 1) == 0)
 		return -1;
@@ -64,7 +67,7 @@ static int FileOptions_CreateFolder(void) {
 static int FileOptions_CreateFile(void) {
 	int ret = 0;
 	char *buf = malloc(256);
-	OSL_DisplayKeyboard("Enter name", "New file", buf);
+	strcpy(buf, G2D_KeyboardGetText("Enter name", "New file"));
 
 	if (strncmp(buf, "", 1) == 0)
 		return -1;
@@ -102,8 +105,8 @@ static int FileOptions_Rename(void) {
 	strcpy(old_path, cwd);
 	strcpy(new_path, cwd);
 	strcat(old_path, file->name);
-	
-	OSL_DisplayKeyboard("Enter name", file->name, buf);
+
+	strcpy(buf, G2D_KeyboardGetText("Enter name", file->name));
 	strcat(new_path, buf);
 	free(buf);
 
@@ -280,20 +283,20 @@ static void HandleDelete(void) {
 }
 
 void Menu_ControlDeleteDialog(void) {
-	if (osl_keys->pressed.right)
+	if (Utils_IsButtonPressed(PSP_CTRL_RIGHT))
 		delete_dialog_selection++;
-	else if (osl_keys->pressed.left)
+	else if (Utils_IsButtonPressed(PSP_CTRL_LEFT))
 		delete_dialog_selection--;
 
 	Utils_SetMax(&delete_dialog_selection, 0, 1);
 	Utils_SetMin(&delete_dialog_selection, 1, 0);
 
-	if (osl_keys->pressed.value & OSL_KEYMASK_CANCEL) {
+	if (Utils_IsButtonPressed(PSP_CTRL_CANCEL)) {
 		delete_dialog_selection = 0;
 		MENU_STATE = MENU_STATE_FILEOPTIONS;
 	}
 
-	if (osl_keys->pressed.value & OSL_KEYMASK_ENTER) {
+	if (Utils_IsButtonPressed(PSP_CTRL_ENTER)) {
 		if (delete_dialog_selection == 1)
 			HandleDelete();
 		else
@@ -359,7 +362,7 @@ static int FileOptions_CopyFile(char *src, char *dst, bool display_anim) {
 			}
 		}
 
-		if (R_SUCCEEDED(output_file = sceIoOpen(dst, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777)) >= 0) {
+		if (R_SUCCEEDED(output_file = sceIoOpen(dst, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777))) {
 			int read = 0;
 
 			// Copy Loop (512KB at a time)
@@ -638,31 +641,31 @@ static void HandleCut(void) {
 }
 
 void Menu_DisplayDeleteDialog(void) {
-	int text_width = oslGetStringWidth("Do you want to continue?");
+	int text_width = intraFontMeasureText(font, "Do you want to continue?");
 
-	oslDrawImageXY(config.dark_theme? dialog_dark : dialog, ((480 - oslGetImageWidth(dialog)) / 2), ((272 - oslGetImageHeight(dialog)) / 2));
+	G2D_DrawImage(config.dark_theme? dialog_dark : dialog, ((480 - dialog->w) / 2), ((272 - dialog->h) / 2));
 
-	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
-	oslDrawString(((480 - oslGetImageWidth(dialog)) / 2) + 8, ((272 - oslGetImageHeight(dialog)) / 2) + 6, "Confirm deletion");
+	intraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontPrint(font, ((480 - dialog->w) / 2) + 10, ((272 - dialog->h) / 2) + 20, "Confirm deletion");
 
-	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
-	oslDrawString(((480 - (text_width)) / 2), ((272 - oslGetImageHeight(dialog)) / 2) + 40, "Do you wish to continue?");
+	intraFontSetStyle(font, 0.6f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontPrint(font, ((480 - (text_width)) / 2), ((272 - dialog->h) / 2) + 50, "Do you wish to continue?");
+
+	intraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 
 	if (delete_dialog_selection == 0)
-		OSL_DrawFillRect((364 - oslGetStringWidth("NO")) - 5, (191 - (font->charHeight - 6)) - 5, oslGetStringWidth("NO") + 10, (font->charHeight - 6) + 10, 
+		G2D_DrawRect((364 - intraFontMeasureText(font, "NO")) - 5, (180 - (font->texYSize - 20)) - 5, intraFontMeasureText(font, "NO") + 10, (font->texYSize - 10) + 10, 
 			config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	else if (delete_dialog_selection == 1)
-		OSL_DrawFillRect((409 - (oslGetStringWidth("YES"))) - 5, (191 - (font->charHeight - 6)) - 5, oslGetStringWidth("YES") + 10, (font->charHeight - 6) + 10, 
+		G2D_DrawRect((409 - (intraFontMeasureText(font, "YES"))) - 5, (180 - (font->texYSize - 20)) - 5, intraFontMeasureText(font, "YES") + 10, (font->texYSize - 10) + 10, 
 			config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
-	// 419
-	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
-	oslDrawString(409 - (oslGetStringWidth("YES")), (191 - (font->charHeight - 6)), "YES");
-	oslDrawString(364 - oslGetStringWidth("NO"), (191 - (font->charHeight - 6)), "NO");
+	intraFontPrint(font, 409 - (intraFontMeasureText(font, "YES")), (182 - (font->texYSize - 30)), "YES");
+	intraFontPrint(font, 364 - intraFontMeasureText(font, "NO"), (182 - (font->texYSize - 30)), "NO");
 }
 
 void Menu_ControlFileProperties(void) {
-	if ((osl_keys->pressed.value & OSL_KEYMASK_ENTER) || (osl_keys->pressed.value & OSL_KEYMASK_CANCEL))
+	if ((Utils_IsButtonPressed(PSP_CTRL_ENTER)) || (Utils_IsButtonPressed(PSP_CTRL_CANCEL)))
 		MENU_STATE = MENU_STATE_FILEOPTIONS;
 }
 
@@ -673,43 +676,43 @@ void Menu_DisplayFileProperties(void) {
 	strcpy(path, cwd);
 	strcpy(path + strlen(path), file->name);
 
-	oslDrawImageXY(config.dark_theme? properties_dialog_dark : properties_dialog, 131, 32);
-	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+	G2D_DrawImage(config.dark_theme? properties_dialog_dark : properties_dialog, 131, 32);
+	intraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 
-	OSL_DrawFillRect((340 - oslGetStringWidth("OK")) - 5, (230 - (font->charHeight - 6)) - 5, oslGetStringWidth("OK") + 10, (font->charHeight - 6) + 10, 
+	G2D_DrawRect((340 - intraFontMeasureText(font, "OK")) - 5, (230 - (font->texYSize - 6)) - 5, intraFontMeasureText(font, "OK") + 10, (font->texYSize - 6) + 10, 
 		config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
-	
-	oslDrawString(138, 39, "Properties");
-	oslDrawString(340 - oslGetStringWidth("OK"), 230 - (font->charHeight - 6), "OK");
 
-	oslIntraFontSetStyle(font, 0.5f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
-	oslDrawStringf(140, 64, "Name: %s", file->name);
+	intraFontPrint(font, 138, 50, "Properties");
+	intraFontPrint(font, 340 - intraFontMeasureText(font, "OK"), 230 - (font->texYSize - 20), "OK");
+
+	intraFontSetStyle(font, 0.5f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontPrintf(font, 140, 74, "Name: %s", file->name);
 
 	if (!file->isDir) {
 		Utils_GetSizeString(size, file->size);
-		oslDrawStringf(140, 80, "Size: %s", size);
-		oslDrawStringf(140, 96, "Created: %s", FS_GetFileTimestamp(path, 0));
-		oslDrawStringf(140, 112, "Accessed: %s", FS_GetFileTimestamp(path, 1));
-		oslDrawStringf(140, 128, "Modified: %s", FS_GetFileTimestamp(path, 2));
-		oslDrawStringf(140, 144, "Perms: %s", FS_GetFilePermission(path));
+		intraFontPrintf(font, 140, 90, "Size: %s", size);
+		intraFontPrintf(font, 140, 106, "Created: %s", FS_GetFileTimestamp(path, 0));
+		intraFontPrintf(font, 140, 122, "Accessed: %s", FS_GetFileTimestamp(path, 1));
+		intraFontPrintf(font, 140, 138, "Modified: %s", FS_GetFileTimestamp(path, 2));
+		intraFontPrintf(font, 140, 154, "Perms: %s", FS_GetFilePermission(path));
 	}
 	else {
-		oslDrawStringf(140, 80, "Created: %s", FS_GetFileTimestamp(path, 0));
-		oslDrawStringf(140, 96, "Accessed: %s", FS_GetFileTimestamp(path, 1));
-		oslDrawStringf(140, 112, "Modified: %s", FS_GetFileTimestamp(path, 2));
-		oslDrawStringf(140, 128, "Perms: %s", FS_GetFilePermission(path));
+		intraFontPrintf(font, 140, 90, "Created: %s", FS_GetFileTimestamp(path, 0));
+		intraFontPrintf(font, 140, 106, "Accessed: %s", FS_GetFileTimestamp(path, 1));
+		intraFontPrintf(font, 140, 122, "Modified: %s", FS_GetFileTimestamp(path, 2));
+		intraFontPrintf(font, 140, 138, "Perms: %s", FS_GetFilePermission(path));
 	}
 }
 
 void Menu_ControlFileOptions(void) {
-	if (osl_keys->pressed.right)
+	if (Utils_IsButtonPressed(PSP_CTRL_RIGHT))
 		row++;
-	else if (osl_keys->pressed.left)
+	else if (Utils_IsButtonPressed(PSP_CTRL_LEFT))
 		row--;
 
-	if (osl_keys->pressed.down)
+	if (Utils_IsButtonPressed(PSP_CTRL_DOWN))
 		column++;
-	else if (osl_keys->pressed.up)
+	else if (Utils_IsButtonPressed(PSP_CTRL_UP))
 		column--;
 
 	if (!options_more) {
@@ -733,7 +736,7 @@ void Menu_ControlFileOptions(void) {
 		}
 	}
 	
-	if (osl_keys->pressed.value & OSL_KEYMASK_ENTER) {
+	if (Utils_IsButtonPressed(PSP_CTRL_ENTER)) {
 		if (row == 0 && column == 0) {
 			if (options_more)
 				FileOptions_CreateFolder();
@@ -783,7 +786,7 @@ void Menu_ControlFileOptions(void) {
 		}
 	}
 
-	if (osl_keys->pressed.value & OSL_KEYMASK_CANCEL) {
+	if (Utils_IsButtonPressed(PSP_CTRL_CANCEL)) {
 		if (!options_more) {
 			copy_status = false;
 			cut_status = false;
@@ -798,51 +801,51 @@ void Menu_ControlFileOptions(void) {
 		}
 	}
 
-	if (osl_keys->pressed.triangle)
+	if (Utils_IsButtonPressed(PSP_CTRL_TRIANGLE))
 		MENU_STATE = MENU_STATE_HOME;
 }
 
 void Menu_DisplayFileOptions(void) {
-	oslDrawImageXY(config.dark_theme? options_dialog_dark : options_dialog, 131, 32);
-	oslIntraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
-	oslDrawString(138, 39, "Actions");
+	G2D_DrawImage(config.dark_theme? options_dialog_dark : options_dialog, (480 - options_dialog->w) / 2, (272 - options_dialog->h) / 2);
+	intraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.6f, INTRAFONT_ALIGN_LEFT);
+	intraFontPrint(font, 140, 52, "Actions");
 	
 	if (row == 0 && column == 0)
-		OSL_DrawFillRect(133, 71, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		G2D_DrawRect(132, 71, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	else if (row == 1 && column == 0)
-		OSL_DrawFillRect(241, 71, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		G2D_DrawRect(241, 71, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	else if (row == 0 && column == 1)
-		OSL_DrawFillRect(133, 110, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		G2D_DrawRect(132, 110, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	else if (row == 1 && column == 1)
-		OSL_DrawFillRect(241, 110, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		G2D_DrawRect(241, 110, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	else if (row == 0 && column == 2 && !options_more)
-		OSL_DrawFillRect(133, 148, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		G2D_DrawRect(132, 148, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	else if (row == 1 && column == 2 && !options_more)
-		OSL_DrawFillRect(241, 148, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		G2D_DrawRect(241, 148, 107, 38, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	else if (column == 3 && !options_more)
-		OSL_DrawFillRect((340 - oslGetStringWidth("CANCEL")) - 5, (230 - (font->charHeight - 6)) - 5, oslGetStringWidth("CANCEL") + 10, (font->charHeight - 6) + 10, 
-			config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		G2D_DrawRect((340 - intraFontMeasureText(font, "CANCEL")) - 5, (230 - (font->texYSize - 6)) - 5, intraFontMeasureText(font, "CANCEL") + 10,
+			(font->texYSize - 6) + 10, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	else if (column == 2 && options_more)
-		OSL_DrawFillRect((340 - oslGetStringWidth("CANCEL")) - 5, (230 - (font->charHeight - 6)) - 5, oslGetStringWidth("CANCEL") + 10, (font->charHeight - 6) + 10, 
-			config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		G2D_DrawRect((340 - intraFontMeasureText(font, "CANCEL")) - 5, (230 - (font->texYSize - 6)) - 5, intraFontMeasureText(font, "CANCEL") + 10, 
+			(font->texYSize - 6) + 10, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
-	oslDrawString(340 - oslGetStringWidth("CANCEL"), 230 - (font->charHeight - 6), "CANCEL");
+	intraFontPrint(font, 340 - intraFontMeasureText(font, "CANCEL"), 230 - (font->texYSize - 20), "CANCEL");
 
-	oslIntraFontSetStyle(font, 0.5f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, RGBA(0, 0, 0, 0), INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.5f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 
 	if (!options_more) {
-		oslDrawString(143, 82, "Properties");
-		oslDrawString(143, 118, copy_status? "Paste" : "Copy");
-		oslDrawString(143, 154, "Delete");
+		intraFontPrint(font, 143, 95, "Properties");
+		intraFontPrint(font, 143, 133, copy_status? "Paste" : "Copy");
+		intraFontPrint(font, 143, 171, "Delete");
 		
-		oslDrawString(247, 82, "Refresh");
-		oslDrawString(247, 118, cut_status? "Paste" : "Move");
-		oslDrawString(247, 154, "More...");
+		intraFontPrint(font, 247, 95, "Refresh");
+		intraFontPrint(font, 247, 133, cut_status? "Paste" : "Move");
+		intraFontPrint(font, 247, 171, "More...");
 	}
 	else {
-		oslDrawString(143, 82, "New folder");
-		oslDrawString(143, 118, "Rename");
+		intraFontPrint(font, 143, 95, "New folder");
+		intraFontPrint(font, 143, 133, "Rename");
 
-		oslDrawString(247, 82, "New file");
+		intraFontPrint(font, 247, 95, "New file");
 	}
 }

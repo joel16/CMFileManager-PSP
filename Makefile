@@ -1,8 +1,9 @@
 TARGET = CMFileManager
 
-OBJS   = source/config.o source/dirbrowse.o source/fs.o source/log.o source/main.o source/osl_helper.o source/progress_bar.o source/screenshot.o \
+OBJS   = glib2d_mod/glib2d.o glib2d_mod/intraFont.o glib2d_mod/libccc.o glib2d_mod/libnsbmp.o glib2d_mod/libnsgif.o glib2d_mod/lzw.o glib2d_mod/lodepng.o glib2d_mod/picojpeg.o \
+         source/config.o source/dirbrowse.o source/fs.o source/log.o source/main.o source/glib2d_helper.o source/progress_bar.o source/screenshot.o \
          source/status_bar.o source/textures.o source/utils.o source/menus/menu_error.o source/menus/menu_fileoptions.o source/menus/menu_gallery.o \
-         source/menus/menu_main.o source/menus/menu_music.o source/menus/menu_settings.o source/archive/archive.o source/archive/ioapi.o source/archive/unzip.o 
+         source/menus/menu_main.o source/menus/menu_settings.o source/archive/archive.o source/archive/ioapi.o source/archive/unzip.o 
 
 DATA_OBJS = data/battery_20.o data/battery_30.o data/battery_50.o data/battery_60.o data/battery_80.o data/battery_90.o data/battery_full.o \
             data/battery_low.o data/battery_unknown.o data/battery_20_charging.o data/battery_30_charging.o data/battery_50_charging.o \
@@ -26,7 +27,7 @@ VERSION_MAJOR :=  1
 VERSION_MINOR :=  1
 VERSION_MICRO :=  0
 
-INCDIR   = common include include/archive include/menus
+INCDIR   = common include include/archive include/menus glib2d_mod
 CFLAGS   = -G0 -Wall -O3 -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS  := $(CFLAGS)
@@ -34,10 +35,8 @@ OBJS     += $(DATA_OBJS)
 
 LIBDIR  = libs
 LDFLAGS =
-LIBS    = -losl -lpng -lz -lm -lpspvram \
-          -lpsphprm -lpspsdk -lpspctrl -lpsprtc -lpsppower -lpspgu -lpspgum -lpsphttp -lpspssl -lpspwlan \
-          -lpspnet_adhocmatching -lpspnet_adhoc -lpspnet_adhocctl -ljpeg \
-          -lpspmp3 -lmad -lpspaudiolib -lpspaudio -lpspaudiocodec \
+LIBS    = -lz -lpspgum -lpspgu -lpsprtc -lm -lpspvram -lpsphttp -lpspssl -lpspwlan \
+          -lpspsdk -lpspctrl -lpsppower -lpspnet_adhocmatching -lpspnet_adhoc -lpspnet_adhocctl \
           -lpspreg -lpspusb -lpspusbstor -lpspusbdevice -lpspumd -lpspkubridge -lpspsystemctrl_user
 
 EXTRA_TARGETS    = EBOOT.PBP
