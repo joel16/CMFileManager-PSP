@@ -13,6 +13,7 @@
 - Auto USB mount (with ef0:/ and ms0:/ support for PSP GO).
 - Dark theme mode.
 - Browse other drives like flah0, flash1 and UMD (if not using PSP GO).
+- Screenshots in .BMP format. Use L + R to capture a screenshot.
 
 
 **Buttons:**
