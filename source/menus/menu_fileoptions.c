@@ -347,53 +347,58 @@ static int sceIoMove(const char *src, const char *dest) {
 	return 0;
 }
 
-static int FileOptions_CopyFile(char *src, char *dst, bool display_anim) {
-	int chunksize = (512 * 1024); // Chunk size
-	char *buffer = malloc(chunksize); // Reading buffer
+static int FileOptions_CopyFile(char *src, char *dst, bool display_animation) {
+	SceUID src_file, dst_file;
+	int ret = 0;
 
-	int ret = 0, totalwrite = 0, totalread = 0, input_file = 0, output_file = 0;
-	SceOff size = FS_GetFileSize(src);
-
-	if (R_SUCCEEDED(input_file = sceIoOpen(src, PSP_O_RDONLY, 0777))) {
-		if (FS_FileExists(dst)) {
-			if (R_FAILED(ret = sceIoRemove(dst))) { // Delete Output File (if existing)
-				Menu_DisplayError("sceIoRemove() failed!", ret);
-				return ret;
-			}
-		}
-
-		if (R_SUCCEEDED(output_file = sceIoOpen(dst, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777))) {
-			int read = 0;
-
-			// Copy Loop (512KB at a time)
-			while((read = sceIoRead(input_file, buffer, chunksize)) > 0) {
-				// Accumulate Read Data
-				totalread += read;
-				totalwrite += sceIoWrite(output_file, buffer, read);
-
-				if (display_anim)
-					ProgressBar_DisplayProgress(copymode == 1? "Moving" : "Copying", Utils_Basename(src), totalread, size);
-			}
-
-			sceIoClose(output_file);
-
-			// Insufficient Copy
-			if (totalread != totalwrite) 
-				ret = -1;
-		}
-		else {
-			Menu_DisplayError("sceIoOpen() failed!", output_file);
-			return output_file;
-		}
-
-		sceIoClose(input_file);
-	}
-	else {
-		Menu_DisplayError("sceIoOpen() failed!", input_file);
-		return input_file;
+	if (R_FAILED(ret = src_file = sceIoOpen(src, PSP_O_RDONLY, 0))) {
+		Menu_DisplayError("FSUSER_OpenFile failed:", ret);
+		return ret;
 	}
 
-	free(buffer);
+	if (R_FAILED(ret = dst_file = sceIoOpen(dst, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777))) {
+		sceIoClose(src_file);
+		Menu_DisplayError("FSUSER_OpenFile failed:", ret);
+		return ret;
+	}
+
+	u32 bytes_read = 0;
+	SceOff offset = 0, size = 0;
+	size_t buf_size = 0x10000;
+	u8 *buf = malloc(buf_size); // Chunk size
+
+	size = sceIoLseek(src_file, 0, PSP_SEEK_END);
+    sceIoLseek(src_file, 0, PSP_SEEK_SET);
+
+	do {
+		memset(buf, 0, buf_size);
+
+		if (R_FAILED(ret = bytes_read = sceIoRead(src_file, buf, buf_size))) {
+			free(buf);
+			sceIoClose(src_file);
+			sceIoClose(dst_file);
+			Menu_DisplayError("FSFILE_Read failed:", ret);
+			return ret;
+		}
+
+		if (R_FAILED(ret = sceIoWrite(dst_file, buf, bytes_read))) {
+			free(buf);
+			sceIoClose(src_file);
+			sceIoClose(dst_file);
+			Menu_DisplayError("FSFILE_Write failed:", ret);
+			return ret;
+		}
+
+		offset += bytes_read;
+
+		if (display_animation)
+			ProgressBar_DisplayProgress(copymode == 1? "Moving" : "Copying", Utils_Basename(src), offset, size);
+	}
+	while(offset < size);
+
+	free(buf);
+	sceIoClose(src_file);
+	sceIoClose(dst_file);
 	return 0;
 }
 

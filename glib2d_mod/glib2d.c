@@ -1051,21 +1051,18 @@ static u8 *_g2dTexLoadExternalImage(const char *path, u32 *data_size) {
         return NULL;
     }
 
-    SceIoStat stat;
-    if (R_FAILED(ret = sceIoGetstat(path, &stat))) {
-        sceIoClose(file);
-        return NULL;
-    }
+    SceOff size = sceIoLseek(file, 0, PSP_SEEK_END);
+    sceIoLseek(file, 0, PSP_SEEK_SET);
 
-    buffer = malloc(stat.st_size);
+    buffer = malloc(size);
     if (!buffer) {
         free(buffer);
         sceIoClose(file);
         return NULL;
     }
 
-    bytes_read = sceIoRead(file, buffer, stat.st_size);
-    if (bytes_read != stat.st_size) {
+    bytes_read = sceIoRead(file, buffer, size);
+    if (bytes_read != size) {
         free(buffer);
         sceIoClose(file);
         return NULL;
@@ -1073,7 +1070,7 @@ static u8 *_g2dTexLoadExternalImage(const char *path, u32 *data_size) {
 
     sceIoClose(file);
 
-    *data_size = stat.st_size;
+    *data_size = size;
     return buffer;
 }
 
@@ -1318,7 +1315,7 @@ static g2dTexture *_g2dTexLoadGIFMemory(void *data, size_t size) {
 #endif
 
 static SceUID jpeg_file = 0;
-static u32 jpeg_size;
+static SceOff jpeg_size;
 static u32 jpeg_offset;
 
 unsigned char pjpeg_need_bytes_callback(unsigned char *pBuf, unsigned char buf_size, unsigned char *pBytes_actually_read, void *pCallback_data) {
@@ -1350,13 +1347,8 @@ u8 *pjpeg_load_from_file(const char *path, unsigned *w, unsigned *h, int *comps,
     if (R_FAILED(jpeg_file = sceIoOpen(path, PSP_O_RDONLY, 0)))
         return NULL;
 
-    SceIoStat stat;
-    if (R_FAILED(sceIoGetstat(path, &stat))) {
-        sceIoClose(jpeg_file);
-        return NULL;
-    }
-
-    jpeg_size = stat.st_size;
+    jpeg_size = sceIoLseek(jpeg_file, 0, PSP_SEEK_END);
+    sceIoLseek(jpeg_file, 0, PSP_SEEK_SET);
 
     status = pjpeg_decode_init(&image_info, pjpeg_need_bytes_callback, NULL, (unsigned char)0);
     if (status) {
