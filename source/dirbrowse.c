@@ -1,3 +1,4 @@
+#include <malloc.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -125,7 +126,7 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 }
 
 void Dirbrowse_DisplayFiles(void) {
-	intraFontSetStyle(font, 0.6f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.7f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 	intraFontPrint(font, 40, 20 + ((40 - (font->texYSize - 30)) / 2), cwd);
 
 	G2D_DrawRect(40, 52, 400, 3, config.dark_theme? SELECTOR_COLOUR_DARK : G2D_RGBA(10, 73, 163, 255));
@@ -175,17 +176,17 @@ void Dirbrowse_DisplayFiles(void) {
 			strncpy(buf, file->name, sizeof(buf));
 			buf[sizeof(buf) - 1] = '\0';
 
-			intraFontSetStyle(font, 0.5f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+			intraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 			if (!file->isDir) {
 				Utils_GetSizeString(size, file->size);
-				intraFontPrint(font, 475 - intraFontMeasureText(font, size), 86 + (42 * printed), size);
+				intraFontPrint(font, 475 - intraFontMeasureText(font, size), 95 + (42 * printed), size);
 			}
 			
-			intraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+			intraFontSetStyle(font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 			if (strncmp(file->name, "..", 2) == 0)
-				intraFontPrint(font, 80, 62 + ((42 - (font->texYSize - 30)) / 2) + (42 * printed), "Parent folder");
+				intraFontPrint(font, 80, 62 + ((42 - (font->texYSize - 32)) / 2) + (42 * printed), "Parent folder");
 			else 
-				intraFontPrint(font, 80, 62 + ((42 - (font->texYSize - 30)) / 2) + (42 * printed), buf);
+				intraFontPrint(font, 80, 62 + ((42 - (font->texYSize - 32)) / 2) + (42 * printed), buf);
 
 			printed++; // Increase printed counter
 		}

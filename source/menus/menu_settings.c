@@ -31,7 +31,7 @@ static void Menu_DisplaySortSettings(void) {
 		StatusBar_DisplayTime();
 
 		G2D_DrawImage(icon_back, 5, 25);
-		intraFontSetStyle(font, 0.6f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+		intraFontSetStyle(font, 0.7f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 		intraFontPrint(font, 40, 20 + ((40 - (font->texYSize - 30)) / 2), "Sorting Options");
 
 		int printed = 0; // Print counter
@@ -44,7 +44,7 @@ static void Menu_DisplaySortSettings(void) {
 				if (i == selection)
 					G2D_DrawRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 				
-				intraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+				intraFontSetStyle(font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 				intraFontPrint(font, 20, 62 + ((42 - (font->texYSize - 30)) / 2) + (42 * printed), main_menu_items[i]);
 
 				printed++;
@@ -114,14 +114,14 @@ static void Menu_DisplayAboutDialog(void) {
 
 	G2D_DrawImage(config.dark_theme? dialog_dark : dialog, ((480 - dialog->w) / 2), ((272 - dialog->h) / 2));
 
-	intraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 	intraFontPrint(font, ((480 - dialog->w) / 2) + 10, ((272 - dialog->h) / 2) + 20, "About");
 
-	intraFontSetStyle(font, 0.6f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.7f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 	intraFontPrintf(font, ((480 - (text_width)) / 2), ((272 - dialog->h) / 2) + 50, "CM File Manager PSP v%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO);
 	intraFontPrint(font, ((480 - (author_width)) / 2), ((272 - dialog->h) / 2) + 50 + 16, "Author: Joel16");
 
-	intraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 	G2D_DrawRect((409 - (intraFontMeasureText(font, "OK"))) - 5, (180 - (font->texYSize - 20)) - 5, intraFontMeasureText(font, "OK") + 10, (font->texYSize - 10) + 10, 
 		config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 	intraFontPrint(font, 409 - (intraFontMeasureText(font, "OK")), (182 - (font->texYSize - 30)), "OK");
@@ -134,7 +134,7 @@ static void Menu_ControlSupportDialog(void) {
 
 static void Menu_DisplaySupportDialog(void) {
 	G2D_DrawImage(config.dark_theme? properties_dialog_dark : properties_dialog, 131, 32);
-	intraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 
 	G2D_DrawRect((340 - intraFontMeasureText(font, "OK")) - 5, (230 - (font->texYSize - 6)) - 5, intraFontMeasureText(font, "OK") + 10, (font->texYSize - 6) + 10, 
 		config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
@@ -142,7 +142,7 @@ static void Menu_DisplaySupportDialog(void) {
 	intraFontPrint(font, 138, 50, "Support");
 	intraFontPrint(font, 340 - intraFontMeasureText(font, "OK"), 230 - (font->texYSize - 20), "OK");
 
-	intraFontSetStyle(font, 0.5f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.7f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 	intraFontPrint(font, 140, 74, "DPAD Up: Cursor up");
 	intraFontPrint(font, 140, 90, "DPAD Down: Cursor down");
 	intraFontPrint(font, 140, 106, "DPAD Left: Start of listing");
@@ -177,7 +177,7 @@ void Menu_DisplaySettings(void) {
 		StatusBar_DisplayTime();
 
 		G2D_DrawImage(icon_back, 5, 25);
-		intraFontSetStyle(font, 0.6f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+		intraFontSetStyle(font, 0.7f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 		intraFontPrint(font, 40, 20 + ((40 - (font->texYSize - 30)) / 2), "Settings");
 
 		int printed = 0; // Print counter
@@ -190,7 +190,7 @@ void Menu_DisplaySettings(void) {
 				if (i == selection)
 					G2D_DrawRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
-				intraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+				intraFontSetStyle(font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 				intraFontPrint(font, 20, 62 + ((42 - (font->texYSize - 30)) / 2) + (42 * printed), main_menu_items[i]);
 
 				printed++;

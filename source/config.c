@@ -1,5 +1,5 @@
+#include <malloc.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <stdio.h>
 
 #include "common.h"

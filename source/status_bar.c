@@ -112,7 +112,7 @@ void StatusBar_DisplayTime(void) {
 	if (psp_usb_cable_connection)
 		G2D_DrawImage(usb_icon, 0, 0);
 
-	intraFontSetStyle(font, 0.6f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.7f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 	int width = intraFontMeasureText(font, Clock_GetCurrentTime());
 	IsWlanConnected()? G2D_DrawImage(wifi_on, 475 - width - 22 - (percent_width + 6) - 22, 2) : G2D_DrawImage(wifi_off, 475 - width - 22 - (percent_width + 6) - 22, 2);
 	StatusBar_GetBatteryStatus(475 - width - 22, ((20 - ((font->texYSize - 30))) / 2) + 2);

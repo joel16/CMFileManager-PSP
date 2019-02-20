@@ -1,4 +1,5 @@
 #include <psppower.h>
+#include <malloc.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -650,13 +651,13 @@ void Menu_DisplayDeleteDialog(void) {
 
 	G2D_DrawImage(config.dark_theme? dialog_dark : dialog, ((480 - dialog->w) / 2), ((272 - dialog->h) / 2));
 
-	intraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 	intraFontPrint(font, ((480 - dialog->w) / 2) + 10, ((272 - dialog->h) / 2) + 20, "Confirm deletion");
 
-	intraFontSetStyle(font, 0.6f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.7f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 	intraFontPrint(font, ((480 - (text_width)) / 2), ((272 - dialog->h) / 2) + 60, "Do you wish to continue?");
 
-	intraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 
 	if (delete_dialog_selection == 0)
 		G2D_DrawRect((364 - intraFontMeasureText(font, "NO")) - 5, (180 - (font->texYSize - 20)) - 5, intraFontMeasureText(font, "NO") + 10, (font->texYSize - 10) + 10, 
@@ -682,7 +683,7 @@ void Menu_DisplayFileProperties(void) {
 	strcpy(path + strlen(path), file->name);
 
 	G2D_DrawImage(config.dark_theme? properties_dialog_dark : properties_dialog, 131, 32);
-	intraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 
 	G2D_DrawRect((340 - intraFontMeasureText(font, "OK")) - 5, (230 - (font->texYSize - 6)) - 5, intraFontMeasureText(font, "OK") + 10, (font->texYSize - 6) + 10, 
 		config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
@@ -690,7 +691,7 @@ void Menu_DisplayFileProperties(void) {
 	intraFontPrint(font, 138, 50, "Properties");
 	intraFontPrint(font, 340 - intraFontMeasureText(font, "OK"), 230 - (font->texYSize - 20), "OK");
 
-	intraFontSetStyle(font, 0.5f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.7f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 	intraFontPrintf(font, 140, 74, "Name: %s", file->name);
 
 	if (!file->isDir) {
@@ -812,7 +813,7 @@ void Menu_ControlFileOptions(void) {
 
 void Menu_DisplayFileOptions(void) {
 	G2D_DrawImage(config.dark_theme? options_dialog_dark : options_dialog, (480 - options_dialog->w) / 2, (272 - options_dialog->h) / 2);
-	intraFontSetStyle(font, 0.6f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.6f, INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.7f, INTRAFONT_ALIGN_LEFT);
 	intraFontPrint(font, 140, 52, "Actions");
 	
 	if (row == 0 && column == 0)
@@ -836,7 +837,7 @@ void Menu_DisplayFileOptions(void) {
 
 	intraFontPrint(font, 340 - intraFontMeasureText(font, "CANCEL"), 230 - (font->texYSize - 20), "CANCEL");
 
-	intraFontSetStyle(font, 0.5f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.7f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 
 	if (!options_more) {
 		intraFontPrint(font, 143, 95, "Properties");

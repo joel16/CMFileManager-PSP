@@ -1,7 +1,7 @@
 #include <pspumd.h>
+#include <malloc.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "common.h"
 #include "config.h"
@@ -210,7 +210,7 @@ static void Menu_DisplayMenubar(void) {
 	G2D_DrawRect(menubar_x + 180, 20, 1, 252, config.dark_theme? SELECTOR_COLOUR_DARK : G2D_RGBA(200, 200, 200, 255));
 	G2D_DrawRect(menubar_x, 90 + (30 * menubar_selection), 180, 30, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
-	intraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	intraFontSetStyle(font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 	G2D_DrawImage(config.dark_theme? icon_sd_dark : icon_sd, menubar_x + 10, 92);
 	intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2), Utils_IsEF0()? "ef0:/" : "ms0:/");
 
