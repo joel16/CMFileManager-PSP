@@ -1,6 +1,5 @@
 #include <pspumd.h>
 #include <malloc.h>
-#include <stdbool.h>
 #include <stdio.h>
 
 #include "common.h"
@@ -52,117 +51,177 @@ static void Menu_HandleMultiSelect(void) {
 }
 
 static void Menu_ControlMenubar(void) {
-	char *buf;
+	char *buf = NULL;
 
 	if (Utils_IsButtonPressed(PSP_CTRL_UP))
 		menubar_selection--;
 	else if (Utils_IsButtonPressed(PSP_CTRL_DOWN))
 		menubar_selection++;
 
-	Utils_SetMax(&menubar_selection, 0, Utils_IsModelPSPGo()? 2 : 3);
-	Utils_SetMin(&menubar_selection, Utils_IsModelPSPGo()? 2 : 3, 0);
+	if (is_psp_go) {
+		Utils_SetMax(&menubar_selection, 0, is_ms_inserted? 3 : 2);
+		Utils_SetMin(&menubar_selection, is_ms_inserted? 3 : 2, 0);
+	}
+	else {
+		Utils_SetMax(&menubar_selection, 0, 3);
+		Utils_SetMin(&menubar_selection, 3, 0);
+	}
 
 	if (Utils_IsButtonPressed(PSP_CTRL_ENTER)) {
-		switch (menubar_selection) {
-			case 0:
-				if (BROWSE_STATE == BROWSE_STATE_UMD)
-					sceUmdDeactivate(1, "disc0:");
-				if (BROWSE_STATE != BROWSE_STATE_SD) {
+		if (menubar_selection == 0) {
+			if (BROWSE_STATE == BROWSE_STATE_UMD)
+				sceUmdDeactivate(1, "disc0:");
+
+			memset(root_path, 0, strlen(root_path));
+			if ((is_psp_go && is_ms_inserted) || (!is_psp_go)) {
+				strcpy(root_path, "ms0:/");
+
+				if (FS_FileExists("lastdir.txt")) {
 					buf = malloc(256);
-					memset(root_path, 0, strlen(root_path));
-					strcpy(root_path, Utils_IsEF0()? "ef0:/" : "ms0:/");
-
-					if (FS_FileExists("lastdir.txt")) {
-						if (R_FAILED(FS_ReadFile("lastdir.txt", buf, 256))) {
-							free(buf);
-							strcpy(cwd, Utils_IsEF0()? "ef0:/" : "ms0:/");
-						}
-
-						char tempPath[256];
-						sscanf(buf, "%[^\n]s", tempPath);
-
-						if (FS_DirExists(tempPath)) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
-							strcpy(cwd, tempPath);
-						else
-							strcpy(cwd, Utils_IsEF0()? "ef0:/" : "ms0:/");
-
+					if (R_FAILED(FS_ReadFile("lastdir.txt", buf, 256))) {
 						free(buf);
+						strcpy(cwd, "ms0:/");
 					}
 
-					BROWSE_STATE = BROWSE_STATE_SD;
+					char temp_path[256], drive[6];
+					sscanf(buf, "%[^\n]s", temp_path);
+					sscanf(drive, "%5s", temp_path);
 
-					menubar_x -= 10.0;
-					menubar_selection = 0;
-					menubar_x = -180;
-
-					Dirbrowse_PopulateFiles(true);
-					MENU_STATE = MENU_STATE_HOME;
-				}
-				break;
-			case 1:
-				if (BROWSE_STATE == BROWSE_STATE_UMD)
-					sceUmdDeactivate(1, "disc0:");
-				if (BROWSE_STATE != BROWSE_STATE_FLASH0) {
-					memset(root_path, 0, strlen(root_path));
-					strcpy(root_path, "flash0:/");
-					strcpy(cwd, "flash0:/");
-					
-					BROWSE_STATE = BROWSE_STATE_FLASH0;
-					
-					menubar_x -= 10.0;
-					menubar_selection = 0;
-					menubar_x = -180;
-
-					Dirbrowse_PopulateFiles(true);
-					MENU_STATE = MENU_STATE_HOME;
-				}
-				break;
-			case 2:
-				if (BROWSE_STATE == BROWSE_STATE_UMD)
-					sceUmdDeactivate(1, "disc0:");
-				if (BROWSE_STATE != BROWSE_STATE_FLASH1) {
-					memset(root_path, 0, strlen(root_path));
-					strcpy(root_path, "flash1:/");
-					strcpy(cwd, "flash1:/");
-					
-					BROWSE_STATE = BROWSE_STATE_FLASH1;
-					
-					menubar_x -= 10.0;
-					menubar_selection = 0;
-					menubar_x = -180;
-
-					Dirbrowse_PopulateFiles(true);
-					MENU_STATE = MENU_STATE_HOME;
-				}
-				break;
-			case 3:
-				if (BROWSE_STATE != BROWSE_STATE_UMD) {
-					if (sceUmdCheckMedium() != 0) {
-						sceUmdActivate(1, "disc0:");
-						sceUmdWaitDriveStat(UMD_WAITFORINIT);
-						
-						memset(root_path, 0, strlen(root_path));
-						strcpy(root_path, "disc0:/");
-						strcpy(cwd, "disc0:/");
-						
-						BROWSE_STATE = BROWSE_STATE_UMD;
-						
-						menubar_x -= 10.0;
-						menubar_selection = 0;
-						menubar_x = -180;
-
-						Dirbrowse_PopulateFiles(true);
-						MENU_STATE = MENU_STATE_HOME;
-					}
+					if (FS_DirExists(temp_path) && (!strcmp(drive, root_path))) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
+						strcpy(cwd, temp_path);
 					else
-						Menu_DisplayError("Could not read UMD drive.", 0);
+						strcpy(cwd, "ms0:/");
+
+					free(buf);
 				}
-				break;
+
+				BROWSE_STATE = BROWSE_STATE_SD;
+			}
+			else if (is_psp_go && !is_ms_inserted) {
+				strcpy(root_path, "ef0:/");
+
+				if (FS_FileExists("lastdir.txt")) {
+					buf = malloc(256);
+					if (R_FAILED(FS_ReadFile("lastdir.txt", buf, 256))) {
+						free(buf);
+						strcpy(cwd, "ef0:/");
+					}
+
+					char temp_path[256], drive[6];
+					sscanf(buf, "%[^\n]s", temp_path);
+					sscanf(drive, "%5s", temp_path);
+
+					if (FS_DirExists(temp_path) && (!strcmp(drive, root_path))) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
+						strcpy(cwd, temp_path);
+					else
+						strcpy(cwd, "ef0:/");
+
+					free(buf);
+				}
+
+				BROWSE_STATE = BROWSE_STATE_INTERNAL;
+			}
+
+			menubar_x -= 10.0;
+			menubar_x = -180;
+
+			Dirbrowse_PopulateFiles(true);
+			MENU_STATE = MENU_STATE_HOME;
+		}
+		else if (menubar_selection == 1) {
+			if (BROWSE_STATE == BROWSE_STATE_UMD)
+				sceUmdDeactivate(1, "disc0:");
+
+			memset(root_path, 0, strlen(root_path));
+			strcpy(root_path, (is_psp_go && is_ms_inserted)? "ef0:/" : "flash0:/");
+			strcpy(cwd, (is_psp_go && is_ms_inserted)? "ef0:/" : "flash0:/");
+
+			if (is_psp_go && is_ms_inserted) {
+				if (FS_FileExists("lastdir.txt")) {
+					buf = malloc(256);
+					if (R_FAILED(FS_ReadFile("lastdir.txt", buf, 256))) {
+						free(buf);
+						strcpy(cwd, "ef0:/");
+					}
+
+					char temp_path[256], drive[7];
+					sscanf(buf, "%[^\n]s\n", temp_path);
+					snprintf(drive, 7, "%.5s", temp_path);
+
+					if (FS_DirExists(temp_path) && (!strcmp(drive, root_path))) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
+						strcpy(cwd, temp_path);
+					else
+						strcpy(cwd, "ef0:/");
+
+					free(buf);
+				}
+			}
+					
+			BROWSE_STATE = (is_psp_go && is_ms_inserted)? BROWSE_STATE_INTERNAL : BROWSE_STATE_FLASH0;
+					
+			menubar_x -= 10.0;
+			menubar_x = -180;
+
+			Dirbrowse_PopulateFiles(true);
+			MENU_STATE = MENU_STATE_HOME;
+		}
+		else if (menubar_selection == 2) {
+			if (BROWSE_STATE == BROWSE_STATE_UMD)
+				sceUmdDeactivate(1, "disc0:");
+
+			memset(root_path, 0, strlen(root_path));
+			strcpy(root_path, (is_psp_go && is_ms_inserted)? "flash0:/" : "flash1:/");
+			strcpy(cwd, (is_psp_go && is_ms_inserted)? "flash0:/" : "flash1:/");
+					
+			BROWSE_STATE = (is_psp_go && is_ms_inserted)? BROWSE_STATE_FLASH0 : BROWSE_STATE_FLASH1;
+					
+			menubar_x -= 10.0;
+			menubar_x = -180;
+
+			Dirbrowse_PopulateFiles(true);
+			MENU_STATE = MENU_STATE_HOME;
+		}
+		else if (menubar_selection == 3) {
+			if (is_psp_go && is_ms_inserted) {
+				if (BROWSE_STATE == BROWSE_STATE_UMD)
+					sceUmdDeactivate(1, "disc0:");
+
+				memset(root_path, 0, strlen(root_path));
+				strcpy(root_path, "flash1:/");
+				strcpy(cwd, "flash1:/");
+					
+				BROWSE_STATE = BROWSE_STATE_FLASH1;
+					
+				menubar_x -= 10.0;
+				menubar_x = -180;
+
+				Dirbrowse_PopulateFiles(true);
+				MENU_STATE = MENU_STATE_HOME;
+			}
+			else if (!is_psp_go) {
+				if (sceUmdCheckMedium() != 0) {
+					sceUmdActivate(1, "disc0:");
+					sceUmdWaitDriveStat(UMD_WAITFORINIT);
+						
+					memset(root_path, 0, strlen(root_path));
+					strcpy(root_path, "disc0:/");
+					strcpy(cwd, "disc0:/");
+						
+					BROWSE_STATE = BROWSE_STATE_UMD;
+						
+					menubar_x -= 10.0;
+					menubar_x = -180;
+
+					Dirbrowse_PopulateFiles(true);
+					MENU_STATE = MENU_STATE_HOME;
+				}
+				else
+					Menu_DisplayError("Could not read UMD drive.", 0);
+			}
 		}
 	}
 	else if ((Utils_IsButtonPressed(PSP_CTRL_CANCEL)) || (Utils_IsButtonPressed(PSP_CTRL_SELECT))) {
 		menubar_x -= 10.0;
-		menubar_selection = 0;
 		menubar_x = -180;
 		MENU_STATE = MENU_STATE_HOME;
 	}
@@ -194,10 +253,8 @@ static void Menu_ControlHome(void) {
 		}
 	}
 
-	if (Utils_IsButtonPressed(PSP_CTRL_SELECT)) {
-		menubar_selection = BROWSE_STATE;
+	if (Utils_IsButtonPressed(PSP_CTRL_SELECT))
 		MENU_STATE = MENU_STATE_MENUBAR;
-	}
 	else if (Utils_IsButtonPressed(PSP_CTRL_START))
 		MENU_STATE = MENU_STATE_SETTINGS;
 	else if (Utils_IsButtonPressed(PSP_CTRL_TRIANGLE))
@@ -211,16 +268,39 @@ static void Menu_DisplayMenubar(void) {
 	G2D_DrawRect(menubar_x, 90 + (30 * menubar_selection), 180, 30, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
 	intraFontSetStyle(font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-	G2D_DrawImage(config.dark_theme? icon_sd_dark : icon_sd, menubar_x + 10, 92);
-	intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2), Utils_IsEF0()? "ef0:/" : "ms0:/");
 
-	G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 122);
-	intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 30, "flash0:/");
+	if (is_psp_go) {
+		G2D_DrawImage(config.dark_theme? icon_sd_dark : icon_sd, menubar_x + 10, 92);
+		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2), is_ms_inserted == false? "ef0:/" : "ms0:/");
 
-	G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 152);
-	intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 60, "flash1:/");
+		if (is_ms_inserted == true) {
+			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 122);
+			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 30, "ef0:/");
 
-	if (!Utils_IsModelPSPGo()) {
+			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 152);
+			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 60, "flash0:/");
+
+			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 182);
+			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 90, "flash1:/");
+		}
+		else {
+			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 122);
+			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 30, "flash0:/");
+
+			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 152);
+			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 60, "flash1:/");
+		}
+	}
+	else {
+		G2D_DrawImage(config.dark_theme? icon_sd_dark : icon_sd, menubar_x + 10, 92);
+		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2), "ms0:/");
+
+		G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 122);
+		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 30, "flash0:/");
+
+		G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 152);
+		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 60, "flash1:/");
+
 		G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 182);
 		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 90, "disc0:/");
 	}
@@ -232,6 +312,11 @@ void Menu_Main(void) {
 
 	total_storage = Utils_GetTotalStorage();
 	used_storage = Utils_GetUsedStorage();
+
+	if (is_psp_go && is_ms_inserted) {
+		if (BROWSE_STATE == BROWSE_STATE_INTERNAL)
+			menubar_selection = 1;	
+	}
 
 	while (1) {
 		g2dClear(config.dark_theme? BLACK_BG : WHITE);

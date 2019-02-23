@@ -1,5 +1,3 @@
-#include <stdbool.h>
-
 #include "common.h"
 #include "config.h"
 #include "dirbrowse.h"

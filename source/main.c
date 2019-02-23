@@ -6,6 +6,8 @@
 #include "config.h"
 #include "fs.h"
 #include "menus/menu_main.h"
+#include "kubridge.h"
+#include "systemctrl.h"
 #include "textures.h"
 #include "utils.h"
 
@@ -53,6 +55,8 @@ static void Init_Services(void) {
 
 	Utils_InitUSB();
 	pspSdkInetInit();
+	Utils_IsMemCardInserted(&is_ms_inserted);
+	is_psp_go = Utils_IsModelPSPGo();
 	Config_Load();
 	Config_GetLastDirectory();
 	Textures_Load();

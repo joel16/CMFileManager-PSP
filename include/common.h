@@ -2,8 +2,10 @@
 
 #include <glib2d.h>
 #include <intraFont.h>
-#include <setjmp.h>
 #include <psptypes.h>
+
+#include <stdbool.h>
+#include <setjmp.h>
 
 #define MAX_FILES 1024
 #define FILES_PER_PAGE 5
@@ -20,11 +22,11 @@
 #define MENU_STATE_UPDATE_2    9
 #define MENU_STATE_ABOUT       10
 
-//#define BROWSE_STATE_INTERNAL 0
-#define BROWSE_STATE_SD       0
-#define BROWSE_STATE_FLASH0   1
-#define BROWSE_STATE_FLASH1   2
-#define BROWSE_STATE_UMD      3
+#define BROWSE_STATE_INTERNAL 0
+#define BROWSE_STATE_SD       1
+#define BROWSE_STATE_FLASH0   2
+#define BROWSE_STATE_FLASH1   3
+#define BROWSE_STATE_UMD      4
 //#define BROWSE_STATE_FLASH2   3
 //#define BROWSE_STATE_FLASH3   4
 
@@ -52,3 +54,5 @@ intraFont *font;
 
 char cwd[512];
 char root_path[10];
+bool is_ms_inserted;
+bool is_psp_go;

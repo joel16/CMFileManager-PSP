@@ -131,18 +131,16 @@ static int Screenshot_GenFilename(int number, char *filename) {
 }
 
 void Screenshot_Capture(void) {
-	if (/*(BROWSE_STATE == BROWSE_STATE_INTERNAL) || */(BROWSE_STATE == BROWSE_STATE_SD)) {
-		static char filename[256];
+	static char filename[256];
 
-		sprintf(filename, "%s", "screenshot");
-		Screenshot_GenFilename(num, filename);
+	sprintf(filename, "%s", "screenshot");
+	Screenshot_GenFilename(num, filename);
 
-		while (FS_FileExists(filename)) {
-			num++;
-			Screenshot_GenFilename(num, filename);
-		}
-
-		G2D_WriteImageFilePNG(filename);
+	while (FS_FileExists(filename)) {
 		num++;
+		Screenshot_GenFilename(num, filename);
 	}
+
+	G2D_WriteImageFilePNG(filename);
+	num++;
 }

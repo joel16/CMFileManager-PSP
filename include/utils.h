@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pspctrl.h>
+#include <stdbool.h>
 
 /// Checks whether a result code indicates success.
 #define R_SUCCEEDED(res)   ((res) >= 0)
@@ -22,6 +23,7 @@ void Utils_InitUSB(void);
 void Utils_ExitUSB(void);
 void Utils_HandleUSB(void);
 bool Utils_IsModelPSPGo(void);
+int Utils_IsMemCardInserted(bool *is_inserted);
 bool Utils_IsEF0(void);
 int Utils_LaunchEboot(const char *path);
 int Utils_LaunchPOPS(const char *path);

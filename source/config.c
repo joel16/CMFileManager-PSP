@@ -1,5 +1,4 @@
 #include <malloc.h>
-#include <stdbool.h>
 #include <stdio.h>
 
 #include "common.h"
@@ -68,8 +67,8 @@ int Config_Load(void) {
 
 int Config_GetLastDirectory(void) {
 	int ret = 0;
-	char *buf = malloc(256);
-	strcpy(root_path, Utils_IsEF0()? "ef0:/" : "ms0:/");
+	char *buf = NULL;
+	buf = malloc(256);
 	
 	if (FS_FileExists("lastdir.txt")) {
 		if (R_FAILED(ret = FS_ReadFile("lastdir.txt", buf, 256))) {
@@ -77,18 +76,29 @@ int Config_GetLastDirectory(void) {
 			return ret;
 		}
 
-		char tempPath[256];
-		sscanf(buf, "%[^\n]s", tempPath);
-		
-		if (FS_DirExists(tempPath)) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
-			strcpy(cwd, tempPath);
+		char temp_path[256], drive[7];
+		sscanf(buf, "%[^\n]s\n", temp_path);
+		snprintf(drive, 7, "%.5s", temp_path);
+		snprintf(root_path, 7, "%.5s", drive);
+
+		if (!strcmp(root_path, "ef0:/"))
+			BROWSE_STATE = BROWSE_STATE_INTERNAL;
 		else
-			strcpy(cwd, Utils_IsEF0()? "ef0:/" : "ms0:/");
+			BROWSE_STATE = BROWSE_STATE_SD;
+		
+		if (FS_DirExists(temp_path) && (!strcmp(drive, root_path))) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
+			strcpy(cwd, temp_path);
+		else
+			strcpy(cwd, is_psp_go? "ef0:/" : "ms0:/");
 		
 		free(buf);
 	}
 	else {
-		int len = snprintf(buf, 256, Utils_IsEF0()? "ef0:/" : "ms0:/");
+		strcpy(root_path, is_psp_go? "ef0:/" : "ms0:/");
+		int len = snprintf(buf, 256, is_psp_go? "ef0:/" : "ms0:/");
+
+		if (is_psp_go)
+			BROWSE_STATE = BROWSE_STATE_INTERNAL;
 
 		if (R_FAILED(ret = FS_WriteFile("lastdir.txt", buf, len))) {
 			free(buf);

@@ -2,7 +2,6 @@
 #include <pspreg.h>
 #include <pspusb.h>
 #include <pspusbstor.h>
-#include <stdbool.h>
 #include <stdio.h>
 
 #include "common.h"
@@ -24,7 +23,7 @@ static bool g_usb_actived = false;
 
 struct UsbModule {
 	char *path;
-	int modid;
+	int modID;
 };
 
 static struct UsbModule g_usb_modules[] = {
@@ -106,50 +105,25 @@ int Utils_Alphasort(const void *p1, const void *p2) {
 
 static int Utils_LoadStartModule(char *path) {
 	int ret = 0;
-	SceUID modid = 0;
+	SceUID modID = 0;
 
-	modid = kuKernelLoadModule(path, 0, NULL);
-	ret = sceKernelStartModule(modid, strlen(path) + 1, path, 0, NULL);
+	modID = kuKernelLoadModule(path, 0, NULL);
+	ret = sceKernelStartModule(modID, strlen(path) + 1, path, 0, NULL);
 
 	return ret;
 }
 
-static void Utils_StopUnloadModules(SceUID modid) {
-	sceKernelStopModule(modid, 0, NULL, NULL, NULL);
-	sceKernelUnloadModule(modid);
+static void Utils_StopUnloadModules(SceUID modID) {
+	sceKernelStopModule(modID, 0, NULL, NULL, NULL);
+	sceKernelUnloadModule(modID);
 }
-
-/*void Utils_LoadUSBModules(void) {
-	int i = 0;
-
-	if (!g_usb_module_loaded) {
-		for (i = 0; i < NELEMS(g_usb_modules); ++i) {
-			g_usb_modules[i].modid = Utils_LoadStartModule(g_usb_modules[i].path);
-		}
-
-		g_usb_module_loaded = true;
-	}
-}
-
-void Utils_UnloadUSBModules(void) {
-	int i = 0;
-
-	if (g_usb_module_loaded) {
-		for (i = NELEMS(g_usb_modules) - 1; i >= 0; --i) {
-			Utils_StopUnloadModules(g_usb_modules[i].modid);
-			g_usb_modules[i].modid = -1;
-		}
-
-		g_usb_module_loaded = false;
-	}
-}*/
 
 void Utils_InitUSB(void) {
 	int i = 0;
 
 	if (!g_usb_module_loaded) {
 		for (i = 0; i < NELEMS(g_usb_modules); ++i) {
-			g_usb_modules[i].modid = Utils_LoadStartModule(g_usb_modules[i].path);
+			g_usb_modules[i].modID = Utils_LoadStartModule(g_usb_modules[i].path);
 		}
 
 		g_usb_module_loaded = true;
@@ -190,8 +164,8 @@ void Utils_ExitUSB(void) {
 
 	if (g_usb_module_loaded) {
 		for (i = NELEMS(g_usb_modules) - 1; i >= 0; --i) {
-			Utils_StopUnloadModules(g_usb_modules[i].modid);
-			g_usb_modules[i].modid = -1;
+			Utils_StopUnloadModules(g_usb_modules[i].modID);
+			g_usb_modules[i].modID = -1;
 		}
 
 		g_usb_module_loaded = false;
@@ -220,12 +194,27 @@ bool Utils_IsModelPSPGo(void) {
 	return false;
 }
 
-bool Utils_IsEF0(void) {
-	if ((Utils_IsModelPSPGo()) && (kuKernelBootFrom() == 0x50))
-		return true;
+int Utils_IsMemCardInserted(bool *is_inserted) {
+	int status = 0, ret = 0;
+	if (R_FAILED(ret = sceIoDevctl("mscmhc0:", 0x02025806, 0, 0, &status, sizeof(status))))
+		return ret;
+
+	if (status != 1)
+		*is_inserted = false;
 	else
-		return false;
-	
+		*is_inserted = true;
+
+	return 0;
+}
+
+bool Utils_IsEF0(void) {
+	if (is_psp_go) {
+		if (!is_ms_inserted)
+			return true;
+
+		return true;
+	}
+
 	return false;
 }
 

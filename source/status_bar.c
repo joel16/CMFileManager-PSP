@@ -1,7 +1,6 @@
 #include <psppower.h>
 #include <psprtc.h>
 #include <pspnet_apctl.h>
-#include <stdbool.h>
 #include <stdio.h>
 
 #include "common.h"
