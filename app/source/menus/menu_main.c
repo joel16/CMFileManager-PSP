@@ -18,7 +18,7 @@
 #define MENUBAR_X_BOUNDARY  0
 
 static char multi_select_dir_old[512];
-static int menubar_selection = 0;
+static int menubar_selection = 0, old_menubar_selection = 0;
 static float menubar_x = -180.0;
 u64 total_storage = 0, used_storage = 0;
 
@@ -127,6 +127,8 @@ static void Menu_ControlMenubar(void) {
 
 			Dirbrowse_PopulateFiles(true);
 			MENU_STATE = MENU_STATE_HOME;
+
+			old_menubar_selection = 0;
 		}
 		else if (menubar_selection == 1) {
 			if (BROWSE_STATE == BROWSE_STATE_UMD)
@@ -164,6 +166,8 @@ static void Menu_ControlMenubar(void) {
 
 			Dirbrowse_PopulateFiles(true);
 			MENU_STATE = MENU_STATE_HOME;
+
+			old_menubar_selection = 1;
 		}
 		else if (menubar_selection == 2) {
 			if (BROWSE_STATE == BROWSE_STATE_UMD)
@@ -180,6 +184,8 @@ static void Menu_ControlMenubar(void) {
 
 			Dirbrowse_PopulateFiles(true);
 			MENU_STATE = MENU_STATE_HOME;
+
+			old_menubar_selection = 2;
 		}
 		else if (menubar_selection == 3) {
 			if (is_psp_go && is_ms_inserted) {
@@ -218,6 +224,8 @@ static void Menu_ControlMenubar(void) {
 				else
 					Menu_DisplayError("Could not read UMD drive.", 0);
 			}
+
+			old_menubar_selection = 3;
 		}
 	}
 	else if ((Utils_IsButtonPressed(PSP_CTRL_CANCEL)) || (Utils_IsButtonPressed(PSP_CTRL_SELECT))) {
@@ -253,8 +261,10 @@ static void Menu_ControlHome(void) {
 		}
 	}
 
-	if (Utils_IsButtonPressed(PSP_CTRL_SELECT))
+	if (Utils_IsButtonPressed(PSP_CTRL_SELECT)) {
+		menubar_selection = old_menubar_selection;
 		MENU_STATE = MENU_STATE_MENUBAR;
+	}
 	else if (Utils_IsButtonPressed(PSP_CTRL_START))
 		MENU_STATE = MENU_STATE_SETTINGS;
 	else if (Utils_IsButtonPressed(PSP_CTRL_TRIANGLE))
@@ -315,7 +325,7 @@ void Menu_Main(void) {
 
 	if (is_psp_go && is_ms_inserted) {
 		if (BROWSE_STATE == BROWSE_STATE_INTERNAL)
-			menubar_selection = 1;	
+			old_menubar_selection = 1;	
 	}
 
 	while (1) {
