@@ -10,9 +10,10 @@
 - Creating directories.
 - Renaming files/folders.
 - Image viewer (BMP, GIF - not animated, JPG and PNG).
-- Auto USB mount (with ef0:/ and ms0:/ support for PSP GO).
+- Auto USB mount (with ef0:/ and ms0:/ support for PSP Go).
 - Dark theme mode.
-- Browse other drives like flah0, flash1 and UMD (if not using PSP GO).
+- Browse other drives like flah0, flash1 and UMD (if not using PSP Go).
+- Support for both ef0:/ (internal) and ms0:/ (external) drives on PSP Go.
 - Screenshots in .BMP format. Use L + R to capture a screenshot.
 
 
