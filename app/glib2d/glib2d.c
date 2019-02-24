@@ -27,23 +27,13 @@
 #include <malloc.h>
 #include <math.h>
 
-#ifdef USE_BMP
-#include <assert.h>
-#include "libnsbmp.h"
-#endif
-
-#ifdef USE_GIF
-#include <assert.h>
-#include "libnsgif.h"
-#endif
-
-#ifdef USE_PNG
-#include "lodepng.h"
-#endif
-
-#ifdef USE_JPEG
-#include "picojpeg.h"
-#endif
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+#define STBI_NO_STDIO
+#define STBI_ONLY_BMP
+#define STBI_ONLY_GIF
+#define STBI_ONLY_JPEG
+#define STBI_ONLY_PNG
 
 /* Defines */
 
@@ -163,7 +153,7 @@ static void _g2dStart(void) {
     start = true;
 }
 
-static void* _g2dSetVertex(void *vp, int i, float vx, float vy) {
+static void *_g2dSetVertex(void *vp, int i, float vx, float vy) {
     // Vertex order: [texture uv] [color] [coord]
     short *vp_short;
     g2dColor *vp_color;
@@ -1046,490 +1036,71 @@ static u8 *_g2dTexLoadExternalImage(const char *path, u32 *data_size) {
     u8 *buffer = NULL;
     int bytes_read = 0;
 
-    if (R_FAILED(ret = file = sceIoOpen(path, PSP_O_RDONLY, 0))) {
+    if (R_FAILED(ret = file = sceIoOpen(path, PSP_O_RDONLY, 0)))
+        return NULL;
+
+    SceIoStat stat;
+    if (R_FAILED(ret = sceIoGetstat(path, &stat))) {
         sceIoClose(file);
         return NULL;
     }
 
-    SceOff size = sceIoLseek(file, 0, PSP_SEEK_END);
-    sceIoLseek(file, 0, PSP_SEEK_SET);
-
-    buffer = malloc(size);
+    buffer = malloc(stat.st_size);
     if (!buffer) {
         free(buffer);
         sceIoClose(file);
         return NULL;
     }
 
-    bytes_read = sceIoRead(file, buffer, size);
-    if (bytes_read != size) {
+    bytes_read = sceIoRead(file, buffer, stat.st_size);
+    if (bytes_read != stat.st_size) {
         free(buffer);
         sceIoClose(file);
         return NULL;
     }
 
     sceIoClose(file);
-
-    *data_size = size;
+    *data_size = stat.st_size;
     return buffer;
 }
 
-#ifdef USE_BMP
-static void *bitmap_create(int width, int height, unsigned int state) {
-    (void) state;  /* unused */
-    return calloc(width * height, PIXEL_SIZE);
-}
-
-static u8 *bitmap_get_buffer(void *bitmap) {
-    assert(bitmap);
-    return bitmap;
-}
-
-static size_t bitmap_get_bpp(void *bitmap) {
-    (void) bitmap;  /* unused */
-    return PIXEL_SIZE;
-}
-
-static void bitmap_destroy(void *bitmap) {
-    assert(bitmap);
-    free(bitmap);
-}
-
-static g2dTexture *_g2dTexLoadBMP(const char *path) {
+static g2dTexture *_g2dTexLoadFile(const char *path) {
     g2dTexture *tex = NULL;
     g2dColor *line = NULL;
+    int width = 0, height = 0;
+    u32 size = 0, row = 0, col = 0;
 
-    bmp_bitmap_callback_vt bmp_bitmap_callbacks = {
-        bitmap_create,
-        bitmap_destroy,
-        bitmap_get_buffer,
-        bitmap_get_bpp
-    };
-
-    bmp_result code = BMP_OK;
-    bmp_image bmp;
-    u32 size = 0;
-
-    bmp_create(&bmp, &bmp_bitmap_callbacks);
     u8 *data = _g2dTexLoadExternalImage(path, &size);
+    line = (g2dColor *)stbi_load_from_memory((stbi_uc const *)data, size, &width, &height, NULL, STBI_rgb_alpha);
+    tex = g2dTexCreate(width, height);
 
-    code = bmp_analyse(&bmp, size, data);
-    if (code != BMP_OK) {
-        free(data);
-        return tex;
+    for (row = 0; row < tex->w; row++) {
+        for (col = 0; col < tex->h; col++)
+            tex->data[row + col * tex->tw] = line[(row + col * tex->w)];
     }
 
-    code = bmp_decode(&bmp);
-
-    if (code != BMP_OK) {
-        if (code != BMP_INSUFFICIENT_DATA) {
-            free(data);
-            return tex;
-        }
-    }
-
-    line = (g2dColor *)bmp.bitmap;
-
-    tex = g2dTexCreate(bmp.width, bmp.height);
-    for (u32 row = 0; row < (u32)bmp.width; row++) {
-        for (u32 col = 0; col < (u32)bmp.height; col++)
-            tex->data[row + col * tex->tw] = line[(row + col * (u32)bmp.width)];
-    }
-
-    free(line);
     free(data);
+    free(line);
     return tex;
 }
 
-static g2dTexture *_g2dTexLoadBMPMemory(void *data, size_t size) {
+static g2dTexture *_g2dTexLoadMemory(void *data, size_t size) {
     g2dTexture *tex = NULL;
     g2dColor *line = NULL;
+    int width = 0, height = 0;
+    u32 row = 0, col = 0;
 
-    bmp_bitmap_callback_vt bmp_bitmap_callbacks = {
-        bitmap_create,
-        bitmap_destroy,
-        bitmap_get_buffer,
-        bitmap_get_bpp
-    };
-
-    bmp_result code = BMP_OK;
-    bmp_image bmp;
-    bmp_create(&bmp, &bmp_bitmap_callbacks);
-
-    code = bmp_analyse(&bmp, size, data);
-    if (code != BMP_OK) {
-        free(data);
-        return tex;
-    }
-
-    code = bmp_decode(&bmp);
-
-    if (code != BMP_OK) {
-        if (code != BMP_INSUFFICIENT_DATA) {
-            free(data);
-            return tex;
-        }
-    }
-
-    line = (g2dColor *)bmp.bitmap;
-
-    tex = g2dTexCreate(bmp.width, bmp.height);
-    for (u32 row = 0; row < (u32)bmp.width; row++) {
-        for (u32 col = 0; col < (u32)bmp.height; col++)
-            tex->data[row + col * tex->tw] = line[(row + col * (u32)bmp.width)];
-    }
-
-    free(line);
-    return tex;
-}
-#endif
-
-#ifdef USE_GIF
-static void *gif_bitmap_create(int width, int height) {
-    return calloc(width * height, PIXEL_SIZE);
-}
-
-static void gif_bitmap_set_opaque(void *bitmap, bool opaque) {
-    (void) opaque;  /* unused */
-    assert(bitmap);
-}
-
-static bool gif_bitmap_test_opaque(void *bitmap) {
-    assert(bitmap);
-    return false;
-}
-
-static u8 *gif_bitmap_get_buffer(void *bitmap) {
-    assert(bitmap);
-    return bitmap;
-}
-
-static void gif_bitmap_destroy(void *bitmap) {
-    assert(bitmap);
-    free(bitmap);
-}
-
-static void gif_bitmap_modified(void *bitmap) {
-    assert(bitmap);
-    return;
-}
-
-static g2dTexture *_g2dTexLoadGIF(const char *path) {
-    g2dTexture *tex = NULL;
-    g2dColor *line = NULL;
-
-    gif_bitmap_callback_vt gif_bitmap_callbacks = {
-        gif_bitmap_create,
-        gif_bitmap_destroy,
-        gif_bitmap_get_buffer,
-        gif_bitmap_set_opaque,
-        gif_bitmap_test_opaque,
-        gif_bitmap_modified
-    };
-
-    gif_animation gif;
-    u32 size = 0;
-    gif_result code = GIF_OK;
-
-    gif_create(&gif, &gif_bitmap_callbacks);
-    u8 *data = _g2dTexLoadExternalImage(path, &size);
-
-    do {
-        code = gif_initialise(&gif, size, data);
-        if (code != GIF_OK && code != GIF_WORKING) {
-            free(data);
-            return false;
-        }
-    } while (code != GIF_OK);
-
-    code = gif_decode_frame(&gif, 0);
-    if (code != GIF_OK) {
-        free(data);
-        return false;
-    }
-
-    line = (g2dColor *)gif.frame_image;
-
-    tex = g2dTexCreate(gif.width, gif.height);
-    for (u32 row = 0; row < (u32)gif.width; row++) {
-        for (u32 col = 0; col < (u32)gif.height; col++)
-            tex->data[row + col * tex->tw] = line[(row + col * (u32)gif.width)];
-    }
-
-    free(line);
-    free(data);
-    return tex;
-}
-
-static g2dTexture *_g2dTexLoadGIFMemory(void *data, size_t size) {
-    g2dTexture *tex = NULL;
-    g2dColor *line = NULL;
-
-    gif_bitmap_callback_vt gif_bitmap_callbacks = {
-        gif_bitmap_create,
-        gif_bitmap_destroy,
-        gif_bitmap_get_buffer,
-        gif_bitmap_set_opaque,
-        gif_bitmap_test_opaque,
-        gif_bitmap_modified
-    };
-
-    gif_animation gif;
-    gif_result code = GIF_OK;
-    gif_create(&gif, &gif_bitmap_callbacks);
-
-    do {
-        code = gif_initialise(&gif, size, data);
-        if (code != GIF_OK && code != GIF_WORKING) {
-            free(data);
-            return false;
-        }
-    } while (code != GIF_OK);
-
-    code = gif_decode_frame(&gif, 0);
-    if (code != GIF_OK) {
-        free(data);
-        return false;
-    }
-
-    line = (g2dColor *)gif.frame_image;
-
-    tex = g2dTexCreate(gif.width, gif.height);
-    for (u32 row = 0; row < (u32)gif.width; row++) {
-        for (u32 col = 0; col < (u32)gif.height; col++)
-            tex->data[row + col * tex->tw] = line[(row + col * (u32)gif.width)];
-    }
-
-    free(line);
-    return tex;
-}
-#endif
-
-#ifdef USE_JPEG
-
-#ifndef max
-#define max(a,b)    (((a) > (b)) ? (a) : (b))
-#endif
-#ifndef min
-#define min(a,b)    (((a) < (b)) ? (a) : (b))
-#endif
-
-static SceUID jpeg_file = 0;
-static SceOff jpeg_size;
-static u32 jpeg_offset;
-
-unsigned char pjpeg_need_bytes_callback(unsigned char *pBuf, unsigned char buf_size, unsigned char *pBytes_actually_read, void *pCallback_data) {
-    u32 n = 0;
-    (void)pCallback_data;
-
-    n = min(jpeg_size - jpeg_offset, buf_size);
-    if (n && (sceIoRead(jpeg_file, pBuf, n) != n))
-        return PJPG_STREAM_READ_ERROR;
-
-    *pBytes_actually_read = (unsigned char)(n);
-    jpeg_offset += n;
-    return 0;
-}
-
-u8 *pjpeg_load_from_file(const char *path, unsigned *w, unsigned *h, int *comps, pjpeg_scan_type_t *scan_type) {
-    pjpeg_image_info_t image_info;
-    int mcu_x = 0, mcu_y = 0;
-    u32 row_pitch = 0, decoded_width = 0, decoded_height = 0;
-    u8 *image = NULL;
-    u8 status = 0;
-
-    *w = 0;
-    *h = 0;
-    *comps = 0;
-    if (scan_type) 
-        *scan_type = PJPG_GRAYSCALE;
-
-    if (R_FAILED(jpeg_file = sceIoOpen(path, PSP_O_RDONLY, 0)))
-        return NULL;
-
-    jpeg_size = sceIoLseek(jpeg_file, 0, PSP_SEEK_END);
-    sceIoLseek(jpeg_file, 0, PSP_SEEK_SET);
-
-    status = pjpeg_decode_init(&image_info, pjpeg_need_bytes_callback, NULL, (unsigned char)0);
-    if (status) {
-        sceIoClose(jpeg_file);
-        return NULL;
-    }
-
-    if (scan_type)
-        *scan_type = image_info.m_scanType;
-
-    decoded_width = image_info.m_width;
-    decoded_height = image_info.m_height;
-
-    row_pitch = decoded_width * 4;
-    image = malloc(row_pitch * decoded_height);
-    if (!image) {
-        sceIoClose(jpeg_file);
-        return NULL;
-    }
-
-    for (;;) {
-        int y, x;
-        u8 *pDst_row;
-
-        status = pjpeg_decode_mcu();
-
-        if (status) {
-            if (status != PJPG_NO_MORE_BLOCKS) {
-                free(image);
-                sceIoClose(jpeg_file);
-                return NULL;
-            }
-
-            break;
-        }
-
-        if (mcu_y >= image_info.m_MCUSPerCol) {
-            free(image);
-            sceIoClose(jpeg_file);
-            return NULL;
-        }
-
-        // Copy MCU's pixel blocks into the destination bitmap.
-        pDst_row = image + (mcu_y * image_info.m_MCUHeight) * row_pitch + (mcu_x * image_info.m_MCUWidth * 4);
-
-        for (y = 0; y < image_info.m_MCUHeight; y += 8) {
-            const int by_limit = min(8, image_info.m_height - (mcu_y * image_info.m_MCUHeight + y));
-
-            for (x = 0; x < image_info.m_MCUWidth; x += 8) {
-                u8 *pDst_block = pDst_row + x * 4;
-                
-                // Compute source byte offset of the block in the decoder's MCU buffer.
-                u32 src_ofs = (x * 8U) + (y * 16U);
-                const u8 *pSrcR = image_info.m_pMCUBufR + src_ofs;
-                const u8 *pSrcG = image_info.m_pMCUBufG + src_ofs;
-                const u8 *pSrcB = image_info.m_pMCUBufB + src_ofs;
-                const int bx_limit = min(8, image_info.m_width - (mcu_x * image_info.m_MCUWidth + x));
-
-                if (image_info.m_scanType == PJPG_GRAYSCALE) {
-                    int bx, by;
-                    for (by = 0; by < by_limit; by++) {
-                        u8 *pDst = pDst_block;
-
-                        for (bx = 0; bx < bx_limit; bx++) {
-                            *pDst++ = *pSrcR;
-                            *pDst++ = *pSrcR;
-                            *pDst++ = *pSrcR++;
-                            *pDst++ = 0xFF;
-                        }
-
-                        pSrcR += (8 - bx_limit);
-                        pDst_block += row_pitch;
-                    }
-                }
-                else {
-                    int bx, by;
-                    for (by = 0; by < by_limit; by++) {
-                        u8 *pDst = pDst_block;
-
-                        for (bx = 0; bx < bx_limit; bx++) {
-                            pDst[0] = *pSrcR++;
-                            pDst[1] = *pSrcG++;
-                            pDst[2] = *pSrcB++;
-                            pDst[3] = 0xFF;
-                            pDst += 4;
-                        }
-
-                        pSrcR += (8 - bx_limit);
-                        pSrcG += (8 - bx_limit);
-                        pSrcB += (8 - bx_limit);
-                        pDst_block += row_pitch;
-                    }
-                }
-            }
-
-            pDst_row += (row_pitch * 8);
-        }
-
-        mcu_x++;
-        if (mcu_x == image_info.m_MCUSPerRow) {
-            mcu_x = 0;
-            mcu_y++;
-        }
-    }
-
-    sceIoClose(jpeg_file);
-    jpeg_offset = 0;
-    jpeg_size = 0;
-    *w = decoded_width;
-    *h = decoded_height;
-    *comps = image_info.m_comps;
-    return image;
-}
-
-static g2dTexture *_g2dTexLoadJPEG(const char *path) {
-    g2dTexture *tex = NULL;
-    pjpeg_scan_type_t scan;
-    int comps = 0;
-    unsigned width = 0, height = 0;
-    g2dColor *line = (g2dColor *)pjpeg_load_from_file(path, &width, &height, &comps, &scan);
-
+    line = (g2dColor *)stbi_load_from_memory((stbi_uc const *)data, size, &width, &height, NULL, STBI_rgb_alpha);
     tex = g2dTexCreate(width, height);
-    for (u32 row = 0; row < (u32)width; row++) {
-        for (u32 col = 0; col < (u32)height; col++)
-            tex->data[row + col * tex->tw] = line[(row + col * (u32)width)];
+
+    for (row = 0; row < tex->w; row++) {
+        for (col = 0; col < tex->h; col++)
+            tex->data[row + col * tex->tw] = line[(row + col * tex->w)];
     }
 
     free(line);
     return tex;
 }
-#endif
-
-#ifdef USE_PNG
-static g2dTexture *_g2dTexLoadPNG(const char *path) {
-    u32 size = 0;
-    u8 *data = _g2dTexLoadExternalImage(path, &size);
-
-    g2dTexture *tex = NULL;
-    g2dColor *line;
-
-    unsigned error = 0, width = 0, height = 0;
-    error = lodepng_decode32((u8 **)&line, &width, &height, data, size);
-    if (error) {
-        free(line);
-        free(data);
-        return tex;
-    }
-
-    tex = g2dTexCreate(width, height);
-    for (u32 row = 0; row < (u32)width; row++) {
-        for (u32 col = 0; col < (u32)height; col++)
-            tex->data[row + col * tex->tw] = line[(row + col * (u32)width)];
-    }
-
-    free(line);
-    free(data);
-    return tex;
-}
-
-static g2dTexture *_g2dTexLoadPNGMemory(void *data, size_t size) {
-    g2dTexture *tex = NULL;
-    g2dColor *line;
-
-    unsigned error = 0, width = 0, height = 0;
-    error = lodepng_decode32((u8 **)&line, &width, &height, data, size);
-    if (error) {
-        free(line);
-        free(data);
-        return tex;
-    }
-
-    tex = g2dTexCreate(width, height);
-    for (u32 row = 0; row < (u32)width; row++) {
-        for (u32 col = 0; col < (u32)height; col++)
-            tex->data[row + col * tex->tw] = line[(row + col * (u32)width)];
-    }
-
-    free(line);
-    return tex;
-}
-#endif
 
 g2dTexture *g2dTexLoad(char *path, g2dTex_Mode mode) {
     g2dTexture *tex = NULL;
@@ -1540,22 +1111,7 @@ g2dTexture *g2dTexLoad(char *path, g2dTex_Mode mode) {
     char extension[5] = {0};
     strncpy(extension, &path[strlen(path) - 4], 4);
 
-#ifdef USE_BMP
-    if (!strncasecmp(extension, ".bmp", 4))
-        tex = _g2dTexLoadBMP(path);
-#endif
-#ifdef USE_GIF
-    else if (!strncasecmp(extension, ".gif", 4))
-        tex = _g2dTexLoadGIF(path);
-#endif
-#ifdef USE_JPEG
-    else if (!strncasecmp(extension, ".jpg", 4) || !strncasecmp(extension, ".jpeg", 4))
-        tex = _g2dTexLoadJPEG(path);
-#endif
-#ifdef USE_PNG
-    else if (!strncasecmp(extension, ".png", 4))
-        tex = _g2dTexLoadPNG(path);
-#endif
+    tex = _g2dTexLoadFile(path);
 
     if (tex == NULL)
         goto error;
@@ -1592,20 +1148,7 @@ g2dTexture *g2dTexLoadMemory(void *data, size_t size, g2dTex_Mode mode) {
     if (data == NULL)
         return NULL;
 
-    u32 bmp_magic = 0x00004D42, gif_magic = 0x38464947, /*jpeg_magic1 = 0xE0FFD8FF, jpeg_magic2 = 0xE1FFD8FF,*/ png_magic = 0x474E5089;
-
-#ifdef USE_BMP
-    if (memcmp(data, &bmp_magic, sizeof(u32)) == 0)
-        tex = _g2dTexLoadBMPMemory(data, size);
-#endif
-#ifdef USE_GIF
-    else if (memcmp(data, &gif_magic, sizeof(u32)) == 0)
-        tex = _g2dTexLoadGIFMemory(data, size);
-#endif
-#ifdef USE_PNG
-    else if (memcmp(data, &png_magic, sizeof(u32)) == 0)
-        tex = _g2dTexLoadPNGMemory(data, size);
-#endif
+    tex = _g2dTexLoadMemory(data, size);
 
     if (tex == NULL)
         goto error;

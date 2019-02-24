@@ -80,10 +80,6 @@ extern "C" {
  * Enable this to greatly improve performance with 2d rotations. You SHOULD use
  * PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU) to avoid crashes.
  */
-#define USE_BMP
-#define USE_GIF
-#define USE_JPEG
-#define USE_PNG
 //#define USE_VFPU
 
 /**

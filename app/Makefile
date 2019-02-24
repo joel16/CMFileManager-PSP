@@ -1,6 +1,6 @@
 TARGET = CMFileManager
 
-OBJS   = glib2d_mod/glib2d.o glib2d_mod/intraFont.o glib2d_mod/libccc.o glib2d_mod/libnsbmp.o glib2d_mod/libnsgif.o glib2d_mod/lzw.o glib2d_mod/lodepng.o glib2d_mod/picojpeg.o \
+OBJS   = glib2d/glib2d.o glib2d/intraFont.o glib2d/libccc.o \
          source/config.o source/dirbrowse.o source/fs.o source/log.o source/main.o source/glib2d_helper.o source/progress_bar.o source/screenshot.o \
          source/status_bar.o source/textures.o source/utils.o source/menus/menu_error.o source/menus/menu_fileoptions.o source/menus/menu_gallery.o \
          source/menus/menu_main.o source/menus/menu_settings.o source/archive/archive.o source/archive/ioapi.o source/archive/unzip.o 
@@ -27,7 +27,7 @@ VERSION_MAJOR :=  1
 VERSION_MINOR :=  1
 VERSION_MICRO :=  0
 
-INCDIR   = ../common include include/archive include/menus glib2d_mod
+INCDIR   = ../common include include/archive include/menus glib2d
 CFLAGS   = -G0 -Wall -Os -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS  := $(CFLAGS)
