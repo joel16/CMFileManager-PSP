@@ -6,53 +6,10 @@
 #include "archive.h"
 #include "common.h"
 #include "fs.h"
-#include "log.h"
 #include "menu_error.h"
 #include "progress_bar.h"
 #include "unzip.h"
 #include "utils.h"
-
-#include "dmc_unrar.c"
-
-static char *Archive_GetDirPath(char *path) {
-	char *e = strrchr(path, '/');
-
-	if (!e) {
-		char* buf = strdup(path);
-		return buf;
-	}
-
-	int index = (int)(e - path);
-	char *str = malloc(sizeof(char) * (index + 1));
-	strncpy(str, path, index);
-	str[index] = '\0';
-
-	return str;
-}
-
-static char *Archive_GetFilename(dmc_unrar_archive *archive, size_t i) {
-	size_t size = dmc_unrar_get_filename(archive, i, 0, 0);
-	if (!size)
-		return 0;
-
-	char *filename = malloc(size);
-	if (!filename)
-		return 0;
-
-	size = dmc_unrar_get_filename(archive, i, filename, size);
-	if (!size) {
-		free(filename);
-		return 0;
-	}
-
-	dmc_unrar_unicode_make_valid_utf8(filename);
-	if (filename[0] == '\0') {
-		free(filename);
-		return 0;
-	}
-
-	return filename;
-}
 
 static char *Archive_RemoveFileExt(char *filename) {
 	char *ret, *lastdot;
@@ -69,11 +26,6 @@ static char *Archive_RemoveFileExt(char *filename) {
    		*lastdot = '\0';
 
    	return ret;
-}
-
-static const char *Archive_GetFileExt(const char *filename) {
-	const char *ext = strrchr(filename, '.');
-	return (ext && ext != filename) ? ext : (filename + strlen(filename));
 }
 
 static int unzExtractCurrentFile(unzFile *unzHandle, int *path) {
@@ -96,7 +48,7 @@ static int unzExtractCurrentFile(unzFile *unzHandle, int *path) {
 
 	if ((*filenameWithoutPath) == '\0') {
 		if ((*path) == 0)
-			mkdir(filename, 0777);
+			FS_MakeDir(filename);
 	}
 	else {
 		const char *write;
@@ -113,14 +65,15 @@ static int unzExtractCurrentFile(unzFile *unzHandle, int *path) {
 			return res;
 		}
 
-		FILE *out = fopen(write, "wb");
+		SceUID file = 0;
+		file = sceIoOpen(write, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777);
 
-		if ((out == NULL) && ((*path) == 0) && (filenameWithoutPath != (char *)filename)) {
+		if ((file < 0) && ((*path) == 0) && (filenameWithoutPath != (char *)filename)) {
 			char c = *(filenameWithoutPath - 1);
 			*(filenameWithoutPath - 1) = '\0';
-			mkdir(write, 0777);
+			FS_MakeDir(write);
 			*(filenameWithoutPath - 1) = c;
-			out = fopen(write, "wb");
+			file = sceIoOpen(write, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777);
 		}
 
 		do {
@@ -129,12 +82,13 @@ static int unzExtractCurrentFile(unzFile *unzHandle, int *path) {
 			if (res < 0)
 				break;
 
-			if (res > 0)
-				fwrite(buf, 1, res, out);
+			if (res > 0) {
+				sceIoWrite(file, buf, res);
+			}
 		} 
 		while (res > 0);
 
-		fclose(out);
+		sceIoClose(file);
 
 		if ((res = unzCloseCurrentFile(unzHandle)) != UNZ_OK) {
 			free(buf);
@@ -182,8 +136,7 @@ static int unzExtractAll(const char *src, unzFile *unzHandle) {
 	return res;
 }
 
-int Archive_ExtractZIP(const char *src)
-{
+int Archive_ExtractZIP(const char *src) {
 	char *path = malloc(256);
 	char *dirname_without_ext = Archive_RemoveFileExt((char *)src);
 
@@ -206,80 +159,6 @@ int Archive_ExtractZIP(const char *src)
 		return res;
 	}
 
-	sceIoChdir(Utils_IsEF0()? "ef0:/PSP/GAME/CMFileManager" : "ef0:/PSP/GAME/CMFileManager");
+	sceIoChdir(Utils_IsEF0()? "ef0:/PSP/GAME/CMFileManager" : "ms0:/PSP/GAME/CMFileManager");
 	return res;
-}
-
-int Archive_ExtractRAR(const char *src) {
-	char *path = malloc(256);
-	char *dirname_without_ext = Archive_RemoveFileExt((char *)src);
-
-	snprintf(path, 512, "%s", dirname_without_ext);
-	FS_MakeDir(path);
-	sceIoChdir(path);
-
-	dmc_unrar_archive rar_archive;
-	dmc_unrar_return ret;
-
-	ret = dmc_unrar_archive_init(&rar_archive);
-	if (ret != DMC_UNRAR_OK) {
-		free(path);
-		free(dirname_without_ext);
-		Menu_DisplayError("dmc_unrar_archive_init failed:", ret);
-		return -1;
-	}
-
-	ret = dmc_unrar_archive_open_path(&rar_archive, src);
-	if (ret != DMC_UNRAR_OK) {
-		free(path);
-		free(dirname_without_ext);
-		Menu_DisplayError("dmc_unrar_archive_open_path failed:", ret);
-		return -1;
-	}
-
-	size_t count = dmc_unrar_get_file_count(&rar_archive);
-	size_t i = 0;
-
-	for (i = 0; i < count; i++) {
-		char *filename = Archive_GetFilename(&rar_archive, i);
-
-		char unrar_path[512];
-		snprintf(unrar_path, 512, "%s/%s", path, Archive_GetDirPath(filename));
-
-		ProgressBar_DisplayProgress("Extracting", Utils_Basename(filename), i, count);
-
-		if (!FS_DirExists(unrar_path)) {
-			if ((strcmp(Archive_GetFileExt(unrar_path), "") == 0) || (dmc_unrar_file_is_directory(&rar_archive, i)))
-				FS_MakeDir(unrar_path);
-		}
-		if (filename && !dmc_unrar_file_is_directory(&rar_archive, i)) {
-			dmc_unrar_return supported = dmc_unrar_file_is_supported(&rar_archive, i);
-			
-			if (supported == DMC_UNRAR_OK) {
-				dmc_unrar_return extracted = dmc_unrar_extract_file_to_path(&rar_archive, i, filename, NULL, true);
-				
-				if (extracted != DMC_UNRAR_OK) {
-					free(filename);
-					free(path);
-					free(dirname_without_ext);
-					return -1;
-				}
-
-			}
-			else {
-				free(filename);
-				free(path);
-				free(dirname_without_ext);
-				return -1;
-			}
-		}
-
-		free(filename);
-	}
-
-	free(path);
-	free(dirname_without_ext);
-	dmc_unrar_archive_close(&rar_archive);
-	sceIoChdir(Utils_IsEF0()? "ef0:/PSP/GAME/CMFileManager" : "ef0:/PSP/GAME/CMFileManager");
-	return 0;
 }

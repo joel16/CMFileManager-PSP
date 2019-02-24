@@ -241,11 +241,7 @@ void Dirbrowse_OpenFile(void) {
 		Archive_ExtractZIP(path);
 		Dirbrowse_PopulateFiles(true);
 	}
-	/*else if (!strncasecmp(file->ext, "rar", 3)) {
-		Archive_ExtractRAR(path);
-		Dirbrowse_PopulateFiles(true);
-	}
-	else if ((!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "mod", 3)) || (!strncasecmp(file->ext, "mp3", 3)))
+	/*else if ((!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "mod", 3)) || (!strncasecmp(file->ext, "mp3", 3)))
 		Menu_PlayMusic(path);*/
 }
 
