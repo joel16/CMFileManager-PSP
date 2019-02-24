@@ -1107,10 +1107,7 @@ g2dTexture *g2dTexLoad(char *path, g2dTex_Mode mode) {
 
     if (path == NULL)
         return NULL;
-
-    char extension[5] = {0};
-    strncpy(extension, &path[strlen(path) - 4], 4);
-
+    
     tex = _g2dTexLoadFile(path);
 
     if (tex == NULL)
