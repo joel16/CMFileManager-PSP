@@ -648,6 +648,8 @@ static void HandleCut(void) {
 void Menu_DisplayDeleteDialog(void) {
 	int text_width = intraFontMeasureText(font, "Do you wish to continue?");
 
+	G2D_DrawRect(0, 20, 480, 252, G2D_RGBA(0, 0, 0, config.dark_theme? 50: 80));
+
 	G2D_DrawImage(config.dark_theme? dialog_dark : dialog, ((480 - dialog->w) / 2), ((272 - dialog->h) / 2));
 
 	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
@@ -680,6 +682,8 @@ void Menu_DisplayFileProperties(void) {
 	char path[1024], size[16];
 	strcpy(path, cwd);
 	strcpy(path + strlen(path), file->name);
+
+	G2D_DrawRect(0, 20, 480, 252, G2D_RGBA(0, 0, 0, config.dark_theme? 50: 80));
 
 	G2D_DrawImage(config.dark_theme? properties_dialog_dark : properties_dialog, 131, 32);
 	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
@@ -811,6 +815,7 @@ void Menu_ControlFileOptions(void) {
 }
 
 void Menu_DisplayFileOptions(void) {
+	G2D_DrawRect(0, 20, 480, 252, G2D_RGBA(0, 0, 0, config.dark_theme? 50: 80));
 	G2D_DrawImage(config.dark_theme? options_dialog_dark : options_dialog, (480 - options_dialog->w) / 2, (272 - options_dialog->h) / 2);
 	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.7f, INTRAFONT_ALIGN_LEFT);
 	intraFontPrint(font, 140, 52, "Actions");

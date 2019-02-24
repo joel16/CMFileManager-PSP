@@ -238,8 +238,8 @@ void Dirbrowse_OpenFile(void) {
 	else if ((!strncasecmp(file->ext, "iso", 3)) || (!strncasecmp(file->ext, "cso", 3)))
 		Utils_LaunchISO(path);
 	else if (!strncasecmp(file->ext, "zip", 3)) {
-		Archive_ExtractZIP(path);
-		Dirbrowse_PopulateFiles(true);
+		if (R_SUCCEEDED(Archive_ExtractFile(path)))
+			Dirbrowse_PopulateFiles(true);
 	}
 	/*else if ((!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "mod", 3)) || (!strncasecmp(file->ext, "mp3", 3)))
 		Menu_PlayMusic(path);*/

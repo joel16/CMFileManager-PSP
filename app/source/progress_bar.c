@@ -17,6 +17,8 @@ void ProgressBar_DisplayProgress(char *msg, char *src, u32 offset, u32 size) {
 
 	StatusBar_DisplayTime();
 	Dirbrowse_DisplayFiles();
+
+	G2D_DrawRect(0, 20, 480, 252, G2D_RGBA(0, 0, 0, config.dark_theme? 50: 80));
 	
 	snprintf(src_resized, 41, "%.40s", src);
 	int text_width = intraFontMeasureText(font, src_resized);

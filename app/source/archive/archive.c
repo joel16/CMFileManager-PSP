@@ -5,9 +5,14 @@
 
 #include "archive.h"
 #include "common.h"
+#include "config.h"
+#include "dirbrowse.h"
+#include "glib2d_helper.h"
 #include "fs.h"
 #include "menu_error.h"
 #include "progress_bar.h"
+#include "status_bar.h"
+#include "textures.h"
 #include "unzip.h"
 #include "utils.h"
 
@@ -136,7 +141,7 @@ static int unzExtractAll(const char *src, unzFile *unzHandle) {
 	return res;
 }
 
-int Archive_ExtractZIP(const char *src) {
+static int Archive_ExtractZIP(const char *src) {
 	char *path = malloc(256);
 	char *dirname_without_ext = Archive_RemoveFileExt((char *)src);
 
@@ -161,4 +166,68 @@ int Archive_ExtractZIP(const char *src) {
 
 	sceIoChdir(Utils_IsEF0()? "ef0:/PSP/GAME/CMFileManager" : "ms0:/PSP/GAME/CMFileManager");
 	return res;
+}
+
+int Archive_ExtractFile(const char *path) {
+	int dialog_selection = 0;
+	int text_width1 = intraFontMeasureText(font, "This may take a few minutes.");
+	int text_width2 = intraFontMeasureText(font, "Do you want to continue?");
+
+	while (1) {
+		g2dClear(config.dark_theme? BLACK_BG : WHITE);
+		G2D_DrawRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
+		G2D_DrawRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
+		G2D_DrawImage(icon_nav_drawer, 5, 25);
+
+		StatusBar_DisplayTime();
+		Dirbrowse_DisplayFiles();
+
+		G2D_DrawRect(0, 20, 480, 252, G2D_RGBA(0, 0, 0, config.dark_theme? 50: 80));
+
+		G2D_DrawImage(config.dark_theme? dialog_dark : dialog, ((480 - dialog->w) / 2), ((272 - dialog->h) / 2));
+
+		intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+		intraFontPrint(font, ((480 - dialog->w) / 2) + 10, ((272 - dialog->h) / 2) + 20, "Extract file");
+
+		intraFontSetStyle(font, 0.7f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+		intraFontPrint(font, ((480 - (text_width1)) / 2), ((272 - dialog->h) / 2) + 50, "This may take a few minutes.");
+		intraFontPrint(font, ((480 - (text_width2)) / 2), ((272 - dialog->h) / 2) + 66, "Do you wish to continue?");
+
+		intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+
+		if (dialog_selection == 0)
+			G2D_DrawRect((364 - intraFontMeasureText(font, "NO")) - 5, (180 - (font->texYSize - 20)) - 5, intraFontMeasureText(font, "NO") + 10, (font->texYSize - 10) + 10, 
+				config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+		else if (dialog_selection == 1)
+			G2D_DrawRect((409 - (intraFontMeasureText(font, "YES"))) - 5, (180 - (font->texYSize - 20)) - 5, intraFontMeasureText(font, "YES") + 10, (font->texYSize - 10) + 10, 
+				config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+
+		intraFontPrint(font, 409 - (intraFontMeasureText(font, "YES")), (182 - (font->texYSize - 30)), "YES");
+		intraFontPrint(font, 364 - intraFontMeasureText(font, "NO"), (182 - (font->texYSize - 30)), "NO");
+
+		g2dFlip(G2D_VSYNC);
+
+		Utils_ReadControls();
+
+		if (Utils_IsButtonPressed(PSP_CTRL_RIGHT))
+			dialog_selection++;
+		else if (Utils_IsButtonPressed(PSP_CTRL_LEFT))
+			dialog_selection--;
+
+		Utils_SetMax(&dialog_selection, 0, 1);
+		Utils_SetMin(&dialog_selection, 1, 0);
+
+		if (Utils_IsButtonPressed(PSP_CTRL_CANCEL))
+			break;
+
+		if (Utils_IsButtonPressed(PSP_CTRL_ENTER)) {
+			if (dialog_selection == 1) {
+				return Archive_ExtractZIP(path);
+			}
+			else
+				break;
+		}
+	}
+
+	return -1;
 }

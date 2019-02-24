@@ -110,6 +110,8 @@ static void Menu_DisplayAboutDialog(void) {
 	int text_width = intraFontMeasureText(font, "CM File Manager PSP vX.X.X");
 	int author_width = intraFontMeasureText(font, "Author: Joel16");
 
+	G2D_DrawRect(0, 20, 480, 252, G2D_RGBA(0, 0, 0, config.dark_theme? 50: 80));
+
 	G2D_DrawImage(config.dark_theme? dialog_dark : dialog, ((480 - dialog->w) / 2), ((272 - dialog->h) / 2));
 
 	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
@@ -131,6 +133,8 @@ static void Menu_ControlSupportDialog(void) {
 }
 
 static void Menu_DisplaySupportDialog(void) {
+	G2D_DrawRect(0, 20, 480, 252, G2D_RGBA(0, 0, 0, config.dark_theme? 50: 80));
+
 	G2D_DrawImage(config.dark_theme? properties_dialog_dark : properties_dialog, 131, 32);
 	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 

@@ -274,7 +274,7 @@ static void Menu_ControlHome(void) {
 static void Menu_DisplayMenubar(void) {
 	G2D_DrawImage(bg_header, menubar_x, 20);
 	G2D_DrawRect(menubar_x, 90, 180, 252, config.dark_theme? BLACK_BG : WHITE);
-	G2D_DrawRect(menubar_x + 180, 20, 1, 252, config.dark_theme? SELECTOR_COLOUR_DARK : G2D_RGBA(200, 200, 200, 255));
+	G2D_DrawRect(menubar_x + 180, 20, 480, 252, G2D_RGBA(0, 0, 0, config.dark_theme? 50: 80));
 	G2D_DrawRect(menubar_x, 90 + (30 * menubar_selection), 180, 30, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
 	intraFontSetStyle(font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
