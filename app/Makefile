@@ -23,8 +23,8 @@ DATA_OBJS = data/battery_20.o data/battery_30.o data/battery_50.o data/battery_6
 
 PSP_LARGE_MEMORY = 1
 
-VERSION_MAJOR :=  1
-VERSION_MINOR :=  1
+VERSION_MAJOR :=  2
+VERSION_MINOR :=  0
 VERSION_MICRO :=  0
 
 INCDIR   = ../common include include/archive include/menus glib2d
