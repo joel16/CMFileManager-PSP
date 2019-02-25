@@ -59,4 +59,6 @@ int main(int argc, char **argv) {
 
 	LaunchCMFIleManager();
 	sceKernelExitGame();
+
+	return 0;
 }
