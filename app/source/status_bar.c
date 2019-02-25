@@ -1,4 +1,5 @@
 #include <psppower.h>
+#include <sys/time.h>
 #include <psprtc.h>
 #include <pspnet_apctl.h>
 #include <stdio.h>

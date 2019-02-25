@@ -1,5 +1,6 @@
 #include <pspdisplay.h>
 #include <psptypes.h>
+#include <sys/time.h>
 #include <psprtc.h>
 #include <malloc.h>
 #include <stdio.h>
