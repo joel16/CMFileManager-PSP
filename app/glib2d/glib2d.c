@@ -729,7 +729,7 @@ void g2dSetCoordInteger(bool use) {
 
 /* Scale functions */
 
-void g2dResetGlobalScale() {
+void g2dResetGlobalScale(void) {
     global_scale = 1.f;
 }
 
@@ -753,8 +753,10 @@ void g2dGetGlobalScale(float *scale) {
 }
 
 void g2dGetScaleWH(float *w, float *h) {
-    if (w != NULL) *w = rctx.cur_obj.scale_w;
-    if (h != NULL) *h = rctx.cur_obj.scale_h;
+    if (w != NULL)
+        *w = rctx.cur_obj.scale_w;
+    if (h != NULL)
+        *h = rctx.cur_obj.scale_h;
 }
 
 void g2dSetGlobalScale(float scale) {
@@ -814,8 +816,10 @@ void g2dSetColor(g2dColor color) {
 }
 
 void g2dSetAlpha(g2dAlpha alpha) {
-    if (alpha < 0)   alpha = 0;
-    if (alpha > 255) alpha = 255;
+    if (alpha < 0)
+        alpha = 0;
+    if (alpha > 255)
+        alpha = 255;
 
     rctx.cur_obj.alpha = alpha;
 
@@ -889,16 +893,20 @@ void g2dGetCropXY(int *x, int *y) {
     if (rctx.tex == NULL)
         return;
 
-    if (x != NULL) *x = rctx.cur_obj.crop_x;
-    if (y != NULL) *y = rctx.cur_obj.crop_y;
+    if (x != NULL)
+        *x = rctx.cur_obj.crop_x;
+    if (y != NULL)
+        *y = rctx.cur_obj.crop_y;
 }
 
 void g2dGetCropWH(int *w, int *h) {
     if (rctx.tex == NULL)
         return;
 
-    if (w != NULL) *w = rctx.cur_obj.crop_w;
-    if (h != NULL) *h = rctx.cur_obj.crop_h;
+    if (w != NULL)
+        *w = rctx.cur_obj.crop_w;
+    if (h != NULL)
+        *h = rctx.cur_obj.crop_h;
 }
 
 void g2dSetCropXY(int x, int y) {
@@ -966,7 +974,7 @@ static unsigned int _getNextPower2(unsigned int n) {
     n |= n >> 8;
     n |= n >> 16;
 
-    return n+1;
+    return n + 1;
 }
 
 static void _swizzle(unsigned char *dest, unsigned char *source, int width, int height) {
@@ -1080,7 +1088,7 @@ static g2dTexture *_g2dTexLoadFile(const char *path) {
     }
 
     free(data);
-    free(line);
+    free((g2dColor *)line);
     return tex;
 }
 

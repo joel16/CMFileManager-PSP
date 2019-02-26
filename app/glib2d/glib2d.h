@@ -803,7 +803,7 @@ void g2dSetTexLinear(bool use);
  *
  * This function can be called everywhere in the loop.
  */
-void g2dResetScissor();
+void g2dResetScissor(void);
 
 /**
  * \brief Sets the draw zone.

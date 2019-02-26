@@ -1,3 +1,6 @@
+#include <psptypes.h>
+#include <sys/time.h>
+#include <psprtc.h>
 #include <pspumd.h>
 #include <malloc.h>
 #include <stdio.h>
@@ -21,6 +24,13 @@ static char multi_select_dir_old[512];
 static int menubar_selection = 0, old_menubar_selection = 0;
 static float menubar_x = -180.0;
 u64 total_storage = 0, used_storage = 0;
+
+static void Menu_AnimateMenubar(float delta_time) {
+	menubar_x += 1000 * delta_time;
+	
+	if (menubar_x > 0)
+		menubar_x = MENUBAR_X_BOUNDARY;
+}
 
 static void Menu_HandleMultiSelect(void) {
 	// multi_select_dir can only hold one dir
@@ -328,7 +338,17 @@ void Menu_Main(void) {
 			old_menubar_selection = 1;	
 	}
 
+	u64 last = 0;
+	u32 tick = sceRtcGetTickResolution();
+	sceRtcGetCurrentTick(&last);
+
 	while (1) {
+		u64 current = 0;
+		sceRtcGetCurrentTick(&current);
+
+		float delta_time = (current - last) / (float)tick;
+		last = current;
+
 		g2dClear(config.dark_theme? BLACK_BG : WHITE);
 		G2D_DrawRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
 		G2D_DrawRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);
@@ -354,10 +374,7 @@ void Menu_Main(void) {
 			Menu_ControlDeleteDialog();
 		}
 		else if (MENU_STATE == MENU_STATE_MENUBAR) {
-			menubar_x += 10.0;
-
-			if (menubar_x > -1)
-				menubar_x = MENUBAR_X_BOUNDARY;
+			Menu_AnimateMenubar(delta_time);
 			Menu_ControlMenubar();
 			Menu_DisplayMenubar();
 		}
