@@ -49,7 +49,7 @@ static void Init_Services(void) {
 	// Set to max clock frequency.
 	cpu_clock = scePowerGetCpuClockFrequency();
 	bus_clock = scePowerGetBusClockFrequency();
-	scePowerSetClockFrequency(333, 333, 167);
+	scePowerSetClockFrequency(333, 333, 166);
 
 	intraFontInit();
 
