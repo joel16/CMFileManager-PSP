@@ -28,6 +28,15 @@ void G2D_DrawImage(g2dTexture *tex, float x, float y) {
 	g2dEnd();
 }
 
+void G2D_DrawImageScale(g2dTexture *tex, float x, float y, float w, float h) {
+	g2dBeginRects(tex);
+	g2dSetCoordMode(G2D_UP_LEFT);
+	g2dSetScaleWH(w, h);
+	g2dSetCoordXY(x, y);
+	g2dAdd();
+	g2dEnd();
+}
+
 static int G2D_GetText(char *input, unsigned short *intext, unsigned short *desc){
 	bool done = false;
 	unsigned short outtext[128] = { 0 };
@@ -68,8 +77,7 @@ static int G2D_GetText(char *input, unsigned short *intext, unsigned short *desc
 		sceGuFinish();
 		sceGuSync(0, 0);
 
-		switch(sceUtilityOskGetStatus())
-		{
+		switch(sceUtilityOskGetStatus()) {
 			case PSP_UTILITY_DIALOG_INIT:
 				break;
 			

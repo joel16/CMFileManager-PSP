@@ -12,7 +12,7 @@
 static char album[1024][512];
 static int count = 0, selection = 0;
 static g2dTexture *image;
-static float width = 0, height = 0;
+static float width = 0, height = 0, scale_factor = 1.0f;
 
 static int Gallery_GetImageList(void) {
 	SceUID dir = 0;
@@ -77,13 +77,24 @@ void Gallery_DisplayImage(char *path) {
 	Gallery_GetImageList();
 	selection = Gallery_GetCurrentIndex(path);
 	image = g2dTexLoad(path, G2D_SWIZZLE);
-	width = image->w;
-	height = image->h;
+
+	if (image->h > 272) {
+		scale_factor = (272.0f / image->h);
+		width = image->w * scale_factor;
+		height = image->h * scale_factor;
+	}
+	else {
+		width = image->w;
+		height = image->h;
+	}
 
 	while (1) {
 		g2dClear(G2D_RGBA(33, 39, 43, 255));
 
-		G2D_DrawImage(image, (G2D_SCR_W - width) / 2, (G2D_SCR_H - height) / 2);
+		if (image->h > 272)
+			G2D_DrawImageScale(image, (G2D_SCR_W - width) / 2, (G2D_SCR_H - height) / 2, width, height);
+		else
+			G2D_DrawImage(image, (G2D_SCR_W - width) / 2, (G2D_SCR_H - height) / 2);
 
 		g2dFlip(G2D_VSYNC);
 
