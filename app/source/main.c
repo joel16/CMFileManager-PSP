@@ -43,36 +43,77 @@ static int Callbacks_Setup(void) {
 	return id;
 }
 
-static void Init_Services(void) {
+/*static int Init_Net(void) {
+	int ret = 0;
+
+	if (R_FAILED(ret = sceUtilityLoadNetModule(PSP_NET_MODULE_COMMON)))
+		return ret;
+
+	if (R_FAILED(ret = sceUtilityLoadNetModule(PSP_NET_MODULE_INET)))
+		return ret;
+
+	if (R_FAILED(ret = sceNetInit(128 * 1024, 42, 4 * 1024, 42, 4 * 1024)))
+		return ret;
+
+	if (R_FAILED(ret = sceNetInetInit()))
+		return ret;
+
+	if (R_FAILED(ret = sceNetApctlInit(0x8000, 48)))
+		return ret;
+}
+
+static void Term_Net(void) {
+	sceNetApctlTerm();
+	sceNetInetTerm();
+	sceNetTerm();
+
+	sceUtilityUnloadNetModule(PSP_NET_MODULE_INET);
+	sceUtilityUnloadNetModule(PSP_NET_MODULE_COMMON);
+}*/
+
+static int Init_Services(void) {
+	int ret = 0;
 	Callbacks_Setup();
 
 	// Set to max clock frequency.
 	cpu_clock = scePowerGetCpuClockFrequency();
 	bus_clock = scePowerGetBusClockFrequency();
-	scePowerSetClockFrequency(333, 333, 166);
-
-	intraFontInit();
+	if (R_FAILED(ret = scePowerSetClockFrequency(333, 333, 166)))
+		return ret;
 
 	Utils_InitUSB();
-	pspSdkInetInit();
+
+	/*if (R_FAILED(ret = Init_Net()))
+		return ret;*/
+
 	Utils_IsMemCardInserted(&is_ms_inserted);
 	is_psp_go = Utils_IsModelPSPGo();
-	Config_Load();
-	Config_GetLastDirectory();
+	
+	if (R_FAILED(ret = Config_Load()))
+		return ret;
+
+	if (R_FAILED(ret = Config_GetLastDirectory()))
+		return ret;
+
 	Textures_Load();
+
+	if (R_FAILED(ret = intraFontInit()))
+		return ret;
 
 	font = intraFontLoadMem("ram:/Roboto.pgf", Roboto_pgf_start, Roboto_pgf_size, INTRAFONT_CACHE_ALL);
 
 	PSP_CTRL_ENTER = Utils_GetEnterButton();
 	PSP_CTRL_CANCEL = Utils_GetCancelButton();
+
+	return 0;
 }
 
 static void Term_Services(void) {
+	intraFontShutdown();
 	Textures_Free();
-	pspSdkInetTerm();
+	//Term_Net();
 	Utils_ExitUSB();
 	scePowerSetClockFrequency(cpu_clock, cpu_clock, bus_clock); // Restore previous clock frequency.
-	intraFontShutdown();
 	sceKernelExitGame();
 }
 
