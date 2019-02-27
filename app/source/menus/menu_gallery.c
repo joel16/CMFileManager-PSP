@@ -29,7 +29,7 @@ static int Gallery_GetImageList(void) {
 
 		for (i = 0; i < entryCount; i++) {
 			if ((!strncasecmp(FS_GetFileExt(entries[i].d_name), "bmp", 3)) || (!strncasecmp(FS_GetFileExt(entries[i].d_name), "gif", 3)) || (!strncasecmp(FS_GetFileExt(entries[i].d_name), "jpg", 3)) 
-				|| (!strncasecmp(FS_GetFileExt(entries[i].d_name), "png", 3))) {
+				|| (!strncasecmp(FS_GetFileExt(entries[i].d_name), "png", 3)) || (!strncasecmp(FS_GetFileExt(entries[i].d_name), "tga", 3))) {
 				strcpy(album[count], cwd);
 				strcpy(album[count] + strlen(album[count]), entries[i].d_name);
 				count++;
