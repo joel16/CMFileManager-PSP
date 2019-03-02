@@ -109,7 +109,7 @@ static int Init_Services(void) {
 }
 
 static void Term_Services(void) {
-	intraFontShutdown();
+	intraFontUnload(font);
 	Textures_Free();
 	//Term_Net();
 	Utils_ExitUSB();

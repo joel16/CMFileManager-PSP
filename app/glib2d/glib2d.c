@@ -1143,9 +1143,8 @@ g2dTexture *g2dTexLoad(char *path, g2dTex_Mode mode) {
 
     // Load failure... abort
 error:
-    g2dTexFree(&tex);
-
-    return NULL;
+    //g2dTexFree(&tex);
+    return tex;
 }
 
 g2dTexture *g2dTexLoadMemory(void *data, size_t size, g2dTex_Mode mode) {
