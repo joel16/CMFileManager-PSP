@@ -35,3 +35,5 @@ int Utils_IsButtonPressed(enum PspCtrlButtons buttons);
 int Utils_IsButtonHeld(enum PspCtrlButtons buttons);
 int Utils_GetEnterButton(void);
 int Utils_GetCancelButton(void);
+float Utils_GetAnalogX(void);
+float Utils_GetAnalogY(void);

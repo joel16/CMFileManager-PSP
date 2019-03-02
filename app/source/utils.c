@@ -375,3 +375,11 @@ int Utils_GetCancelButton(void) {
 
 	return 0x002000; // By default return PSP_CTRL_CIRCLE
 }
+
+float Utils_GetAnalogX(void) {
+	return (((float)current.Lx - 122.5f) / 122.5f);
+}
+
+float Utils_GetAnalogY(void) {
+	return (((float)current.Ly - 122.5f) / 122.5f);
+}

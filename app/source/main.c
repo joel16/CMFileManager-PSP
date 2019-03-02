@@ -1,6 +1,7 @@
 #include <pspkernel.h>
 #include <psppower.h>
 #include <pspsdk.h>
+#include <pspctrl.h>
 
 #include "common.h"
 #include "config.h"
@@ -74,6 +75,9 @@ static void Term_Net(void) {
 static int Init_Services(void) {
 	int ret = 0;
 	Callbacks_Setup();
+
+	sceCtrlSetSamplingCycle(0);
+	sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 
 	// Set to max clock frequency.
 	cpu_clock = scePowerGetCpuClockFrequency();

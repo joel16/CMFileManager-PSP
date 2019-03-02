@@ -11,29 +11,20 @@
 #include "utils.h"
 
 void G2D_DrawRect(float x, float y, float width, float height, g2dColor color) {
-	g2dBeginRects(NULL);
-	g2dSetColor(color);
-	g2dSetCoordMode(G2D_UP_LEFT);
-	g2dSetScaleWH(width, height);
-	g2dSetCoordXY(x, y);
-	g2dAdd();
+	g2dBeginRects(NULL); {
+		g2dSetColor(color);
+		g2dSetScaleWH(width, height);
+		g2dSetCoordXY(x, y);
+		g2dAdd();
+	}
 	g2dEnd();
 }
 
 void G2D_DrawImage(g2dTexture *tex, float x, float y) {
-	g2dBeginRects(tex);
-	g2dSetCoordMode(G2D_UP_LEFT);
-	g2dSetCoordXY(x, y);
-	g2dAdd();
-	g2dEnd();
-}
-
-void G2D_DrawImageScale(g2dTexture *tex, float x, float y, float w, float h) {
-	g2dBeginRects(tex);
-	g2dSetCoordMode(G2D_UP_LEFT);
-	g2dSetScaleWH(w, h);
-	g2dSetCoordXY(x, y);
-	g2dAdd();
+	g2dBeginRects(tex); {
+		g2dSetCoordXY(x, y);
+		g2dAdd();
+	}
 	g2dEnd();
 }
 
