@@ -80,21 +80,7 @@ static void Menu_DisplaySortSettings(void) {
 		Utils_SetMin(&selection, max_items, 0);
 
 		if (Utils_IsButtonPressed(PSP_CTRL_ENTER)) {
-			switch (selection) {
-				case 0:
-					config.sort = 0;
-					break;
-				case 1:
-					config.sort = 1;
-					break;
-				case 2:
-					config.sort = 2;
-					break;
-				case 3:
-					config.sort = 3;
-					break;
-			}
-
+			config.sort = selection;
 			Config_Save(config);
 		}
 	}
@@ -209,19 +195,22 @@ void Menu_DisplaySettings(void) {
 		else
 			G2D_DrawImage(config.auto_usb_mount? icon_toggle_on : icon_toggle_off, 455 - width,  146 + ((42 - height) / 2));
 
+		if (displayAbout)
+			Menu_DisplayAboutDialog();
+		else if (displaySupport)
+			Menu_DisplaySupportDialog();
+
+		g2dFlip(G2D_VSYNC);
+
 		Utils_ReadControls();
 
 		if (((Utils_IsButtonHeld(PSP_CTRL_LTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_RTRIGGER))) || ((Utils_IsButtonHeld(PSP_CTRL_RTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER))))
 			Screenshot_Capture();
 
-		if (displayAbout) {
-			Menu_DisplayAboutDialog();
+		if (displayAbout)
 			Menu_ControlAboutDialog();
-		}
-		else if (displaySupport) {
-			Menu_DisplaySupportDialog();
+		else if (displaySupport)
 			Menu_ControlSupportDialog();
-		}
 		else {
 			if ((Utils_IsButtonPressed(PSP_CTRL_CANCEL)) || (Utils_IsButtonPressed(PSP_CTRL_START)))
 				break;
@@ -256,8 +245,6 @@ void Menu_DisplaySettings(void) {
 				}
 			}
 		}
-
-		g2dFlip(G2D_VSYNC);
 	}
 
 	MENU_STATE = MENU_STATE_HOME;
