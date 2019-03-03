@@ -26,8 +26,8 @@ void Dirbrowse_RecursiveFree(File *node) {
 }
 
 static int cmpstringp(const void *p1, const void *p2) {
-	SceIoDirent* entryA = (SceIoDirent*) p1;
-	SceIoDirent* entryB = (SceIoDirent*) p2;
+	SceIoDirent *entryA = (SceIoDirent *)p1;
+	SceIoDirent *entryB = (SceIoDirent *)p2;
 
 	if ((FIO_S_ISDIR(entryA->d_stat.st_mode)) && !(FIO_S_ISDIR(entryB->d_stat.st_mode)))
 		return -1;
@@ -163,8 +163,9 @@ void Dirbrowse_DisplayFiles(void) {
 				G2D_DrawImage(icon_archive, 34, 65 + (42 * printed));
 			else if ((!strncasecmp(file->ext, "iso", 3)) || (!strncasecmp(file->ext, "cso", 3)))
 				G2D_DrawImage(icon_cd, 34, 65 + (42 * printed));
-			else if ((!strncasecmp(file->ext, "bmp", 3)) || (!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3)) || (!strncasecmp(file->ext, "png", 3))
-				|| (!strncasecmp(file->ext, "tga", 3)))
+			else if ((!strncasecmp(file->ext, "bmp", 3)) || (!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3)) || 
+				(!strncasecmp(file->ext, "jpeg", 4)) || (!strncasecmp(file->ext, "png", 3)) || (!strncasecmp(file->ext, "pgm", 3)) ||
+				(!strncasecmp(file->ext, "ppm", 3)) || (!strncasecmp(file->ext, "tga", 3)))
 				G2D_DrawImage(icon_image, 34, 65 + (42 * printed));
 			else if (!strncasecmp(file->ext, "prx", 3))
 				G2D_DrawImage(icon_prx, 34, 65 + (42 * printed));
@@ -232,8 +233,8 @@ void Dirbrowse_OpenFile(void) {
 			Dirbrowse_PopulateFiles(true);
 		}
 	}
-	else if ((!strncasecmp(file->ext, "bmp", 3)) || (!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3)) || (!strncasecmp(file->ext, "png", 3))
-		|| (!strncasecmp(file->ext, "tga", 3)))
+	else if ((!strncasecmp(file->ext, "bmp", 3)) || (!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3)) || (!strncasecmp(file->ext, "jpeg", 4)) || 
+		(!strncasecmp(file->ext, "png", 3)) || (!strncasecmp(file->ext, "pgm", 3)) || (!strncasecmp(file->ext, "ppm", 3)) || (!strncasecmp(file->ext, "tga", 3)))
 		Gallery_DisplayImage(path);
 	else if (!strncasecmp(file->ext, "pbp", 3))
 		Utils_LaunchEboot(path);
