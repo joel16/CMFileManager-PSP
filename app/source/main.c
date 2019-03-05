@@ -2,6 +2,7 @@
 #include <psppower.h>
 #include <pspsdk.h>
 #include <pspctrl.h>
+#include <sys/unistd.h>
 
 #include "common.h"
 #include "config.h"
@@ -84,6 +85,9 @@ static int Init_Services(void) {
 	bus_clock = scePowerGetBusClockFrequency();
 	if (R_FAILED(ret = scePowerSetClockFrequency(333, 333, 166)))
 		return ret;
+
+	// Get the initial working directory.
+	getcwd(initial_cwd, 128);
 
 	Utils_InitUSB();
 

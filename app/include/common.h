@@ -10,33 +10,33 @@
 #define MAX_FILES 1024
 #define FILES_PER_PAGE 5
 
-#define MENU_STATE_HOME        0
-#define MENU_STATE_MENUBAR     1
-#define MENU_STATE_FILEOPTIONS 2
-#define MENU_STATE_SETTINGS    3
-#define MENU_STATE_FTP         4
-#define MENU_STATE_SORT        5
-#define MENU_STATE_DELETE      6
-#define MENU_STATE_PROPERTIES  7
-#define MENU_STATE_UPDATE      8
-#define MENU_STATE_UPDATE_2    9
-#define MENU_STATE_ABOUT       10
+enum MENU_STATES {
+	MENU_STATE_HOME = 0,
+	MENU_STATE_MENUBAR = 1,
+	MENU_STATE_FILEOPTIONS = 2,
+	MENU_STATE_SETTINGS = 3,
+	MENU_STATE_FTP = 4,
+	MENU_STATE_SORT = 5,
+	MENU_STATE_DELETE = 6,
+	MENU_STATE_PROPERTIES = 7,
+	MENU_STATE_UPDATE = 8,
+	MENU_STATE_UPDATE_2 = 9,
+	MENU_STATE_ABOUT = 10
+};
 
-#define BROWSE_STATE_INTERNAL 0
-#define BROWSE_STATE_SD       1
-#define BROWSE_STATE_FLASH0   2
-#define BROWSE_STATE_FLASH1   3
-#define BROWSE_STATE_UMD      4
-//#define BROWSE_STATE_FLASH2   3
-//#define BROWSE_STATE_FLASH3   4
+enum BROWSE_STATES {
+	BROWSE_STATE_INTERNAL = 0,
+	BROWSE_STATE_SD = 1,
+	BROWSE_STATE_FLASH0 = 2,
+	BROWSE_STATE_FLASH1 = 3,
+	BROWSE_STATE_UMD = 4
+};
 
-#define WHITE                 G2D_RGBA(255, 255, 255, 255)
 #define BLACK_BG              G2D_RGBA(48, 48, 48, 255)
 #define STATUS_BAR_LIGHT      G2D_RGBA(37, 79, 174, 255)
 #define STATUS_BAR_DARK       G2D_RGBA(38, 50, 56, 255)
 #define MENU_BAR_LIGHT        G2D_RGBA(51, 103, 214, 255)
 #define MENU_BAR_DARK         G2D_RGBA(55, 71, 79, 255)
-#define BLACK                 G2D_RGBA(0, 0, 0, 255)
 #define SELECTOR_COLOUR_LIGHT G2D_RGBA(241, 241, 241, 255)
 #define SELECTOR_COLOUR_DARK  G2D_RGBA(76, 76, 76, 255)
 #define TITLE_COLOUR          G2D_RGBA(30, 136, 229, 255)
@@ -45,14 +45,16 @@
 #define TEXT_MIN_COLOUR_DARK  G2D_RGBA(185, 185, 185, 255)
 #define BAR_COLOUR            G2D_RGBA(200, 200, 200, 255)
 
-jmp_buf exitJmp;
+extern jmp_buf exitJmp;
 
-int MENU_STATE;
-int BROWSE_STATE;
+extern int MENU_STATE;
+extern int BROWSE_STATE;
 
-intraFont *font;
+extern intraFont *font;
 
-char cwd[512];
-char root_path[10];
-bool is_ms_inserted;
-bool is_psp_go;
+extern char cwd[512];
+extern char root_path[10];
+extern char initial_cwd[128];
+
+extern bool is_ms_inserted;
+extern bool is_psp_go;

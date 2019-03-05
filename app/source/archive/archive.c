@@ -164,7 +164,7 @@ static int Archive_ExtractZIP(const char *src) {
 		return res;
 	}
 
-	sceIoChdir(Utils_IsEF0()? "ef0:/PSP/GAME/CMFileManager" : "ms0:/PSP/GAME/CMFileManager");
+	sceIoChdir(initial_cwd);
 	return res;
 }
 

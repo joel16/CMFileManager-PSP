@@ -28,7 +28,6 @@
 #include <math.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 #define STBI_NO_STDIO
 #define STBI_NO_HDR
 #define STBI_NO_PIC
@@ -39,6 +38,7 @@
 #define STBI_ONLY_PNG
 #define STBI_ONLY_PNM
 #define STBI_ONLY_TGA
+#include "stb_image.h"
 
 /* Defines */
 

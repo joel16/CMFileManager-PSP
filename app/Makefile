@@ -1,9 +1,9 @@
 TARGET = CMFileManager
 
 OBJS   = glib2d/glib2d.o glib2d/intraFont.o glib2d/libccc.o \
-         source/config.o source/dirbrowse.o source/fs.o source/log.o source/main.o source/glib2d_helper.o source/progress_bar.o source/screenshot.o \
-         source/status_bar.o source/textures.o source/utils.o source/menus/menu_error.o source/menus/menu_fileoptions.o source/menus/menu_gallery.o \
-         source/menus/menu_main.o source/menus/menu_settings.o source/archive/archive.o source/archive/ioapi.o source/archive/unzip.o 
+         source/common.o source/config.o source/dirbrowse.o source/fs.o source/log.o source/main.o source/glib2d_helper.o source/progress_bar.o \
+         source/screenshot.o source/status_bar.o source/textures.o source/utils.o source/menus/menu_error.o source/menus/menu_fileoptions.o \
+         source/menus/menu_gallery.o source/menus/menu_main.o source/menus/menu_settings.o source/archive/archive.o source/archive/ioapi.o source/archive/unzip.o 
 
 DATA_OBJS = data/battery_20.o data/battery_30.o data/battery_50.o data/battery_60.o data/battery_80.o data/battery_90.o data/battery_full.o \
             data/battery_low.o data/battery_unknown.o data/battery_20_charging.o data/battery_30_charging.o data/battery_50_charging.o \
