@@ -12,8 +12,8 @@ extern unsigned char ic_fso_type_app_png_start[], ic_fso_type_compress_png_start
 	battery_30_charging_png_start[], battery_50_png_start[], battery_50_charging_png_start[], battery_60_png_start[], battery_60_charging_png_start[], 
 	battery_80_png_start[], battery_80_charging_png_start[], battery_90_png_start[], battery_90_charging_png_start[], battery_full_png_start[], 
 	battery_full_charging_png_start[], battery_low_png_start[], battery_unknown_png_start[], stat_sys_wifi_signal_off_png_start[], 
-	stat_sys_wifi_signal_on_png_start[], ic_material_light_usb_png_start[], default_artwork_png_start[], btn_playback_play_png_start[], btn_playback_pause_png_start[], 
-	btn_playback_rewind_png_start[], btn_playback_forward_png_start[], btn_playback_repeat_png_start[], btn_playback_shuffle_png_start[], 
+	stat_sys_wifi_signal_on_png_start[], ic_material_light_usb_png_start[], default_artwork_png_start[], default_artwork_blur_png_start[], btn_playback_play_png_start[], 
+	btn_playback_pause_png_start[], btn_playback_rewind_png_start[], btn_playback_forward_png_start[], btn_playback_repeat_png_start[], btn_playback_shuffle_png_start[], 
 	btn_playback_repeat_overlay_png_start[], btn_playback_shuffle_overlay_png_start[], bg_header_png_start[], ic_material_light_sdcard_png_start[], 
 	ic_material_light_secure_png_start[], ic_material_light_sdcard_dark_png_start[], ic_material_light_secure_dark_png_start[];
 
@@ -28,9 +28,9 @@ extern unsigned int ic_fso_type_app_png_size, ic_fso_type_compress_png_size, ic_
 	battery_20_charging_png_size, battery_30_png_size, battery_30_charging_png_size, battery_50_png_size, battery_50_charging_png_size, 
 	battery_60_png_size, battery_60_charging_png_size, battery_80_png_size, battery_80_charging_png_size, battery_90_png_size, battery_90_charging_png_size, 
 	battery_full_png_size, battery_full_charging_png_size, battery_low_png_size, battery_unknown_png_size, stat_sys_wifi_signal_off_png_size, 
-	stat_sys_wifi_signal_on_png_size, ic_material_light_usb_png_size, default_artwork_png_size, btn_playback_play_png_size, btn_playback_pause_png_size, 
-	btn_playback_rewind_png_size, btn_playback_forward_png_size, btn_playback_repeat_png_size, btn_playback_shuffle_png_size, btn_playback_repeat_overlay_png_size, 
-	btn_playback_shuffle_overlay_png_size, bg_header_png_size, ic_material_light_sdcard_png_size, ic_material_light_secure_png_size, 
+	stat_sys_wifi_signal_on_png_size, ic_material_light_usb_png_size, default_artwork_png_size, default_artwork_blur_png_size, btn_playback_play_png_size, 
+	btn_playback_pause_png_size, btn_playback_rewind_png_size, btn_playback_forward_png_size, btn_playback_repeat_png_size, btn_playback_shuffle_png_size, 
+	btn_playback_repeat_overlay_png_size, btn_playback_shuffle_overlay_png_size, bg_header_png_size, ic_material_light_sdcard_png_size, ic_material_light_secure_png_size, 
 	ic_material_light_sdcard_dark_png_size, ic_material_light_secure_dark_png_size;
 
 void Textures_Load(void) {
@@ -83,6 +83,7 @@ void Textures_Load(void) {
 	wifi_on = g2dTexLoadMemory(stat_sys_wifi_signal_on_png_start, stat_sys_wifi_signal_on_png_size, G2D_SWIZZLE);
 	usb_icon = g2dTexLoadMemory(ic_material_light_usb_png_start, ic_material_light_usb_png_size, G2D_SWIZZLE);
 	default_artwork = g2dTexLoadMemory(default_artwork_png_start, default_artwork_png_size, G2D_SWIZZLE);
+	default_artwork_blur = g2dTexLoadMemory(default_artwork_blur_png_start, default_artwork_blur_png_size, G2D_SWIZZLE);
 	btn_play = g2dTexLoadMemory(btn_playback_play_png_start, btn_playback_play_png_size, G2D_SWIZZLE);
 	btn_pause = g2dTexLoadMemory(btn_playback_pause_png_start, btn_playback_pause_png_size, G2D_SWIZZLE);
 	btn_rewind = g2dTexLoadMemory(btn_playback_rewind_png_start, btn_playback_rewind_png_size, G2D_SWIZZLE);
@@ -112,6 +113,7 @@ void Textures_Free(void) {
 	g2dTexFree(&btn_rewind);
 	g2dTexFree(&btn_pause);
 	g2dTexFree(&btn_play);
+	g2dTexFree(&default_artwork_blur);
 	g2dTexFree(&default_artwork);
 	g2dTexFree(&usb_icon);
 	g2dTexFree(&wifi_on);

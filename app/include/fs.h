@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pspiofilemgr.h>
+#include <stdbool.h>
 
 bool FS_FileExists(const char *path);
 bool FS_DirExists(const char *path);

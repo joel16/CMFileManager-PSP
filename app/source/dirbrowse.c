@@ -8,6 +8,7 @@
 #include "dirbrowse.h"
 #include "fs.h"
 #include "glib2d_helper.h"
+#include "menu_audio.h"
 #include "menu_error.h"
 #include "menu_gallery.h"
 #include "textures.h"
@@ -240,6 +241,8 @@ void Dirbrowse_OpenFile(void) {
 		Utils_LaunchEboot(path);
 	else if ((!strncasecmp(file->ext, "iso", 3)) || (!strncasecmp(file->ext, "cso", 3)))
 		Utils_LaunchISO(path);
+	else if ((!strncasecmp(file->ext, "flac", 4)) || (!strncasecmp(file->ext, "mp3", 3)) || (!strncasecmp(file->ext, "ogg", 3)) || (!strncasecmp(file->ext, "wav", 3)))
+		Menu_PlayAudio(path);
 	else if (!strncasecmp(file->ext, "zip", 3)) {
 		if (R_SUCCEEDED(Archive_ExtractFile(path)))
 			Dirbrowse_PopulateFiles(true);

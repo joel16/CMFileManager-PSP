@@ -1,6 +1,6 @@
 TARGET = CMFileManager
 
-SOURCES   := data glib2d source source/archive source/menus
+SOURCES   := data glib2d source source/archive source/audio source/menus
 CFILES    := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.c))
 CPPFILES  := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.cpp))
 GFXFILES  := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.png))
@@ -15,14 +15,14 @@ VERSION_MAJOR :=  2
 VERSION_MINOR :=  0
 VERSION_MICRO :=  0
 
-INCDIR   = ../common include include/archive include/menus glib2d
-CFLAGS   = -G0 -Wall -Os -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
+INCDIR   = ../common include include/archive include/audio include/menus glib2d
+CFLAGS   = -O3 -G0 -Wall -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS  := $(CFLAGS)
 
 LIBDIR  = ../libs
 LDFLAGS =
-LIBS    = -lz -lpspgum -lpspgu -lpsprtc -lm -lpspvram -lpsphttp -lpspssl -lpspwlan \
+LIBS    = -lz -lpspgum -lpspgu -lpsprtc -lm -lpspvram -lpsphttp -lpspssl -lpspwlan -lpspaudiolib -lpspaudio \
           -lpspsdk -lpspctrl -lpsppower -lpspnet_adhocmatching -lpspnet_adhoc -lpspnet_adhocctl \
           -lpspreg -lpspusb -lpspusbstor -lpspusbdevice -lpspumd -lpspkubridge -lpspsystemctrl_user
 
