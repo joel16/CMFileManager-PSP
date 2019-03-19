@@ -13,10 +13,10 @@ bool playing = true, paused = false;
 
 enum Audio_FileType {
 	FILE_TYPE_NONE = 0,
-	FILE_TYPE_WAV = 1,
-	FILE_TYPE_FLAC = 2,
+	FILE_TYPE_FLAC = 1,
+	FILE_TYPE_MP3 = 2,
 	FILE_TYPE_OGG = 3,
-	FILE_TYPE_MP3 = 4
+	FILE_TYPE_WAV = 4
 };
 
 static enum Audio_FileType file_type = FILE_TYPE_NONE;

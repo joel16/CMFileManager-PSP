@@ -158,7 +158,8 @@ void Dirbrowse_DisplayFiles(void) {
 				G2D_DrawImage(config.dark_theme? icon_dir_dark : icon_dir, 34, 65 + (42 * printed));
 			else if (!strncasecmp(file->ext, "pbp", 3))
 				G2D_DrawImage(icon_app, 34, 65 + (42 * printed));
-			else if ((!strncasecmp(file->ext, "mp3", 3)) || (!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "flac", 3)))
+			else if ((!strncasecmp(file->ext, "flac", 4)) || (!strncasecmp(file->ext, "mp3", 3)) || (!strncasecmp(file->ext, "ogg", 3)) ||
+				(!strncasecmp(file->ext, "wav", 3)))
 				G2D_DrawImage(icon_audio, 34, 65 + (42 * printed));
 			else if ((!strncasecmp(file->ext, "zip", 3)) || (!strncasecmp(file->ext, "rar", 3)))
 				G2D_DrawImage(icon_archive, 34, 65 + (42 * printed));
@@ -175,9 +176,7 @@ void Dirbrowse_DisplayFiles(void) {
 			else
 				G2D_DrawImage(icon_file, 34, 65 + (42 * printed));
 
-			char buf[64], size[16];
-			strncpy(buf, file->name, sizeof(buf));
-			buf[sizeof(buf) - 1] = '\0';
+			char size[16];
 
 			intraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 			if (!file->isDir) {
@@ -189,7 +188,7 @@ void Dirbrowse_DisplayFiles(void) {
 			if (strncmp(file->name, "..", 2) == 0)
 				intraFontPrint(font, 80, 62 + ((42 - (font->texYSize - 32)) / 2) + (42 * printed), "Parent folder");
 			else 
-				intraFontPrint(font, 80, 62 + ((42 - (font->texYSize - 32)) / 2) + (42 * printed), buf);
+				intraFontPrint(font, 80, 62 + ((42 - (font->texYSize - 32)) / 2) + (42 * printed), file->name);
 
 			printed++; // Increase printed counter
 		}
