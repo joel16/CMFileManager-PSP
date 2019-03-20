@@ -5,7 +5,7 @@
 
 static stb_vorbis *ogg;
 static stb_vorbis_info ogg_info;
-static int samples_read = 0;
+static unsigned int samples_read = 0, max_lenth = 0;
 
 int OGG_Init(const char *path) {
 	int error = 0;
@@ -14,14 +14,16 @@ int OGG_Init(const char *path) {
 	if (!ogg)
 		return -1;
 
+	ogg_info = stb_vorbis_get_info(ogg);
+	max_lenth = stb_vorbis_stream_length_in_samples(ogg);
 	return 0;
 }
 
 void OGG_Decode(void *buf, unsigned int length, void *userdata) {
 	samples_read += stb_vorbis_get_samples_short_interleaved(ogg, 2, (short *)buf, length * 2);
 
-	//if (samples_read == wav.totalPCMFrameCount)
-	//	playing = false;
+	if (samples_read == max_lenth)
+		playing = false;
 }
 
 u64 OGG_GetPosition(void) {
@@ -29,11 +31,15 @@ u64 OGG_GetPosition(void) {
 }
 
 u64 OGG_GetLength(void) {
-	return 0;
+	return max_lenth;
+}
+
+u64 OGG_GetPositionSeconds(const char *path) {
+	return (samples_read / ogg_info.sample_rate);
 }
 
 u64 OGG_GetLengthSeconds(const char *path) {
-	return 0;
+	return (max_lenth / ogg_info.sample_rate);
 }
 
 void OGG_Term(void) {

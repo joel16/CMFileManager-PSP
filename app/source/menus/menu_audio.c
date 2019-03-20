@@ -36,11 +36,16 @@ void Menu_PlayAudio(const char *path) {
 	Audio_Init(path);
 	pspAudioSetChannelCallback(0, Audio_Decode, NULL);
 
+	u64 length = Audio_GetLengthSeconds(path);
 	char *position_time = malloc(35);
 	char *length_time = malloc(35);
-	length_time = Menu_ConvertSecondsToString(length_time, Audio_GetLengthSeconds(path));
-	intraFontSetStyle(font, 0.6f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-	float length_time_width = intraFontMeasureText(font, length_time);
+	float length_time_width = 0;
+
+	if (length) {
+		length_time = Menu_ConvertSecondsToString(length_time, Audio_GetLengthSeconds(path));
+		intraFontSetStyle(font, 0.6f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+		length_time_width = intraFontMeasureText(font, length_time);
+	}
 
 	while(playing) {
 		g2dClear(config.dark_theme? BLACK_BG : WHITE);
@@ -70,14 +75,18 @@ void Menu_PlayAudio(const char *path) {
 		G2D_DrawImage(state == MUSIC_STATE_SHUFFLE? btn_shuffle_overlay : btn_shuffle, 205 + ((275 - btn_shuffle->w) / 2) - 45, 62 + ((200 - btn_shuffle->h) / 2) + 50);
 		G2D_DrawImage(state == MUSIC_STATE_REPEAT? btn_repeat_overlay : btn_repeat, 205 + ((275 - btn_repeat->w) / 2) + 45, 62 + ((200 - btn_repeat->h) / 2) + 50);
 
-		intraFontSetStyle(font, 0.6f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-		position_time = Menu_ConvertSecondsToString(position_time, Audio_GetPositionSeconds(path));
-		intraFontPrint(font, 230, 240, position_time);
-		intraFontPrint(font, 455 - length_time_width, 240, length_time);
+		if (length) {
+			intraFontSetStyle(font, 0.6f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+			position_time = Menu_ConvertSecondsToString(position_time, Audio_GetPositionSeconds(path));
+			intraFontPrint(font, 230, 240, position_time);
+			intraFontPrint(font, 455 - length_time_width, 240, length_time);
+		}
 
 		// Progress bar
-		G2D_DrawRect(230, 245, 225, 2, G2D_RGBA(97, 97, 97, 150));
-		G2D_DrawRect(230, 245, (((double)Audio_GetPosition()/(double)Audio_GetLength()) * 225.0), 2, WHITE);
+		if (Audio_GetPosition() != -1) {
+			G2D_DrawRect(230, 245, 225, 2, G2D_RGBA(97, 97, 97, 150));
+			G2D_DrawRect(230, 245, (((double)Audio_GetPosition()/(double)Audio_GetLength()) * 225.0), 2, WHITE);
+		}
 
 		g2dFlip(G2D_VSYNC);
 
@@ -92,5 +101,6 @@ void Menu_PlayAudio(const char *path) {
 
 	free(length_time);
 	free(position_time);
+
 	Audio_Term();
 }

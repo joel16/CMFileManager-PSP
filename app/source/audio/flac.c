@@ -16,7 +16,7 @@ int FLAC_Init(const char *path) {
 
 void FLAC_Decode(void *buf, unsigned int length, void *userdata) {
 	frames_read += drflac_read_pcm_frames_s16(flac, (drflac_uint64)length, (drflac_int16 *)buf);
-
+	
 	if (frames_read == flac->totalPCMFrameCount)
 		playing = false;
 }

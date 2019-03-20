@@ -5,18 +5,18 @@
 #include "fs.h"
 
 #include "flac.h"
-#include "mp3.h"
 #include "ogg.h"
 #include "wav.h"
+#include "xm.h"
 
 bool playing = true, paused = false;
 
 enum Audio_FileType {
 	FILE_TYPE_NONE = 0,
 	FILE_TYPE_FLAC = 1,
-	FILE_TYPE_MP3 = 2,
-	FILE_TYPE_OGG = 3,
-	FILE_TYPE_WAV = 4
+	FILE_TYPE_OGG = 2,
+	FILE_TYPE_WAV = 3,
+	FILE_TYPE_XM = 4
 };
 
 static enum Audio_FileType file_type = FILE_TYPE_NONE;
@@ -28,20 +28,16 @@ void Audio_Init(const char *path) {
 
 	if (!strncasecmp(FS_GetFileExt(path), "flac", 4))
 		file_type = FILE_TYPE_FLAC;
-	else if (!strncasecmp(FS_GetFileExt(path), "mp3", 3))
-		file_type = FILE_TYPE_MP3;
 	else if (!strncasecmp(FS_GetFileExt(path), "ogg", 3))
 		file_type = FILE_TYPE_OGG;
 	else if (!strncasecmp(FS_GetFileExt(path), "wav", 3))
 		file_type = FILE_TYPE_WAV;
+	else if (!strncasecmp(FS_GetFileExt(path), "xm", 2))
+		file_type = FILE_TYPE_XM;
 
 	switch(file_type) {
 		case FILE_TYPE_FLAC:
 			FLAC_Init(path);
-			break;
-
-		case FILE_TYPE_MP3:
-			MP3_Init(path);
 			break;
 
 		case FILE_TYPE_OGG:
@@ -50,6 +46,10 @@ void Audio_Init(const char *path) {
 
 		case FILE_TYPE_WAV:
 			WAV_Init(path);
+			break;
+
+		case FILE_TYPE_XM:
+			XM_Init(path);
 			break;
 
 		default:
@@ -70,16 +70,16 @@ void Audio_Decode(void *buf, unsigned int length, void *userdata) {
 				FLAC_Decode(buf, length, userdata);
 				break;
 
-			case FILE_TYPE_MP3:
-				MP3_Decode(buf, length, userdata);
-				break;
-
 			case FILE_TYPE_OGG:
 				OGG_Decode(buf, length, userdata);
 				break;
 
 			case FILE_TYPE_WAV:
 				WAV_Decode(buf, length, userdata);
+				break;
+
+			case FILE_TYPE_XM:
+				XM_Decode(buf, length, userdata);
 				break;
 
 			default:
@@ -101,15 +101,11 @@ void Audio_Stop(void) {
 }
 
 u64 Audio_GetPosition(void) {
-	u64 position = 0;
+	u64 position = -1;
 
 	switch(file_type) {
 		case FILE_TYPE_FLAC:
 			position = FLAC_GetPosition();
-			break;
-
-		case FILE_TYPE_MP3:
-			position = MP3_GetPosition();
 			break;
 
 		case FILE_TYPE_OGG:
@@ -118,6 +114,10 @@ u64 Audio_GetPosition(void) {
 
 		case FILE_TYPE_WAV:
 			position = WAV_GetPosition();
+			break;
+
+		case FILE_TYPE_XM:
+			position = XM_GetPosition();
 			break;
 
 		default:
@@ -135,16 +135,16 @@ u64 Audio_GetLength(void) {
 			position = FLAC_GetLength();
 			break;
 
-		case FILE_TYPE_MP3:
-			position = MP3_GetLength();
-			break;
-
 		case FILE_TYPE_OGG:
 			position = OGG_GetLength();
 			break;
 
 		case FILE_TYPE_WAV:
 			position = WAV_GetLength();
+			break;
+
+		case FILE_TYPE_XM:
+			position = XM_GetLength();
 			break;
 
 		default:
@@ -155,15 +155,23 @@ u64 Audio_GetLength(void) {
 }
 
 u64 Audio_GetPositionSeconds(const char *path) {
-	u64 seconds = 0;
+	u64 seconds = -1;
 
 	switch(file_type) {
 		case FILE_TYPE_FLAC:
 			seconds = FLAC_GetPositionSeconds(path);
 			break;
 
+		case FILE_TYPE_OGG:
+			seconds = OGG_GetPositionSeconds(path);
+			break;
+
 		case FILE_TYPE_WAV:
 			seconds = WAV_GetPositionSeconds(path);
+			break;
+
+		case FILE_TYPE_XM:
+			seconds = XM_GetPositionSeconds(path);
 			break;
 
 		default:
@@ -181,16 +189,16 @@ u64 Audio_GetLengthSeconds(const char *path) {
 			seconds = FLAC_GetLengthSeconds(path);
 			break;
 
-		case FILE_TYPE_MP3:
-			seconds = MP3_GetLengthSeconds(path);
-			break;
-
 		case FILE_TYPE_OGG:
 			seconds = OGG_GetLengthSeconds(path);
 			break;
 
 		case FILE_TYPE_WAV:
 			seconds = WAV_GetLengthSeconds(path);
+			break;
+
+		case FILE_TYPE_XM:
+			seconds = XM_GetLengthSeconds(path);
 			break;
 
 		default:
@@ -206,16 +214,16 @@ void Audio_Term(void) {
 			FLAC_Term();
 			break;
 
-		case FILE_TYPE_MP3:
-			MP3_Term();
-			break;
-
 		case FILE_TYPE_OGG:
 			OGG_Term();
 			break;
 
 		case FILE_TYPE_WAV:
 			WAV_Term();
+			break;
+
+		case FILE_TYPE_XM:
+			XM_Term();
 			break;
 
 		default:

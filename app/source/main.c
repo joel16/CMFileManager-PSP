@@ -1,7 +1,7 @@
+#include <pspctrl.h>
 #include <pspkernel.h>
 #include <psppower.h>
 #include <pspsdk.h>
-#include <pspctrl.h>
 #include <sys/unistd.h>
 
 #include "common.h"
