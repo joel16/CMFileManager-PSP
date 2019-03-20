@@ -43,7 +43,7 @@ void Menu_PlayAudio(const char *path) {
 
 	if (length) {
 		length_time = Menu_ConvertSecondsToString(length_time, Audio_GetLengthSeconds(path));
-		intraFontSetStyle(font, 0.6f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+		intraFontSetStyle(font, 0.7f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 		length_time_width = intraFontMeasureText(font, length_time);
 	}
 
@@ -76,7 +76,6 @@ void Menu_PlayAudio(const char *path) {
 		G2D_DrawImage(state == MUSIC_STATE_REPEAT? btn_repeat_overlay : btn_repeat, 205 + ((275 - btn_repeat->w) / 2) + 45, 62 + ((200 - btn_repeat->h) / 2) + 50);
 
 		if (length) {
-			intraFontSetStyle(font, 0.6f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 			position_time = Menu_ConvertSecondsToString(position_time, Audio_GetPositionSeconds(path));
 			intraFontPrint(font, 230, 240, position_time);
 			intraFontPrint(font, 455 - length_time_width, 240, length_time);

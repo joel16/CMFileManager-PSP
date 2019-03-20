@@ -37,5 +37,6 @@ u64 WAV_GetLengthSeconds(const char *path) {
 }
 
 void WAV_Term(void) {
-	samples_read = 0;drwav_uninit(&wav);
+	samples_read = 0;
+	drwav_uninit(&wav);
 }

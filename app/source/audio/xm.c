@@ -8,7 +8,7 @@
 
 static jar_xm_context_t *xm;
 static u64 samples_read = 0, max_samples = 0;
-static void *data = NULL;
+static char *data = NULL;
 
 int XM_Init(const char *path) {
     SceUID file = 0;
@@ -40,13 +40,13 @@ int XM_Init(const char *path) {
 
     sceIoClose(file);
 
-    jar_xm_create_context_safe(&xm, data, stat.st_size, 44100);
+    jar_xm_create_context_safe(&xm, data, (size_t)stat.st_size, (u32)44100);
     max_samples = jar_xm_get_remaining_samples(xm); // Initial remaining = max
     return 0;
 }
 
 void XM_Decode(void *buf, unsigned int length, void *userdata) {
-    jar_xm_generate_samples_16bit(xm, (short *)buf, length);
+    jar_xm_generate_samples_16bit(xm, (short *)buf, (size_t)length);
     jar_xm_get_position(xm, NULL, NULL, NULL, &samples_read);
 
     if (samples_read == max_samples)

@@ -20,7 +20,7 @@ int OGG_Init(const char *path) {
 }
 
 void OGG_Decode(void *buf, unsigned int length, void *userdata) {
-	samples_read += stb_vorbis_get_samples_short_interleaved(ogg, 2, (short *)buf, length * 2);
+	samples_read += stb_vorbis_get_samples_short_interleaved(ogg, ogg_info.channels, (short *)buf, (int)length * ogg_info.channels);
 
 	if (samples_read == max_lenth)
 		playing = false;
