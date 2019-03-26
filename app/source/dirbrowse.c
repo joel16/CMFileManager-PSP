@@ -158,7 +158,7 @@ void Dirbrowse_DisplayFiles(void) {
 				G2D_DrawImage(config.dark_theme? icon_dir_dark : icon_dir, 34, 65 + (42 * printed));
 			else if (!strncasecmp(file->ext, "pbp", 3))
 				G2D_DrawImage(icon_app, 34, 65 + (42 * printed));
-			else if ((!strncasecmp(file->ext, "flac", 4)) || (!strncasecmp(file->ext, "ogg", 3)) || (!strncasecmp(file->ext, "wav", 3))
+			else if ((!strncasecmp(file->ext, "flac", 4)) || (!strncasecmp(file->ext, "mp3", 3)) || (!strncasecmp(file->ext, "ogg", 3)) || (!strncasecmp(file->ext, "wav", 3))
 				|| (!strncasecmp(file->ext, "xm", 2)))
 				G2D_DrawImage(icon_audio, 34, 65 + (42 * printed));
 			else if ((!strncasecmp(file->ext, "zip", 3)) || (!strncasecmp(file->ext, "rar", 3)))
@@ -240,7 +240,7 @@ void Dirbrowse_OpenFile(void) {
 		Utils_LaunchEboot(path);
 	else if ((!strncasecmp(file->ext, "iso", 3)) || (!strncasecmp(file->ext, "cso", 3)))
 		Utils_LaunchISO(path);
-	else if ((!strncasecmp(file->ext, "flac", 4)) || (!strncasecmp(file->ext, "ogg", 3)) || (!strncasecmp(file->ext, "wav", 3))
+	else if ((!strncasecmp(file->ext, "flac", 4)) || (!strncasecmp(file->ext, "mp3", 3)) || (!strncasecmp(file->ext, "ogg", 3)) || (!strncasecmp(file->ext, "wav", 3))
 		|| (!strncasecmp(file->ext, "xm", 2)))
 		Menu_PlayAudio(path);
 	else if (!strncasecmp(file->ext, "zip", 3)) {

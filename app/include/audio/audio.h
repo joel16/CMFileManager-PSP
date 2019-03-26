@@ -1,9 +1,23 @@
 #pragma once
 
+#include <glib2d.h>
 #include <psptypes.h>
 #include <stdbool.h>
 
 extern bool playing, paused;
+
+typedef struct {
+	bool has_meta;
+    char title[31];
+    char album[31];
+    char artist[31];
+    char year[5];
+    char comment[31];
+    char genre[31];
+    g2dTexture *cover_image;
+} Audio_Metadata;
+
+extern Audio_Metadata metadata;
 
 void Audio_Init(const char *path);
 void Audio_Decode(void *buf, unsigned int length, void *userdata);

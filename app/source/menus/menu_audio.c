@@ -6,6 +6,7 @@
 #include "common.h"
 #include "config.h"
 #include "glib2d_helper.h"
+#include "screenshot.h"
 #include "status_bar.h"
 #include "textures.h"
 #include "utils.h"
@@ -56,10 +57,22 @@ void Menu_PlayAudio(const char *path) {
 		StatusBar_DisplayTime();
 
 		intraFontSetStyle(font, 0.7f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-		intraFontPrint(font, 40, 22 + ((40 - (font->texYSize - 30)) / 2), strupr(Utils_Basename(path)));
+
+		if ((metadata.has_meta) && (strlen(metadata.title) != 0) && (strlen(metadata.artist) != 0)) {
+			intraFontPrint(font, 40, 15 + ((40 - (font->texYSize - 30)) / 2), strupr(metadata.title));
+			intraFontPrint(font, 40, 29 + ((40 - (font->texYSize - 30)) / 2), strupr(metadata.artist));
+		}
+		else if ((metadata.has_meta) && (strlen(metadata.title) != 0))
+			intraFontPrint(font, 40, 22 + ((40 - (font->texYSize - 30)) / 2), strupr(metadata.title));
+		else if (!metadata.has_meta)
+			intraFontPrint(font, 40, 22 + ((40 - (font->texYSize - 30)) / 2), strupr(Utils_Basename(path)));
 
 		G2D_DrawRect(0, 62, 200, 200, G2D_RGBA(97, 97, 97, 255));
-		G2D_DrawImage(default_artwork, 0, 62);
+
+		if ((metadata.has_meta) && (metadata.cover_image))
+			G2D_DrawImageScale(metadata.cover_image, 0, 62, 200, 200);
+		else
+			G2D_DrawImage(default_artwork, 0, 62); // Default album art
 
 		G2D_DrawRect(205, 62, 275, 200, G2D_RGBA(45, 48, 50, 255)); // Draw info box (outer)
 		G2D_DrawRect(210, 67, 265, 190, G2D_RGBA(46, 49, 51, 255)); // Draw info box (inner)
@@ -96,6 +109,9 @@ void Menu_PlayAudio(const char *path) {
 
 		if (Utils_IsButtonPressed(PSP_CTRL_CANCEL))
 			Audio_Stop();
+
+		if (((Utils_IsButtonHeld(PSP_CTRL_LTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_RTRIGGER))) || ((Utils_IsButtonHeld(PSP_CTRL_RTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER))))
+			Screenshot_Capture();
 	}
 
 	free(length_time);
