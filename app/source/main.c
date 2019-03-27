@@ -89,8 +89,6 @@ static int Init_Services(void) {
 	// Get the initial working directory.
 	getcwd(initial_cwd, 128);
 
-	Utils_InitUSB();
-
 	/*if (R_FAILED(ret = Init_Net()))
 		return ret;*/
 
@@ -113,14 +111,18 @@ static int Init_Services(void) {
 	PSP_CTRL_ENTER = Utils_GetEnterButton();
 	PSP_CTRL_CANCEL = Utils_GetCancelButton();
 
+	Utils_InitUSB();
+	Utils_InitAudioDriver();
 	return 0;
 }
 
 static void Term_Services(void) {
+	Utils_ExitAudioDriver();
+	Utils_ExitUSB();
+
 	intraFontUnload(font);
 	Textures_Free();
 	//Term_Net();
-	Utils_ExitUSB();
 	scePowerSetClockFrequency(cpu_clock, cpu_clock, bus_clock); // Restore previous clock frequency.
 	sceKernelExitGame();
 }

@@ -1,6 +1,7 @@
 #include <malloc.h>
 
 #include "audio.h"
+#include "audio_driver.h"
 #include "fs.h"
 #define JAR_XM_IMPLEMENTATION
 #include "jar_xm.h"
@@ -11,8 +12,9 @@ static u64 samples_read = 0, max_samples = 0;
 static char *data = NULL;
 
 int XM_Init(const char *path) {
+    int ret = pspAudioSetFrequency(48000);
+    
     SceUID file = 0;
-    int ret = 0;
     u64 bytes_read = 0;
 
     if (R_FAILED(ret = file = sceIoOpen(path, PSP_O_RDONLY, 0)))
@@ -40,7 +42,7 @@ int XM_Init(const char *path) {
 
     sceIoClose(file);
 
-    jar_xm_create_context_safe(&xm, data, (size_t)stat.st_size, (u32)44100);
+    jar_xm_create_context_safe(&xm, data, (size_t)stat.st_size, 48000);
     max_samples = jar_xm_get_remaining_samples(xm); // Initial remaining = max
     return 0;
 }
@@ -62,15 +64,16 @@ u64 XM_GetLength(void) {
 }
 
 u64 XM_GetPositionSeconds(const char *path) {
-    return (samples_read / 44100);
+    return (samples_read / 48000);
 }
 
 u64 XM_GetLengthSeconds(const char *path) {
-    return (max_samples / 44100);
+    return (max_samples / 48000);
 }
 
 void XM_Term(void) {
     samples_read = 0;
     jar_xm_free_context(xm);
     free(data);
+    pspAudioSetFrequency(44100);
 }

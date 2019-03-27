@@ -1,7 +1,6 @@
 #include "audio.h"
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h"
-#include "fs.h"
 
 static drwav wav;
 static drwav_uint64 samples_read = 0;
