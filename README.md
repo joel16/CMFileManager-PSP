@@ -17,7 +17,7 @@ CMFileManager PSP is a PSP application built using the unofficial PSPSDK and [gl
 - Browse other drives like flah0, flash1 and UMD (if not using PSP Go).
 - Support for both ef0:/ (internal) and ms0:/ (external) drives on PSP Go.
 - Screenshots in .BMP format. Use L + R to capture a screenshot.
-- Audio Player 16-Bit 44.1 KHz (FLAC, OGG, WAV and XM)
+- Audio Player 16-Bit non float. (FLAC, MP3, OGG, WAV and XM)
 
 
 **Buttons:**

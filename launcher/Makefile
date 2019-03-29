@@ -5,7 +5,7 @@ OBJS   = source/main.o
 PSP_LARGE_MEMORY = 1
 
 VERSION_MAJOR :=  2
-VERSION_MINOR :=  1
+VERSION_MINOR :=  2
 VERSION_MICRO :=  0
 
 INCDIR   = ../common
