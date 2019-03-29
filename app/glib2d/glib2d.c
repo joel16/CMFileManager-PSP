@@ -23,12 +23,9 @@
 #include <pspdisplay.h>
 #include <pspgu.h>
 #include <vram.h>
-
 #include <malloc.h>
-#include <math.h>
 
 #define STB_IMAGE_IMPLEMENTATION
-#define STBI_NO_STDIO
 #define STBI_NO_HDR
 #define STBI_NO_PIC
 #define STBI_NO_PSD
@@ -206,7 +203,6 @@ static void *_g2dSetVertex(void *vp, int i, float vx, float vy) {
     return (void*)(vp_float + 3);
 }
 
-#ifdef USE_VFPU
 void vfpu_sincosf(float x, float *s, float *c) {
     __asm__ volatile (
         "mtv    %2, s000\n"           // s000 = x
@@ -218,7 +214,6 @@ void vfpu_sincosf(float x, float *s, float *c) {
         : "=r"(*s), "=r"(*c) : "r"(x)
     );
 }
-#endif
 
 /* Main functions */
 
@@ -859,12 +854,7 @@ void g2dSetRotationRad(float radians) {
         return;
 
     rctx.cur_obj.rot = radians;
-
-#ifdef USE_VFPU
     vfpu_sincosf(radians, &rctx.cur_obj.rot_sin, &rctx.cur_obj.rot_cos);
-#else
-    sincosf(radians, &rctx.cur_obj.rot_sin, &rctx.cur_obj.rot_cos);
-#endif
 
     if (radians != 0.f)
         rctx.use_rot = true;
@@ -1043,48 +1033,13 @@ void g2dTexFree(g2dTexture **tex) {
     *tex = NULL;
 }
 
-static u8 *_g2dTexLoadExternalImage(const char *path, u32 *data_size) {
-    SceUID file = 0;
-    int ret = 0;
-    u8 *buffer = NULL;
-    int bytes_read = 0;
-
-    if (R_FAILED(ret = file = sceIoOpen(path, PSP_O_RDONLY, 0)))
-        return NULL;
-
-    SceIoStat stat;
-    if (R_FAILED(ret = sceIoGetstat(path, &stat))) {
-        sceIoClose(file);
-        return NULL;
-    }
-
-    buffer = malloc(stat.st_size);
-    if (!buffer) {
-        free(buffer);
-        sceIoClose(file);
-        return NULL;
-    }
-
-    bytes_read = sceIoRead(file, buffer, stat.st_size);
-    if (bytes_read != stat.st_size) {
-        free(buffer);
-        sceIoClose(file);
-        return NULL;
-    }
-
-    sceIoClose(file);
-    *data_size = stat.st_size;
-    return buffer;
-}
-
 static g2dTexture *_g2dTexLoadFile(const char *path) {
     g2dTexture *tex = NULL;
     g2dColor *line = NULL;
     int width = 0, height = 0;
-    u32 size = 0, row = 0, col = 0;
+    u32 row = 0, col = 0;
 
-    u8 *data = _g2dTexLoadExternalImage(path, &size);
-    line = (g2dColor *)stbi_load_from_memory((stbi_uc const *)data, size, &width, &height, NULL, STBI_rgb_alpha);
+    line = (g2dColor *)stbi_load(path, &width, &height, NULL, STBI_rgb_alpha);
     tex = g2dTexCreate(width, height);
 
     for (row = 0; row < tex->w; row++) {
@@ -1092,8 +1047,7 @@ static g2dTexture *_g2dTexLoadFile(const char *path) {
             tex->data[row + col * tex->tw] = line[(row + col * tex->w)];
     }
 
-    free(data);
-    free((g2dColor *)line);
+    stbi_image_free(line);
     return tex;
 }
 
@@ -1111,7 +1065,7 @@ static g2dTexture *_g2dTexLoadMemory(void *data, size_t size) {
             tex->data[row + col * tex->tw] = line[(row + col * tex->w)];
     }
 
-    free(line);
+    stbi_image_free(line);
     return tex;
 }
 
@@ -1185,7 +1139,6 @@ g2dTexture *g2dTexLoadMemory(void *data, size_t size, g2dTex_Mode mode) {
 error:
 
     g2dTexFree(&tex);
-
     return NULL;
 }
 

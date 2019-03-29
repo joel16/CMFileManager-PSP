@@ -57,32 +57,6 @@ extern "C" {
 #include <stddef.h>
 
 /**
- * \def USE_PNG
- * \brief Choose if the PNG support is enabled.
- *
- * Otherwise, this part will be not compiled to gain some space.
- * Enable this to get PNG support, disable to avoid compilation errors
- * when libpng is not linked in the Makefile.
- */
-/**
- * \def USE_JPEG
- * \brief Choose if the JPEG support is enabled.
- *
- * Otherwise, this part will be not compiled to gain some space.
- * Enable this to get JPEG support, disable to avoid compilation errors
- * when libjpeg is not linked in the Makefile.
- */
-/**
- * \def USE_VFPU
- * \brief Choose if the VFPU support is enabled.
- *
- * Otherwise, this part will be not compiled to use the standard math library.
- * Enable this to greatly improve performance with 2d rotations. You SHOULD use
- * PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU) to avoid crashes.
- */
-//#define USE_VFPU
-
-/**
  * \def G2D_SCR_W
  * \brief Screen width constant, in pixels.
  */
@@ -90,13 +64,8 @@ extern "C" {
  * \def G2D_SCR_H
  * \brief Screen height constant, in pixels.
  */
-/**
- * \def G2D_VOID
- * \brief Generic constant, equals to 0 (do nothing).
- */
 #define G2D_SCR_W (480)
 #define G2D_SCR_H (272)
-#define G2D_VOID (0)
 
 /**
  * \def G2D_RGBA(r,g,b,a)

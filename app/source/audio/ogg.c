@@ -1,5 +1,6 @@
 #include "audio.h"
 #define STB_VORBIS_HEADER_ONLY
+#define STB_VORBIS_NO_PUSHDATA_API
 #include "stb_vorbis.c"
 
 static stb_vorbis *ogg;
