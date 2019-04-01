@@ -19,6 +19,10 @@ int OGG_Init(const char *path) {
 	return 0;
 }
 
+u32 OGG_GetSampleRate(void) {
+	return ogg_info.sample_rate;
+}
+
 void OGG_Decode(void *buf, unsigned int length, void *userdata) {
 	samples_read += stb_vorbis_get_samples_short_interleaved(ogg, ogg_info.channels, (short *)buf, (int)length * ogg_info.channels);
 
@@ -32,14 +36,6 @@ u64 OGG_GetPosition(void) {
 
 u64 OGG_GetLength(void) {
 	return max_lenth;
-}
-
-u64 OGG_GetPositionSeconds(const char *path) {
-	return (samples_read / ogg_info.sample_rate);
-}
-
-u64 OGG_GetLengthSeconds(const char *path) {
-	return (max_lenth / ogg_info.sample_rate);
 }
 
 void OGG_Term(void) {

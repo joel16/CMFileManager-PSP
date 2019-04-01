@@ -13,6 +13,10 @@ int FLAC_Init(const char *path) {
 	return 0;
 }
 
+u32 FLAC_GetSampleRate(void) {
+	return flac->sampleRate;
+}
+
 void FLAC_Decode(void *buf, unsigned int length, void *userdata) {
 	frames_read += drflac_read_pcm_frames_s16(flac, (drflac_uint64)length, (drflac_int16 *)buf);
 	
@@ -26,14 +30,6 @@ u64 FLAC_GetPosition(void) {
 
 u64 FLAC_GetLength(void) {
 	return flac->totalPCMFrameCount;
-}
-
-u64 FLAC_GetPositionSeconds(const char *path) {
-	return (frames_read / flac->sampleRate);
-}
-
-u64 FLAC_GetLengthSeconds(const char *path) {
-	return (flac->totalPCMFrameCount / flac->sampleRate);
 }
 
 void FLAC_Term(void) {

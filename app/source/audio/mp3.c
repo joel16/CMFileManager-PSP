@@ -167,6 +167,10 @@ int MP3_Init(const char *path) {
 	return 0;
 }
 
+u32 MP3_GetSampleRate(void) {
+	return sample_rate;
+}
+
 void MP3_Decode(void *buf, unsigned int length, void *userdata) {
 	size_t done = 0;
 	mpg123_read(mp3, buf, length * (sizeof(s16) * 2), &done);
@@ -182,14 +186,6 @@ u64 MP3_GetPosition(void) {
 
 u64 MP3_GetLength(void) {
 	return total_samples;
-}
-
-u64 MP3_GetPositionSeconds(const char *path) {
-	return (frames_read / sample_rate);
-}
-
-u64 MP3_GetLengthSeconds(const char *path) {
-	return (total_samples / sample_rate);
 }
 
 void MP3_Term(void) {

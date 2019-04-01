@@ -12,6 +12,10 @@ int WAV_Init(const char *path) {
 	return 0;
 }
 
+u32 WAV_GetSampleRate(void) {
+	return wav.sampleRate;
+}
+
 void WAV_Decode(void *buf, unsigned int length, void *userdata) {
 	samples_read += drwav_read_pcm_frames_s16(&wav, (drwav_uint64)length, (drwav_int16 *)buf);
 
@@ -25,14 +29,6 @@ u64 WAV_GetPosition(void) {
 
 u64 WAV_GetLength(void) {
 	return wav.totalPCMFrameCount;
-}
-
-u64 WAV_GetPositionSeconds(const char *path) {
-	return (samples_read / wav.sampleRate);
-}
-
-u64 WAV_GetLengthSeconds(const char *path) {
-	return (wav.totalPCMFrameCount / wav.sampleRate);
 }
 
 void WAV_Term(void) {

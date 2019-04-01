@@ -23,6 +23,37 @@ enum Audio_FileType {
 
 static enum Audio_FileType file_type = FILE_TYPE_NONE;
 
+static u32 Audio_GetSampleRate(void) {
+	u32 sample_rate = 0;
+
+	switch(file_type) {
+		case FILE_TYPE_FLAC:
+			sample_rate = FLAC_GetSampleRate();
+			break;
+
+		case FILE_TYPE_MP3:
+			sample_rate = MP3_GetSampleRate();
+			break;
+
+		case FILE_TYPE_OGG:
+			sample_rate = OGG_GetSampleRate();
+			break;
+
+		case FILE_TYPE_WAV:
+			sample_rate = WAV_GetSampleRate();
+			break;
+
+		case FILE_TYPE_XM:
+			sample_rate = XM_GetSampleRate();
+			break;
+
+		default:
+			break;
+	}
+
+	return sample_rate;
+}
+
 void Audio_Init(const char *path) {
 	pspAudioInit();
 	playing = true;
@@ -175,65 +206,11 @@ u64 Audio_GetLength(void) {
 }
 
 u64 Audio_GetPositionSeconds(const char *path) {
-	u64 seconds = -1;
-
-	switch(file_type) {
-		case FILE_TYPE_FLAC:
-			seconds = FLAC_GetPositionSeconds(path);
-			break;
-
-		case FILE_TYPE_MP3:
-			seconds = MP3_GetPositionSeconds(path);
-			break;
-
-		case FILE_TYPE_OGG:
-			seconds = OGG_GetPositionSeconds(path);
-			break;
-
-		case FILE_TYPE_WAV:
-			seconds = WAV_GetPositionSeconds(path);
-			break;
-
-		case FILE_TYPE_XM:
-			seconds = XM_GetPositionSeconds(path);
-			break;
-
-		default:
-			break;
-	}
-
-	return seconds;
+	return (Audio_GetPosition()/Audio_GetSampleRate());
 }
 
 u64 Audio_GetLengthSeconds(const char *path) {
-	u64 seconds = 0;
-
-	switch(file_type) {
-		case FILE_TYPE_FLAC:
-			seconds = FLAC_GetLengthSeconds(path);
-			break;
-
-		case FILE_TYPE_MP3:
-			seconds = MP3_GetLengthSeconds(path);
-			break;
-
-		case FILE_TYPE_OGG:
-			seconds = OGG_GetLengthSeconds(path);
-			break;
-
-		case FILE_TYPE_WAV:
-			seconds = WAV_GetLengthSeconds(path);
-			break;
-
-		case FILE_TYPE_XM:
-			seconds = XM_GetLengthSeconds(path);
-			break;
-
-		default:
-			break;
-	}
-
-	return seconds;
+	return (Audio_GetLength()/Audio_GetSampleRate());
 }
 
 void Audio_Term(void) {
