@@ -1,4 +1,3 @@
-#include <pspaudiolib.h>
 #include <malloc.h>
 #include <stdio.h>
 
@@ -35,15 +34,14 @@ static char *Menu_ConvertSecondsToString(char *string, u64 seconds) {
 
 void Menu_PlayAudio(const char *path) {
 	Audio_Init(path);
-	pspAudioSetChannelCallback(0, Audio_Decode, NULL);
 
-	u64 length = Audio_GetLengthSeconds(path);
+	u64 length = Audio_GetLengthSeconds();
 	char *position_time = malloc(35);
 	char *length_time = malloc(35);
 	float length_time_width = 0;
 
 	if (length) {
-		length_time = Menu_ConvertSecondsToString(length_time, Audio_GetLengthSeconds(path));
+		length_time = Menu_ConvertSecondsToString(length_time, Audio_GetLengthSeconds());
 		intraFontSetStyle(font, 0.7f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 		length_time_width = intraFontMeasureText(font, length_time);
 	}
@@ -89,7 +87,7 @@ void Menu_PlayAudio(const char *path) {
 		G2D_DrawImage(state == MUSIC_STATE_REPEAT? btn_repeat_overlay : btn_repeat, 205 + ((275 - btn_repeat->w) / 2) + 45, 62 + ((200 - btn_repeat->h) / 2) + 50);
 
 		if (length) {
-			position_time = Menu_ConvertSecondsToString(position_time, Audio_GetPositionSeconds(path));
+			position_time = Menu_ConvertSecondsToString(position_time, Audio_GetPositionSeconds());
 			intraFontPrint(font, 230, 240, position_time);
 			intraFontPrint(font, 455 - length_time_width, 240, length_time);
 		}

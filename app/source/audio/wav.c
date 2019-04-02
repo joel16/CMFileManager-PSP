@@ -16,6 +16,10 @@ u32 WAV_GetSampleRate(void) {
 	return wav.sampleRate;
 }
 
+u8 WAV_GetChannels(void) {
+	return wav.channels;
+}
+
 void WAV_Decode(void *buf, unsigned int length, void *userdata) {
 	samples_read += drwav_read_pcm_frames_s16(&wav, (drwav_uint64)length, (drwav_int16 *)buf);
 

@@ -23,6 +23,10 @@ u32 OGG_GetSampleRate(void) {
 	return ogg_info.sample_rate;
 }
 
+u8 OGG_GetChannels(void) {
+	return ogg_info.channels;
+}
+
 void OGG_Decode(void *buf, unsigned int length, void *userdata) {
 	samples_read += stb_vorbis_get_samples_short_interleaved(ogg, ogg_info.channels, (short *)buf, (int)length * ogg_info.channels);
 

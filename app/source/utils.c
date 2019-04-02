@@ -20,7 +20,6 @@
 static SceCtrlData current, previous;
 static bool g_usb_module_loaded = false;
 static bool g_usb_actived = false;
-static SceUID audio_diver = 0;
 
 struct UsbModule {
 	char *path;
@@ -117,15 +116,6 @@ static int Utils_LoadStartModule(char *path) {
 static void Utils_StopUnloadModules(SceUID modID) {
 	sceKernelStopModule(modID, 0, NULL, NULL, NULL);
 	sceKernelUnloadModule(modID);
-}
-
-void Utils_InitAudioDriver(void) {
-	audio_diver = Utils_LoadStartModule("audio_driver.prx");
-}
-
-void Utils_ExitAudioDriver(void) {
-	if (audio_diver)
-		Utils_StopUnloadModules(audio_diver);
 }
 
 void Utils_InitUSB(void) {

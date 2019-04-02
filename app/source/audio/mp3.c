@@ -7,6 +7,7 @@
 static mpg123_handle *mp3;
 static u64 frames_read = 0, total_samples = 0;
 static long sample_rate = 0;
+static int channels = 0;
 Audio_Metadata metadata;
 
 // For MP3 ID3 tags
@@ -115,7 +116,7 @@ static void print_v2(Audio_Metadata *ID3tag, mpg123_id3v2 *v2) {
 }
 
 int MP3_Init(const char *path) {
-	int error = 0, channels = 0;
+	int error = 0;
 
 	error = mpg123_init();
 	if (error != MPG123_OK)
@@ -169,6 +170,10 @@ int MP3_Init(const char *path) {
 
 u32 MP3_GetSampleRate(void) {
 	return sample_rate;
+}
+
+u8 MP3_GetChannels(void) {
+	return channels;
 }
 
 void MP3_Decode(void *buf, unsigned int length, void *userdata) {

@@ -112,12 +112,10 @@ static int Init_Services(void) {
 	PSP_CTRL_CANCEL = Utils_GetCancelButton();
 
 	Utils_InitUSB();
-	Utils_InitAudioDriver();
 	return 0;
 }
 
 static void Term_Services(void) {
-	Utils_ExitAudioDriver();
 	Utils_ExitUSB();
 
 	intraFontUnload(font);

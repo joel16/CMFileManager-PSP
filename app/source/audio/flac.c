@@ -17,6 +17,10 @@ u32 FLAC_GetSampleRate(void) {
 	return flac->sampleRate;
 }
 
+u8 FLAC_GetChannels(void) {
+	return flac->channels;
+}
+
 void FLAC_Decode(void *buf, unsigned int length, void *userdata) {
 	frames_read += drflac_read_pcm_frames_s16(flac, (drflac_uint64)length, (drflac_int16 *)buf);
 	

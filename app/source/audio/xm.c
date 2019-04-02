@@ -20,6 +20,10 @@ u32 XM_GetSampleRate(void) {
     return 44100;
 }
 
+u8 XM_GetChannels(void) {
+	return 2;
+}
+
 void XM_Decode(void *buf, unsigned int length, void *userdata) {
     xmp_play_buffer(xmp, buf, length * (sizeof(s16) * 2), 0);
     samples_read += length;

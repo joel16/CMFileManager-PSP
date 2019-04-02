@@ -1,8 +1,9 @@
-#include <pspaudiolib.h>
+#include <pspaudio.h>
 #include <pspthreadman.h>
 #include <string.h>
 
 #include "fs.h"
+#include "pspaudiolib_cm.h"
 
 #include "flac.h"
 #include "mp3.h"
@@ -54,49 +55,38 @@ static u32 Audio_GetSampleRate(void) {
 	return sample_rate;
 }
 
-void Audio_Init(const char *path) {
-	pspAudioInit();
-	playing = true;
-	paused = false;
-
-	if (!strncasecmp(FS_GetFileExt(path), "flac", 4))
-		file_type = FILE_TYPE_FLAC;
-	else if (!strncasecmp(FS_GetFileExt(path), "mp3", 3))
-		file_type = FILE_TYPE_MP3;
-	else if (!strncasecmp(FS_GetFileExt(path), "ogg", 3))
-		file_type = FILE_TYPE_OGG;
-	else if (!strncasecmp(FS_GetFileExt(path), "wav", 3))
-		file_type = FILE_TYPE_WAV;
-	else if (!strncasecmp(FS_GetFileExt(path), "xm", 2))
-		file_type = FILE_TYPE_XM;
+static u8 Audio_GetChannels(void) {
+	u8 channels = 0;
 
 	switch(file_type) {
 		case FILE_TYPE_FLAC:
-			FLAC_Init(path);
+			channels = FLAC_GetChannels();
 			break;
 
 		case FILE_TYPE_MP3:
-			MP3_Init(path);
+			channels = MP3_GetChannels();
 			break;
 
 		case FILE_TYPE_OGG:
-			OGG_Init(path);
+			channels = OGG_GetChannels();
 			break;
 
 		case FILE_TYPE_WAV:
-			WAV_Init(path);
+			channels = WAV_GetChannels();
 			break;
 
 		case FILE_TYPE_XM:
-			XM_Init(path);
+			channels = XM_GetChannels();
 			break;
 
 		default:
 			break;
 	}
+
+	return channels;
 }
 
-void Audio_Decode(void *buf, unsigned int length, void *userdata) {
+static void Audio_Decode(void *buf, unsigned int length, void *userdata) {
 	if (playing == false || paused == true) {
 		short *buf_short = (short *)buf;
 		unsigned int count;
@@ -129,6 +119,51 @@ void Audio_Decode(void *buf, unsigned int length, void *userdata) {
 				break;
 		}
 	}
+}
+
+void Audio_Init(const char *path) {
+	playing = true;
+	paused = false;
+
+	if (!strncasecmp(FS_GetFileExt(path), "flac", 4))
+		file_type = FILE_TYPE_FLAC;
+	else if (!strncasecmp(FS_GetFileExt(path), "mp3", 3))
+		file_type = FILE_TYPE_MP3;
+	else if (!strncasecmp(FS_GetFileExt(path), "ogg", 3))
+		file_type = FILE_TYPE_OGG;
+	else if (!strncasecmp(FS_GetFileExt(path), "wav", 3))
+		file_type = FILE_TYPE_WAV;
+	else if ((!strncasecmp(FS_GetFileExt(path), "it", 2)) || (!strncasecmp(FS_GetFileExt(path), "mod", 3))
+		|| (!strncasecmp(FS_GetFileExt(path), "s3m", 3)) || (!strncasecmp(FS_GetFileExt(path), "xm", 2)))
+		file_type = FILE_TYPE_XM;
+
+	switch(file_type) {
+		case FILE_TYPE_FLAC:
+			FLAC_Init(path);
+			break;
+
+		case FILE_TYPE_MP3:
+			MP3_Init(path);
+			break;
+
+		case FILE_TYPE_OGG:
+			OGG_Init(path);
+			break;
+
+		case FILE_TYPE_WAV:
+			WAV_Init(path);
+			break;
+
+		case FILE_TYPE_XM:
+			XM_Init(path);
+			break;
+
+		default:
+			break;
+	}
+
+	pspAudioInit(Audio_GetChannels() == 2? PSP_AUDIO_FORMAT_STEREO : PSP_AUDIO_FORMAT_MONO);
+	pspAudioSetChannelCallback(0, Audio_Decode, NULL);
 }
 
 bool Audio_IsPaused(void) {
@@ -205,11 +240,11 @@ u64 Audio_GetLength(void) {
 	return length;
 }
 
-u64 Audio_GetPositionSeconds(const char *path) {
+u64 Audio_GetPositionSeconds(void) {
 	return (Audio_GetPosition()/Audio_GetSampleRate());
 }
 
-u64 Audio_GetLengthSeconds(const char *path) {
+u64 Audio_GetLengthSeconds(void) {
 	return (Audio_GetLength()/Audio_GetSampleRate());
 }
 
