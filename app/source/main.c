@@ -1,3 +1,4 @@
+#include <mpg123.h>
 #include <pspctrl.h>
 #include <pspkernel.h>
 #include <psppower.h>
@@ -112,10 +113,17 @@ static int Init_Services(void) {
 	PSP_CTRL_CANCEL = Utils_GetCancelButton();
 
 	Utils_InitUSB();
+
+	// Init mpg123 here because it can take some time.
+	ret = mpg123_init();
+	if (ret != MPG123_OK)
+		return ret;
+
 	return 0;
 }
 
 static void Term_Services(void) {
+	mpg123_exit();
 	Utils_ExitUSB();
 
 	intraFontUnload(font);
