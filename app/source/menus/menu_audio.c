@@ -56,13 +56,13 @@ void Menu_PlayAudio(const char *path) {
 
 		intraFontSetStyle(font, 0.7f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 
-		if ((metadata.has_meta) && (strlen(metadata.title) != 0) && (strlen(metadata.artist) != 0)) {
+		if ((metadata.has_meta) && (metadata.title[0] != '\0') && (metadata.artist[0] != '\0')) {
 			intraFontPrint(font, 40, 15 + ((40 - (font->texYSize - 30)) / 2), strupr(metadata.title));
 			intraFontPrint(font, 40, 29 + ((40 - (font->texYSize - 30)) / 2), strupr(metadata.artist));
 		}
-		else if ((metadata.has_meta) && (strlen(metadata.title) != 0))
+		else if ((metadata.has_meta) && (metadata.title[0] != '\0'))
 			intraFontPrint(font, 40, 22 + ((40 - (font->texYSize - 30)) / 2), strupr(metadata.title));
-		else if (!metadata.has_meta)
+		else
 			intraFontPrint(font, 40, 22 + ((40 - (font->texYSize - 30)) / 2), strupr(Utils_Basename(path)));
 
 		G2D_DrawRect(0, 62, 200, 200, G2D_RGBA(97, 97, 97, 255));
