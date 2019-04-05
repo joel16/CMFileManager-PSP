@@ -69,12 +69,12 @@ static void Menu_ControlMenubar(void) {
 		menubar_selection++;
 
 	if (is_psp_go) {
-		Utils_SetMax(&menubar_selection, 0, is_ms_inserted? 3 : 2);
-		Utils_SetMin(&menubar_selection, is_ms_inserted? 3 : 2, 0);
+		Utils_SetMax(&menubar_selection, 0, is_ms_inserted? 5 : 4);
+		Utils_SetMin(&menubar_selection, is_ms_inserted? 5 : 4, 0);
 	}
 	else {
-		Utils_SetMax(&menubar_selection, 0, 3);
-		Utils_SetMin(&menubar_selection, 3, 0);
+		Utils_SetMax(&menubar_selection, 0, 5);
+		Utils_SetMin(&menubar_selection, 5, 0);
 	}
 
 	if (Utils_IsButtonPressed(PSP_CTRL_ENTER)) {
@@ -198,15 +198,51 @@ static void Menu_ControlMenubar(void) {
 			old_menubar_selection = 2;
 		}
 		else if (menubar_selection == 3) {
+			if (BROWSE_STATE == BROWSE_STATE_UMD)
+				sceUmdDeactivate(1, "disc0:");
+
+			memset(root_path, 0, strlen(root_path));
+			strcpy(root_path, (is_psp_go && is_ms_inserted)? "flash1:/" : "flash2:/");
+			strcpy(cwd, (is_psp_go && is_ms_inserted)? "flash1:/" : "flash2:/");
+					
+			BROWSE_STATE = (is_psp_go && is_ms_inserted)? BROWSE_STATE_FLASH1 : BROWSE_STATE_FLASH2;
+					
+			menubar_x -= 10.0;
+			menubar_x = -180;
+
+			Dirbrowse_PopulateFiles(true);
+			MENU_STATE = MENU_STATE_HOME;
+
+			old_menubar_selection = 3;
+		}
+		else if (menubar_selection == 4) {
+			if (BROWSE_STATE == BROWSE_STATE_UMD)
+				sceUmdDeactivate(1, "disc0:");
+
+			memset(root_path, 0, strlen(root_path));
+			strcpy(root_path, (is_psp_go && is_ms_inserted)? "flash2:/" : "flash3:/");
+			strcpy(cwd, (is_psp_go && is_ms_inserted)? "flash2:/" : "flash3:/");
+					
+			BROWSE_STATE = (is_psp_go && is_ms_inserted)? BROWSE_STATE_FLASH2 : BROWSE_STATE_FLASH3;
+					
+			menubar_x -= 10.0;
+			menubar_x = -180;
+
+			Dirbrowse_PopulateFiles(true);
+			MENU_STATE = MENU_STATE_HOME;
+
+			old_menubar_selection = 4;
+		}
+		else if (menubar_selection == 5) {
 			if (is_psp_go && is_ms_inserted) {
 				if (BROWSE_STATE == BROWSE_STATE_UMD)
 					sceUmdDeactivate(1, "disc0:");
 
 				memset(root_path, 0, strlen(root_path));
-				strcpy(root_path, "flash1:/");
-				strcpy(cwd, "flash1:/");
+				strcpy(root_path, "flash3:/");
+				strcpy(cwd, "flash3:/");
 					
-				BROWSE_STATE = BROWSE_STATE_FLASH1;
+				BROWSE_STATE = BROWSE_STATE_FLASH3;
 					
 				menubar_x -= 10.0;
 				menubar_x = -180;
@@ -235,7 +271,7 @@ static void Menu_ControlMenubar(void) {
 					Menu_DisplayError("Could not read UMD drive.", 0);
 			}
 
-			old_menubar_selection = 3;
+			old_menubar_selection = 5;
 		}
 	}
 	else if ((Utils_IsButtonPressed(PSP_CTRL_CANCEL)) || (Utils_IsButtonPressed(PSP_CTRL_SELECT))) {
@@ -293,7 +329,7 @@ static void Menu_DisplayMenubar(void) {
 		G2D_DrawImage(config.dark_theme? icon_sd_dark : icon_sd, menubar_x + 10, 92);
 		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2), is_ms_inserted == false? "ef0:/" : "ms0:/");
 
-		if (is_ms_inserted == true) {
+		if (is_ms_inserted) {
 			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 122);
 			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 30, "ef0:/");
 
@@ -302,6 +338,12 @@ static void Menu_DisplayMenubar(void) {
 
 			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 182);
 			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 90, "flash1:/");
+
+			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 212);
+			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 120, "flash2:/");
+
+			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 242);
+			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 150, "flash3:/");
 		}
 		else {
 			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 122);
@@ -309,6 +351,12 @@ static void Menu_DisplayMenubar(void) {
 
 			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 152);
 			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 60, "flash1:/");
+
+			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 182);
+			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 90, "flash2:/");
+
+			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 212);
+			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 120, "flash3:/");
 		}
 	}
 	else {
@@ -322,7 +370,13 @@ static void Menu_DisplayMenubar(void) {
 		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 60, "flash1:/");
 
 		G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 182);
-		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 90, "disc0:/");
+		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 90, "flash2:/");
+
+		G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 212);
+		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 120, "flash3:/");
+
+		G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 242);
+		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 150, "disc0:/");
 	}
 }
 
