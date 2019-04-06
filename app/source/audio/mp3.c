@@ -8,7 +8,6 @@ static mpg123_handle *mp3;
 static u64 frames_read = 0, total_samples = 0;
 static long sample_rate = 0;
 static int channels = 0;
-Audio_Metadata metadata;
 
 // 147 ID3 tagv1 list
 static char *genre_list[] = {

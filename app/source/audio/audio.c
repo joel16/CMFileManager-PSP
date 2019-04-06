@@ -2,6 +2,7 @@
 #include <pspthreadman.h>
 #include <string.h>
 
+#include "audio.h"
 #include "fs.h"
 #include "pspaudiolib_cm.h"
 
@@ -12,6 +13,7 @@
 #include "xm.h"
 
 bool playing = true, paused = false;
+Audio_Metadata metadata;
 
 enum Audio_FileType {
 	FILE_TYPE_NONE = 0,

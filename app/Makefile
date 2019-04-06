@@ -13,7 +13,7 @@ OBJS := $(addsuffix .o,$(BINFILES)) \
 PSP_LARGE_MEMORY = 1
 
 VERSION_MAJOR :=  2
-VERSION_MINOR :=  2
+VERSION_MINOR :=  3
 VERSION_MICRO :=  0
 
 INCDIR   = ../common include include/archive include/audio include/menus glib2d
