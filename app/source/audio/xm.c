@@ -52,6 +52,10 @@ u64 XM_GetLength(void) {
 
 void XM_Term(void) {
     samples_read = 0;
+
+    if (metadata.has_meta)
+        metadata.has_meta = false;
+    
     xmp_end_player(xmp);
     xmp_release_module(xmp);
     xmp_free_context(xmp);
