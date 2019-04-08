@@ -16,14 +16,15 @@ VERSION_MAJOR :=  2
 VERSION_MINOR :=  3
 VERSION_MICRO :=  0
 
-INCDIR   = ../common include include/archive include/audio include/menus glib2d
+INCDIR   = ../common include include/archive include/audio include/audio/ogg include/audio/opus include/menus glib2d
 CFLAGS   = -O3 -G0 -Wall -Werror -ffast-math -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS  := $(CFLAGS)
 
 LIBDIR  = ../libs
 LDFLAGS =
-LIBS    = -lz -lpspgum -lpspgu -lpsprtc -lm -lpspvram -lpsphttp -lpspssl -lpspwlan -lxmp-lite -lmpg123 -lpspaudio \
+LIBS    = -lz -lpspgum -lpspgu -lpsprtc -lm -lpspvram -lpsphttp -lpspssl -lpspwlan \
+          -lxmp-lite -lmpg123 -lopusfile -lopus -logg -lpspaudio \
           -lpspsdk -lpspctrl -lpsppower -lpspnet_adhocmatching -lpspnet_adhoc -lpspnet_adhocctl \
           -lpspreg -lpspusb -lpspusbstor -lpspusbdevice -lpspumd -lpspkubridge -lpspsystemctrl_user -lm
 
