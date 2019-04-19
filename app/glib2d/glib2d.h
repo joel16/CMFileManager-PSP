@@ -374,12 +374,10 @@ void g2dTexFree(g2dTexture **tex);
  * @param tex_mode A g2dTex_Mode constant.
  * @returns Pointer to the generated texture.
  *
- * This function loads an image file. There is support for PNG & JPEG files
- * (if USE_PNG and USE_JPEG are defined). Swizzling is enabled only for 16*16+
- * textures (useless on small textures), pass G2D_SWIZZLE to enable it.
+ * Swizzling is enabled only for 16*16+ textures (useless on small textures), pass G2D_SWIZZLE to enable it.
  * Texture supported up to 512*512 in size only (hardware limitation).
  */
-g2dTexture* g2dTexLoad(char path[], g2dTex_Mode mode);
+g2dTexture *g2dTexLoad(char path[], g2dTex_Mode mode);
 
 /**
  * \brief Loads an image from memory.
@@ -388,9 +386,7 @@ g2dTexture* g2dTexLoad(char path[], g2dTex_Mode mode);
  * @param tex_mode A g2dTex_Mode constant.
  * @returns Pointer to the generated texture.
  *
- * This function loads an image file. There is support for PNG & JPEG files
- * (if USE_PNG and USE_JPEG are defined). Swizzling is enabled only for 16*16+
- * textures (useless on small textures), pass G2D_SWIZZLE to enable it.
+ * Swizzling is enabled only for 16*16+ textures (useless on small textures), pass G2D_SWIZZLE to enable it.
  * Texture supported up to 512*512 in size only (hardware limitation).
  */
 g2dTexture *g2dTexLoadMemory(void *data, size_t size, g2dTex_Mode mode);

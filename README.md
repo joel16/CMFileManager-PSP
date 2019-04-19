@@ -11,7 +11,7 @@ CMFileManager PSP is a PSP application built using the unofficial PSPSDK and [gl
 - File properties. (File size, creation time, modification time, access times, permissions)
 - Creating directories.
 - Renaming files/folders.
-- Image viewer (BMP, GIF - non animated, JPG, PNG, PGM, PPM and TGA).
+- Image viewer (BMP, GIF - non animated, JPG, PCX, PNG, PGM, PPM and TGA).
 - Auto USB mount (with ef0:/ and ms0:/ support for PSP Go).
 - Dark theme mode.
 - Browse other drives like flah0, flash1 and UMD (if not using PSP Go).

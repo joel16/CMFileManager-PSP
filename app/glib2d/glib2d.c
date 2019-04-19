@@ -25,6 +25,9 @@
 #include <vram.h>
 #include <malloc.h>
 
+#define DR_PCX_IMPLEMENTATION
+#include "dr_pcx.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_NO_HDR
 #define STBI_NO_PIC
@@ -1028,6 +1031,24 @@ void g2dTexFree(g2dTexture **tex) {
     *tex = NULL;
 }
 
+static g2dTexture *_g2dTexLoadFilePCX(const char *path) {
+    g2dTexture *tex = NULL;
+    g2dColor *line = NULL;
+    int width = 0, height = 0;
+    u32 row = 0, col = 0;
+
+    line = (g2dColor *)drpcx_load_file(path, DRPCX_FALSE, &width, &height, NULL, PIXEL_SIZE);
+    tex = g2dTexCreate(width, height);
+
+    for (row = 0; row < tex->w; row++) {
+        for (col = 0; col < tex->h; col++)
+            tex->data[row + col * tex->tw] = line[(row + col * tex->w)];
+    }
+
+    drpcx_free(line);
+    return tex;
+}
+
 static g2dTexture *_g2dTexLoadFile(const char *path) {
     g2dTexture *tex = NULL;
     g2dColor *line = NULL;
@@ -1069,8 +1090,14 @@ g2dTexture *g2dTexLoad(char *path, g2dTex_Mode mode) {
 
     if (path == NULL)
         return NULL;
+
+    char extension[5] = {0};
+    strncpy(extension, &path[strlen(path) - 4], 4);
     
-    tex = _g2dTexLoadFile(path);
+    if (!strncasecmp(extension, ".pcx", 4))
+        tex = _g2dTexLoadFilePCX(path);
+    else
+        tex = _g2dTexLoadFile(path);
 
     if (tex == NULL)
         goto error;
