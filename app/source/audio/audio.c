@@ -14,7 +14,8 @@
 #include "xm.h"
 
 bool playing = true, paused = false;
-Audio_Metadata metadata;
+Audio_Metadata metadata = {0};
+static Audio_Metadata empty = {0};
 
 enum Audio_FileType {
 	FILE_TYPE_NONE = 0,
@@ -271,11 +272,11 @@ u64 Audio_GetLength(void) {
 }
 
 u64 Audio_GetPositionSeconds(void) {
-	return (Audio_GetPosition()/Audio_GetSampleRate());
+	return (Audio_GetPosition() / Audio_GetSampleRate());
 }
 
 u64 Audio_GetLengthSeconds(void) {
-	return (Audio_GetLength()/Audio_GetSampleRate());
+	return (Audio_GetLength() / Audio_GetSampleRate());
 }
 
 void Audio_Term(void) {
@@ -310,6 +311,9 @@ void Audio_Term(void) {
 
 	playing = true;
 	paused = false;
+
+	// Clear metadata struct
+	metadata = empty;
 
 	pspAudioSetChannelCallback(0, NULL, NULL); // Clear channel callback
 	pspAudioEndPre();

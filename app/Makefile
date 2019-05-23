@@ -24,7 +24,7 @@ ASFLAGS  := $(CFLAGS)
 LIBDIR  = ../libs
 LDFLAGS =
 LIBS    = -lz -lpspgum -lpspgu -lpsprtc -lm -lpspvram -lpsphttp -lpspssl -lpspwlan \
-          -lxmp-lite -lmpg123 -lopusfile -lopus -logg -lpspaudio \
+          -lxmp-lite -lmpg123 -lvorbisfile -lvorbis -lopusfile -lopus -lFLAC -logg -lpspaudio \
           -lpspsdk -lpspctrl -lpsppower -lpspnet_adhocmatching -lpspnet_adhoc -lpspnet_adhocctl \
           -lpspreg -lpspusb -lpspusbstor -lpspusbdevice -lpspumd -lpspkubridge -lpspsystemctrl_user -lm
 
