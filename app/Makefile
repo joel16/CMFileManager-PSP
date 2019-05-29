@@ -12,8 +12,8 @@ OBJS := $(addsuffix .o,$(BINFILES)) \
 
 PSP_LARGE_MEMORY = 1
 
-VERSION_MAJOR :=  2
-VERSION_MINOR :=  3
+VERSION_MAJOR :=  3
+VERSION_MINOR :=  0
 VERSION_MICRO :=  0
 
 INCDIR   = ../common include include/archive include/audio include/audio/ogg include/audio/opus include/menus glib2d
@@ -23,9 +23,9 @@ ASFLAGS  := $(CFLAGS)
 
 LIBDIR  = ../libs
 LDFLAGS =
-LIBS    = -lz -lpspgum -lpspgu -lpsprtc -lm -lpspvram -lpsphttp -lpspssl -lpspwlan \
+LIBS    = -lz -lpsputility -lpspgum -lpspgu -lpsprtc -lpspvram \
           -lxmp-lite -lmpg123 -lvorbisfile -lvorbis -lopusfile -lopus -lFLAC -logg -lpspaudio \
-          -lpspsdk -lpspctrl -lpsppower -lpspnet_adhocmatching -lpspnet_adhoc -lpspnet_adhocctl \
+          -lpspsdk -lpspctrl -lpsppower \
           -lpspreg -lpspusb -lpspusbstor -lpspusbdevice -lpspumd -lpspkubridge -lpspsystemctrl_user -lm
 
 EXTRA_TARGETS    = EBOOT.PBP

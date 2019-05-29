@@ -2,6 +2,7 @@
 #include "config.h"
 #include "dirbrowse.h"
 #include "glib2d_helper.h"
+#include "menu_ftp.h"
 #include "screenshot.h"
 #include "status_bar.h"
 #include "textures.h"
@@ -142,14 +143,15 @@ static void Menu_DisplaySupportDialog(void) {
 }
 
 void Menu_DisplaySettings(void) {
-	int selection = 0, max_items = 4, i = 0;
+	int selection = 0, max_items = 5, i = 0;
 
 	const char *main_menu_items[] = {
+		"FTP connection",
 		"Sorting options",
 		"Dark theme",
 		"Auto USB mount",
 		"Support",
-		"About",
+		"About"
 	};
 
 	displayAbout = false;
@@ -186,14 +188,14 @@ void Menu_DisplaySettings(void) {
 		}
 
 		if (config.dark_theme)
-			G2D_DrawImage(config.dark_theme? icon_toggle_dark_on : icon_toggle_off, 455 - width, 104 + ((42 - height) / 2));
+			G2D_DrawImage(config.dark_theme? icon_toggle_dark_on : icon_toggle_off, 455 - width, 146 + ((42 - height) / 2));
 		else
-			G2D_DrawImage(config.dark_theme? icon_toggle_on : icon_toggle_off, 455 - width,  104 + ((42 - height) / 2));
+			G2D_DrawImage(config.dark_theme? icon_toggle_on : icon_toggle_off, 455 - width,  146 + ((42 - height) / 2));
 
 		if (config.dark_theme)
-			G2D_DrawImage(config.auto_usb_mount? icon_toggle_dark_on : icon_toggle_off, 455 - width, 146 + ((42 - height) / 2));
+			G2D_DrawImage(config.auto_usb_mount? icon_toggle_dark_on : icon_toggle_off, 455 - width, 188 + ((42 - height) / 2));
 		else
-			G2D_DrawImage(config.auto_usb_mount? icon_toggle_on : icon_toggle_off, 455 - width,  146 + ((42 - height) / 2));
+			G2D_DrawImage(config.auto_usb_mount? icon_toggle_on : icon_toggle_off, 455 - width,  188 + ((42 - height) / 2));
 
 		if (displayAbout)
 			Menu_DisplayAboutDialog();
@@ -226,20 +228,24 @@ void Menu_DisplaySettings(void) {
 			if (Utils_IsButtonPressed(PSP_CTRL_ENTER)) {
 				switch (selection) {
 					case 0:
-						Menu_DisplaySortSettings();
+						Menu_DisplayFTP();
+						Dirbrowse_PopulateFiles(true);
 						break;
 					case 1:
+						Menu_DisplaySortSettings();
+						break;
+					case 2:
 						config.dark_theme = !config.dark_theme;
 						Config_Save(config);
 						break;
-					case 2:
+					case 3:
 						config.auto_usb_mount = !config.auto_usb_mount;
 						Config_Save(config);
 						break;
-					case 3:
+					case 4:
 						displaySupport = true;
 						break;
-					case 4:
+					case 5:
 						displayAbout = true;
 						break;
 				}
