@@ -14,6 +14,7 @@
 #include "dirbrowse.h"
 #include "ftppsp.h"
 #include "glib2d_helper.h"
+#include "screenshot.h"
 #include "status_bar.h"
 #include "textures.h"
 #include "utils.h"
@@ -44,7 +45,6 @@ int FTP_DisplayNetDialog(void) {
 	
 	while(running) {
 		g2dClear(BLACK_BG);
-		StatusBar_DisplayTime();
 		g2dFlip(G2D_VSYNC);
 
 		switch(sceUtilityNetconfGetStatus()) {
@@ -113,13 +113,18 @@ void Menu_DisplayFTP(void) {
 
 	FTP_DisplayNetDialog();
 
-	if (running == 0) {
-		FTP_NetTerm();
-		return;
-	}
-
 	ret = ftppsp_init(psp_ip, &psp_port);
-	ftppsp_add_device("ms0:/");
+
+	if (is_psp_go) {
+		if (is_ms_inserted) {
+			ftppsp_add_device("ms0:");
+			ftppsp_add_device("ef0:");
+		}
+		else
+			ftppsp_add_device("ef0:");
+	}
+	else
+		ftppsp_add_device("ms0:");
 
 	char *msg = malloc(64);
 
@@ -160,6 +165,9 @@ void Menu_DisplayFTP(void) {
 		g2dFlip(G2D_VSYNC);
 
 		Utils_ReadControls();
+
+		if (((Utils_IsButtonHeld(PSP_CTRL_LTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_RTRIGGER))) || ((Utils_IsButtonHeld(PSP_CTRL_RTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER))))
+			Screenshot_Capture();
 
 		if ((Utils_IsButtonPressed(PSP_CTRL_ENTER)) || (Utils_IsButtonPressed(PSP_CTRL_CANCEL))) {
 			sceKernelDelayThread(100 * 1000);

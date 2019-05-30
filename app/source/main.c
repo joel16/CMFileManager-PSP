@@ -2,12 +2,10 @@
 #include <pspctrl.h>
 #include <pspkernel.h>
 #include <psppower.h>
-#include <pspsdk.h>
 #include <sys/unistd.h>
 
 #include "common.h"
 #include "config.h"
-#include "fs.h"
 #include "menus/menu_main.h"
 #include "kubridge.h"
 #include "systemctrl.h"

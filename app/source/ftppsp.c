@@ -20,7 +20,7 @@
 #define UNUSED(x) (void)(x)
 
 #define FTP_PORT 1337
-#define DEFAULT_FILE_BUF_SIZE (1 * 1024)
+#define DEFAULT_FILE_BUF_SIZE (1 * 1024 * 1024)
 
 #define FTP_DEFAULT_PATH   "/"
 
