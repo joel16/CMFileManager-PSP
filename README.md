@@ -1,4 +1,4 @@
-# CMFileManager PSP [![Build Status](https://travis-ci.org/joel16/3DShell.svg?branch=master)](https://travis-ci.org/joel16/CMFileManager-PSP) ![Github latest downloads](https://img.shields.io/github/downloads/joel16/CMFileManager-PSP/total.svg)
+# CMFileManager PSP [![Build Status](https://travis-ci.org/joel16/CMFileManager-PSP.svg?branch=master)](https://travis-ci.org/joel16/CMFileManager-PSP) ![Github latest downloads](https://img.shields.io/github/downloads/joel16/CMFileManager-PSP/total.svg)
 
 CMFileManager PSP is a PSP application built using the unofficial PSPSDK and [glib2d (modded)](https://github.com/joel16/gLib2D). The user interface in this homebrew is heavily inspired and based on the LineageOS/CM file manager. The aim of this project is to provide a stable and up to date file manager that makes use of updated tools, whilst offering a modernized and user friendly interace. CMFileManager PSP is the **only** homebrew that properly uses the 'move' function correctly for moving files/folder from one place to another. Unlike other file managers for PSP which copies a file from one place to another and then deletes it, which can take a while depending on the file size.
 
@@ -18,6 +18,14 @@ CMFileManager PSP is a PSP application built using the unofficial PSPSDK and [gl
 - Support for both ef0:/ (internal) and ms0:/ (external) drives on PSP Go.
 - Screenshots in .BMP format. Use L + R to capture a screenshot.
 - Audio Player 16-Bit short. (FLAC, IT, MOD, MP3, OGG, OPUS, S3M, WAV and XM)
+- FTP connection
+
+
+**FTP Mode Instructions:**
+1. Press *START* to open settings menu and select `FTP connection`.
+3. Select a network connection when the Network dialog pops up.
+4. After it is connected successfully, a message will appear saying `FTP Connection established IP:Port`. Use an FTP client like WinSCP and enter the IP and port (1337) and make sure to use anonymous login.
+6. Once an FTP connection is established from your server, you won't see any folders or files. You have to manually search for the path `/ms0:` or `/ef0:`. You can also search for other devices like `/flash0:` or UMD - `/disc0:` (**Please use caution when browsing any flash0-flash3**)
 
 
 **Buttons:**
