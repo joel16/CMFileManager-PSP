@@ -86,12 +86,20 @@ int sceNetInetGetsockname(int, struct sockaddr *, socklen_t *);
 const char* sceNetInetInetNtop(int, const void *, char *, socklen_t);
 int sceNetInetInetPton(int, const char *, void *);
 
+static __inline__ unsigned int sceAllegrexWsbw(unsigned int x) {
+	return (((x & 0xFF)<<24) | ((x & 0xFF00)<<8) | ((x>>8) & 0xFF00) | ((x>>24) & 0xFF));
+}
+
+static __inline__ unsigned int sceAllegrexWsbh(unsigned int x) {
+	return (((x<<8) & 0xFF00FF00) | ((x>>8) & 0x00FF00FF));
+}
+
 static inline u32 SCE_HTONL(u32 hostlong) {
-	return __builtin_bswap32(hostlong);
+	return sceAllegrexWsbw(hostlong);
 }
 
 static inline u16 SCE_HTONS(u16 hostshort) {
-	return __builtin_bswap16(hostshort);
+	return sceAllegrexWsbh(hostshort);
 }
 
 static inline void client_send_data_msg(ftppsp_client_info_t *client, const char *str) {
