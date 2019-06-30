@@ -26,8 +26,6 @@ bool Utils_IsModelPSPGo(void);
 int Utils_IsMemCardInserted(bool *is_inserted);
 bool Utils_IsEF0(void);
 int Utils_LaunchEboot(const char *path);
-int Utils_LaunchPOPS(const char *path);
-int Utils_LaunchISO(const char *path);
 u64 Utils_GetTotalStorage(void);
 u64 Utils_GetUsedStorage(void);
 void Utils_ReadControls(void);
