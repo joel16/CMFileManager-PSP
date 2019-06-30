@@ -1,7 +1,7 @@
 #include <malloc.h>
 #include <stdio.h>
 
-#include "audio.h"
+#include "audio/audio.h"
 #include "common.h"
 #include "config.h"
 #include "glib2d_helper.h"

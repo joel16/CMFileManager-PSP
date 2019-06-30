@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "audio.h"
+#include "audio/audio.h"
 
 static mpg123_handle *mp3;
 static u64 frames_read = 0, total_samples = 0;

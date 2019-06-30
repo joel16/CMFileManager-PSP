@@ -8,12 +8,12 @@ VERSION_MAJOR :=  3
 VERSION_MINOR :=  0
 VERSION_MICRO :=  0
 
-INCDIR   = ../common
+INCDIR   = ../libs/include
 CFLAGS   = -G0 -Wall -Os -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS  := $(CFLAGS)
 
-LIBDIR  = ../libs
+LIBDIR  = ../libs/lib
 LDFLAGS =
 LIBS    = -lpspsdk -lpspsystemctrl_user
 

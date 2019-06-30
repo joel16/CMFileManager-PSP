@@ -2,16 +2,16 @@
 #include <pspthreadman.h>
 #include <string.h>
 
-#include "audio.h"
 #include "fs.h"
-#include "pspaudiolib_cm.h"
+#include "audio/audio.h"
+#include "audio/pspaudiolib_cm.h"
 
-#include "flac.h"
-#include "mp3.h"
-#include "ogg.h"
-#include "opus.h"
-#include "wav.h"
-#include "xm.h"
+#include "audio/flac.h"
+#include "audio/mp3.h"
+#include "audio/ogg.h"
+#include "audio/opus.h"
+#include "audio/wav.h"
+#include "audio/xm.h"
 
 bool playing = true, paused = false;
 Audio_Metadata metadata = {0};

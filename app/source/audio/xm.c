@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "audio.h"
+#include "audio/audio.h"
 #include "xmp.h"
 
 static xmp_context xmp;

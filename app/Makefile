@@ -16,12 +16,12 @@ VERSION_MAJOR :=  3
 VERSION_MINOR :=  0
 VERSION_MICRO :=  0
 
-INCDIR   = ../common include include/archive include/audio include/audio/ogg include/audio/opus include/menus glib2d
+INCDIR   = ../libs/include ../libs/include/ogg ../libs/include/opus include include/archive include/menus glib2d
 CFLAGS   = -O3 -G0 -Wall -Werror -ffast-math -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS  := $(CFLAGS)
 
-LIBDIR  = ../libs
+LIBDIR  = ../libs/lib
 LDFLAGS =
 LIBS    = -lz -lpsputility -lpspgum -lpspgu -lpsprtc -lpspvram \
           -lxmp-lite -lmpg123 -lvorbisfile -lvorbis -lopusfile -lopus -lFLAC -logg -lpspaudio \

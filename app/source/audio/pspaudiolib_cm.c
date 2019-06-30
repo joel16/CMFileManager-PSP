@@ -17,7 +17,7 @@
 #include <pspthreadman.h>
 #include <pspaudio.h>
 
-#include "pspaudiolib_cm.h"
+#include "audio/pspaudiolib_cm.h"
 
 static int audio_ready = 0;
 static short audio_sndbuf[PSP_NUM_AUDIO_CHANNELS][2][PSP_NUM_AUDIO_SAMPLES][2];

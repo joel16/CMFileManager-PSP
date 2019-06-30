@@ -1,7 +1,8 @@
-#include "audio.h"
+#include <FLAC/metadata.h>
+
+#include "audio/audio.h"
 #define DR_FLAC_IMPLEMENTATION
 #include "dr_flac.h"
-#include "FLAC/metadata.h"
 
 static drflac *flac;
 static drflac_uint64 frames_read = 0;

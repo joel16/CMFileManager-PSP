@@ -1,6 +1,6 @@
 #include <pspiofilemgr.h>
 
-#include "audio.h"
+#include "audio/audio.h"
 #include "utils.h"
 #include "vorbis/codec.h"
 #include "vorbis/vorbisfile.h"
