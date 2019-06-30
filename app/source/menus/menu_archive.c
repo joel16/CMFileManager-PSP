@@ -1,9 +1,7 @@
+#include <archive.h>
+#include <archive_entry.h>
 #include <malloc.h>
-#include <string.h>
-#include <stdio.h>
-#include <sys/stat.h>
 
-#include "archive.h"
 #include "common.h"
 #include "config.h"
 #include "dirbrowse.h"
@@ -13,7 +11,6 @@
 #include "progress_bar.h"
 #include "status_bar.h"
 #include "textures.h"
-#include "unzip.h"
 #include "utils.h"
 
 static char *Archive_RemoveFileExt(char *filename) {
@@ -33,139 +30,118 @@ static char *Archive_RemoveFileExt(char *filename) {
    	return ret;
 }
 
-static int unzExtractCurrentFile(unzFile *unzHandle, int *path) {
-	int res = 0;
-	char filename[256];
-	unsigned int bufsize = (64 * 1024);
-
-	unz_file_info file_info;
-	if ((res = unzGetCurrentFileInfo(unzHandle, &file_info, filename, sizeof(filename), NULL, 0, NULL, 0)) != 0) {
-		unzClose(unzHandle);
-		Menu_DisplayError("unzGetCurrentFileInfo failed:", res);
-		return res;
-	}
-
-	void *buf = malloc(bufsize);
-	if (!buf)
-		return -1;
-
-	char *filenameWithoutPath = Utils_Basename(filename);
-
-	if ((*filenameWithoutPath) == '\0') {
-		if ((*path) == 0)
-			FS_MakeDir(filename);
-	}
-	else {
-		const char *write;
-
-		if ((*path) == 0)
-			write = filename;
-		else
-			write = filenameWithoutPath;
-		
-		if ((res = unzOpenCurrentFile(unzHandle)) != UNZ_OK) {
-			unzClose(unzHandle);
-			free(buf);
-			Menu_DisplayError("unzOpenCurrentFile failed:", res);
-			return res;
-		}
-
-		SceUID file = 0;
-		file = sceIoOpen(write, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777);
-
-		if ((file < 0) && ((*path) == 0) && (filenameWithoutPath != (char *)filename)) {
-			char c = *(filenameWithoutPath - 1);
-			*(filenameWithoutPath - 1) = '\0';
-			FS_MakeDir(write);
-			*(filenameWithoutPath - 1) = c;
-			file = sceIoOpen(write, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777);
-		}
-
-		do {
-			res = unzReadCurrentFile(unzHandle, buf, bufsize);
-
-			if (res < 0)
-				break;
-
-			if (res > 0) {
-				sceIoWrite(file, buf, res);
-			}
-		} 
-		while (res > 0);
-
-		sceIoClose(file);
-
-		if ((res = unzCloseCurrentFile(unzHandle)) != UNZ_OK) {
-			free(buf);
-			Menu_DisplayError("unzCloseCurrentFile failed:", res);
-			return res;
-		}
+static u64 Archive_CountFiles(const char *path) {
+	int ret = 0;
+	u64 count = 0;
+	
+	struct archive *handle = archive_read_new();
+	ret = archive_read_support_format_all(handle);
+	ret = archive_read_open_filename(handle, path, 1024);
+	
+	if (ret != ARCHIVE_OK) {
+		Menu_DisplayError("archive_read_open_filename :", ret);
+		return 1;
 	}
 	
-	if (buf)
-		free(buf);
-	
-	return 0;
-}
-
-static int unzExtractAll(const char *src, unzFile *unzHandle) {
-	int res = 0;
-	int path = 0;
-	unsigned int i = 0;
-	char *filename = Utils_Basename(src);
-	
-	unz_global_info global_info;
-	memset(&global_info, 0, sizeof(unz_global_info));
-	
-	if ((res = unzGetGlobalInfo(unzHandle, &global_info)) != UNZ_OK) {// Get info about the zip file
-		unzClose(unzHandle);
-		Menu_DisplayError("unzGetGlobalInfo failed:", res);
-		return res;
-	}
-	
-	for (i = 0; i < global_info.number_entry; i++) {
-		ProgressBar_DisplayProgress("Extracting", filename, i, global_info.number_entry);
-
-		if ((res = unzExtractCurrentFile(unzHandle, &path)) != UNZ_OK)
+	for (;;) {
+		struct archive_entry *entry = NULL;
+		int ret = archive_read_next_header(handle, &entry);
+		if (ret == ARCHIVE_EOF)
 			break;
-
-		if ((i + 1) < global_info.number_entry) {
-			if ((res = unzGoToNextFile(unzHandle)) != UNZ_OK) {// Could not read next file.
-				unzClose(unzHandle);
-				Menu_DisplayError("unzGoToNextFile failed:", res);
-				return res;
-			}
-		}
+		
+		count++;
 	}
-
-	return res;
+	
+	ret = archive_read_free(handle);
+	return count;
 }
 
-static int Archive_ExtractZIP(const char *src) {
-	char *path = malloc(256);
-	char *dirname_without_ext = Archive_RemoveFileExt((char *)src);
-
-	snprintf(path, 512, "%s", dirname_without_ext);
-	FS_MakeDir(path);
-	sceIoChdir(path);
-
-	unzFile *unzHandle = unzOpen(src); // Open zip file
-
-	if (unzHandle == NULL) {// not found
-		free(path);
-		free(dirname_without_ext);
-		return -1;
-	}
-
-	int res = unzExtractAll(src, unzHandle);
+static int Archive_WriteData(struct archive *src, struct archive *dst) {
+	int ret = 0;
 	
-	if ((res = unzClose(unzHandle)) != UNZ_OK) {
-		Menu_DisplayError("unzClose failed:", res);
-		return res;
+	for (;;) {
+		const void *chunk = NULL;
+		size_t length = 0;
+		s64 offset = 0;
+		
+		ret = archive_read_data_block(src, &chunk, &length, &offset);
+		if (ret == ARCHIVE_EOF)
+			return ARCHIVE_OK;
+		
+		if (ret != ARCHIVE_OK)
+			return ret;
+			
+		ret = archive_write_data_block(dst, chunk, length, offset);
+		if (ret != ARCHIVE_OK)
+			return ret;
 	}
+	
+	return -1;
+}
 
-	sceIoChdir(initial_cwd);
-	return res;
+int Archive_ExtractArchive(const char *path) {
+	char *dest_path = malloc(256);
+	char *dirname_without_ext = Archive_RemoveFileExt((char *)path);
+	
+	snprintf(dest_path, 512, "%s/", dirname_without_ext);
+	FS_MakeDir(dest_path);
+	
+	int count = 0;
+	u64 max = Archive_CountFiles(path);
+	
+	int ret = 0;
+	struct archive *handle = archive_read_new();
+	struct archive *dst = archive_write_disk_new();
+	
+	ret = archive_read_support_format_all(handle);
+	ret = archive_read_open_filename(handle, path, 1024);
+	if (ret != ARCHIVE_OK) {
+		Menu_DisplayError("archive_read_open_filename :", ret);
+		return 1;
+	}
+	
+	for (;;) {
+		ProgressBar_DisplayProgress("Extracting", path, count, max);
+		
+		struct archive_entry *entry = NULL;
+		ret = archive_read_next_header(handle, &entry);
+		if (ret == ARCHIVE_EOF)
+			break;
+			
+		if (ret != ARCHIVE_OK) {
+			Menu_DisplayError("archive_read_next_header failed:", ret);
+			
+			if (ret != ARCHIVE_WARN)
+				break;
+		}
+		
+		const char *entry_path = archive_entry_pathname(entry);
+		char new_path[1024];
+
+		ret = snprintf(new_path, sizeof(new_path), "%s/%s", dest_path, entry_path);
+		ret = archive_entry_update_pathname_utf8(entry, new_path);
+		if (!ret) {
+			Menu_DisplayError("archive_entry_update_pathname_utf8:", ret);
+			break;
+		}
+		
+		ret = archive_write_disk_set_options(dst, ARCHIVE_EXTRACT_UNLINK);
+		ret = archive_write_header(dst, entry);
+		if (ret != ARCHIVE_OK) {
+			Menu_DisplayError("archive_write_header failed:", ret);
+			break;
+		}
+		
+		ret = Archive_WriteData(handle, dst);
+		ret = archive_write_finish_entry(dst);
+		count++;
+	}
+	
+	ret = archive_write_free(dst);
+	ret = archive_read_free(handle);
+	free(dest_path);
+	free(dirname_without_ext);
+	return ret;
 }
 
 int Archive_ExtractFile(const char *path) {
@@ -222,7 +198,7 @@ int Archive_ExtractFile(const char *path) {
 
 		if (Utils_IsButtonPressed(PSP_CTRL_ENTER)) {
 			if (dialog_selection == 1) {
-				return Archive_ExtractZIP(path);
+				return Archive_ExtractArchive(path);
 			}
 			else
 				break;

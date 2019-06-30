@@ -10,7 +10,7 @@
 #include "textures.h"
 #include "utils.h"
 
-void Menu_DisplayError(char *msg, int ret) {
+void Menu_DisplayError(const char *msg, int ret) {
 	char *result = malloc(64);
 	if (ret != 0)
 		snprintf(result, 64, "Ret: %08X\n", ret);

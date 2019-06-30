@@ -79,7 +79,7 @@ static int Init_Services(void) {
 	PSP_CTRL_ENTER = Utils_GetEnterButton();
 	PSP_CTRL_CANCEL = Utils_GetCancelButton();
 
-	Utils_InitUSB();
+	//Utils_InitUSB();
 
 	// Init mpg123 here because it can take some time.
 	ret = mpg123_init();

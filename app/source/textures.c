@@ -1,6 +1,6 @@
 #include "textures.h"
 
-extern unsigned char ic_fso_type_app_png_start[], ic_fso_type_compress_png_start[], ic_fso_type_audio_png_start[], ic_fso_type_cdimage_png_start[], 
+extern unsigned char ic_fso_type_app_png_start[], ic_fso_type_compress_png_start[], ic_fso_type_audio_png_start[], 
 	ic_fso_folder_png_start[], ic_fso_folder_dark_png_start[], ic_fso_default_png_start[], ic_fso_type_image_png_start[], ic_fso_type_system_png_start[], 
 	ic_fso_type_text_png_start[], btn_material_light_check_on_normal_png_start[], btn_material_light_check_on_normal_dark_png_start[], 
 	btn_material_light_check_off_normal_png_start[], btn_material_light_check_off_normal_dark_png_start[], btn_material_light_toggle_on_normal_png_start[], 
@@ -17,7 +17,7 @@ extern unsigned char ic_fso_type_app_png_start[], ic_fso_type_compress_png_start
 	btn_playback_repeat_overlay_png_start[], btn_playback_shuffle_overlay_png_start[], bg_header_png_start[], ic_material_light_sdcard_png_start[], 
 	ic_material_light_secure_png_start[], ic_material_light_sdcard_dark_png_start[], ic_material_light_secure_dark_png_start[];
 
-extern unsigned int ic_fso_type_app_png_size, ic_fso_type_compress_png_size, ic_fso_type_audio_png_size, ic_fso_type_cdimage_png_size, ic_fso_folder_png_size, 
+extern unsigned int ic_fso_type_app_png_size, ic_fso_type_compress_png_size, ic_fso_type_audio_png_size, ic_fso_folder_png_size, 
 	ic_fso_folder_dark_png_size, ic_fso_default_png_size, ic_fso_type_image_png_size, ic_fso_type_system_png_size, ic_fso_type_text_png_size, 
 	btn_material_light_check_on_normal_png_size, btn_material_light_check_on_normal_dark_png_size, btn_material_light_check_off_normal_png_size, 
 	btn_material_light_check_off_normal_dark_png_size, btn_material_light_toggle_on_normal_png_size, btn_material_light_toggle_on_normal_dark_png_size, 
@@ -37,7 +37,6 @@ void Textures_Load(void) {
 	icon_app = g2dTexLoadMemory(ic_fso_type_app_png_start, ic_fso_type_app_png_size, G2D_SWIZZLE);
 	icon_archive = g2dTexLoadMemory(ic_fso_type_compress_png_start, ic_fso_type_compress_png_size, G2D_SWIZZLE);
 	icon_audio = g2dTexLoadMemory(ic_fso_type_audio_png_start, ic_fso_type_audio_png_size, G2D_SWIZZLE);
-	icon_cd = g2dTexLoadMemory(ic_fso_type_cdimage_png_start, ic_fso_type_cdimage_png_size, G2D_SWIZZLE);
 	icon_dir = g2dTexLoadMemory(ic_fso_folder_png_start, ic_fso_folder_png_size, G2D_SWIZZLE);
 	icon_dir_dark = g2dTexLoadMemory(ic_fso_folder_dark_png_start, ic_fso_folder_dark_png_size, G2D_SWIZZLE);
 	icon_file = g2dTexLoadMemory(ic_fso_default_png_start, ic_fso_default_png_size, G2D_SWIZZLE);
@@ -158,7 +157,6 @@ void Textures_Free(void) {
 	g2dTexFree(&icon_file);
 	g2dTexFree(&icon_dir_dark);
 	g2dTexFree(&icon_dir);
-	g2dTexFree(&icon_cd);
 	g2dTexFree(&icon_audio);
 	g2dTexFree(&icon_archive);
 	g2dTexFree(&icon_app);

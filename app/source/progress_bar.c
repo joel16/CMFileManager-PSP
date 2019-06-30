@@ -9,7 +9,7 @@
 
 static char src_resized[41];
 
-void ProgressBar_DisplayProgress(char *msg, char *src, u32 offset, u32 size) {
+void ProgressBar_DisplayProgress(const char *msg, const char *src, u32 offset, u32 size) {
 	g2dClear(config.dark_theme? BLACK_BG : WHITE);
 	G2D_DrawRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
 	G2D_DrawRect(0, 20, 480, 42, config.dark_theme? MENU_BAR_DARK : MENU_BAR_LIGHT);

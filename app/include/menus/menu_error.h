@@ -1,3 +1,3 @@
 #pragma once
 
-void Menu_DisplayError(char *msg, int ret);
+void Menu_DisplayError(const char *msg, int ret);

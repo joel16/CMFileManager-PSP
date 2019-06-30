@@ -2,12 +2,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "archive.h"
 #include "common.h"
 #include "config.h"
 #include "dirbrowse.h"
 #include "fs.h"
 #include "glib2d_helper.h"
+#include "menu_archive.h"
 #include "menu_audio.h"
 #include "menu_error.h"
 #include "menu_gallery.h"
@@ -158,17 +158,23 @@ void Dirbrowse_DisplayFiles(void) {
 				G2D_DrawImage(config.dark_theme? icon_dir_dark : icon_dir, 34, 65 + (42 * printed));
 			else if (!strncasecmp(file->ext, "pbp", 3))
 				G2D_DrawImage(icon_app, 34, 65 + (42 * printed));
-			else if ((!strncasecmp(file->ext, "flac", 4)) || (!strncasecmp(file->ext, "it", 2)) || (!strncasecmp(file->ext, "mod", 3)) ||
-				(!strncasecmp(file->ext, "mp3", 3)) || (!strncasecmp(file->ext, "ogg", 3)) || (!strncasecmp(file->ext, "opus", 4)) ||
-				(!strncasecmp(file->ext, "s3m", 3)) || (!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "xm", 2)))
+			else if ((!strncasecmp(file->ext, "flac", 4)) || (!strncasecmp(file->ext, "it", 2)) || (!strncasecmp(file->ext, "mod", 3))
+				|| (!strncasecmp(file->ext, "mp3", 3)) || (!strncasecmp(file->ext, "ogg", 3)) || (!strncasecmp(file->ext, "opus", 4))
+				|| (!strncasecmp(file->ext, "s3m", 3)) || (!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "xm", 2)))
 				G2D_DrawImage(icon_audio, 34, 65 + (42 * printed));
-			else if ((!strncasecmp(file->ext, "zip", 3)) || (!strncasecmp(file->ext, "rar", 3)))
+			else if ((!strncasecmp(file->ext, "7z", 2)) || (!strncasecmp(file->ext, "ar", 2)) || (!strncasecmp(file->ext, "cpio", 4))
+				|| (!strncasecmp(file->ext, "grz", 3)) || (!strncasecmp(file->ext, "iso", 3)) || (!strncasecmp(file->ext, "lrz", 3))
+				|| (!strncasecmp(file->ext, "mtree", 5)) || (!strncasecmp(file->ext, "rar", 3)) || (!strncasecmp(file->ext, "shar", 4))
+				|| (!strncasecmp(file->ext, "tar", 3)) || (!strncasecmp(file->ext, "taz", 3)) || (!strncasecmp(file->ext, "tbz", 3))
+				|| (!strncasecmp(file->ext, "tgz", 3)) || (!strncasecmp(file->ext, "tlz", 3)) || (!strncasecmp(file->ext, "txz", 3))
+				|| (!strncasecmp(file->ext, "tz", 2)) || (!strncasecmp(file->ext, "tz2", 3)) || (!strncasecmp(file->ext, "tzma", 4))
+				|| (!strncasecmp(file->ext, "tzo", 3)) || (!strncasecmp(file->ext, "tzst", 4)) || (!strncasecmp(file->ext, "uu", 2))
+				|| (!strncasecmp(file->ext, "war", 3)) || (!strncasecmp(file->ext, "xar", 3)) || (!strncasecmp(file->ext, "zip", 3))
+				|| (!strncasecmp(file->ext, "zst", 3)))
 				G2D_DrawImage(icon_archive, 34, 65 + (42 * printed));
-			else if ((!strncasecmp(file->ext, "iso", 3)) || (!strncasecmp(file->ext, "cso", 3)))
-				G2D_DrawImage(icon_cd, 34, 65 + (42 * printed));
-			else if ((!strncasecmp(file->ext, "bmp", 3)) || (!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3)) || 
-				(!strncasecmp(file->ext, "jpeg", 4)) || (!strncasecmp(file->ext, "pcx", 3)) || (!strncasecmp(file->ext, "png", 3)) || 
-				(!strncasecmp(file->ext, "pgm", 3)) || (!strncasecmp(file->ext, "ppm", 3)) || (!strncasecmp(file->ext, "tga", 3)))
+			else if ((!strncasecmp(file->ext, "bmp", 3)) || (!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3))
+				|| (!strncasecmp(file->ext, "jpeg", 4)) || (!strncasecmp(file->ext, "pcx", 3)) || (!strncasecmp(file->ext, "png", 3))
+				|| (!strncasecmp(file->ext, "pgm", 3)) || (!strncasecmp(file->ext, "ppm", 3)) || (!strncasecmp(file->ext, "tga", 3)))
 				G2D_DrawImage(icon_image, 34, 65 + (42 * printed));
 			else if (!strncasecmp(file->ext, "prx", 3))
 				G2D_DrawImage(icon_prx, 34, 65 + (42 * printed));
@@ -234,19 +240,25 @@ void Dirbrowse_OpenFile(void) {
 			Dirbrowse_PopulateFiles(true);
 		}
 	}
-	else if ((!strncasecmp(file->ext, "bmp", 3)) || (!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3)) || (!strncasecmp(file->ext, "jpeg", 4)) || 
-		(!strncasecmp(file->ext, "pcx", 3)) || (!strncasecmp(file->ext, "png", 3)) || (!strncasecmp(file->ext, "pgm", 3)) || (!strncasecmp(file->ext, "ppm", 3)) || 
-		(!strncasecmp(file->ext, "tga", 3)))
+	else if ((!strncasecmp(file->ext, "bmp", 3)) || (!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3))
+		|| (!strncasecmp(file->ext, "jpeg", 4)) || (!strncasecmp(file->ext, "pcx", 3)) || (!strncasecmp(file->ext, "png", 3))
+		|| (!strncasecmp(file->ext, "pgm", 3)) || (!strncasecmp(file->ext, "ppm", 3)) || (!strncasecmp(file->ext, "tga", 3)))
 		Gallery_DisplayImage(path);
 	else if (!strncasecmp(file->ext, "pbp", 3))
 		Utils_LaunchEboot(path);
-	else if ((!strncasecmp(file->ext, "iso", 3)) || (!strncasecmp(file->ext, "cso", 3)))
-		Utils_LaunchISO(path);
-	else if ((!strncasecmp(file->ext, "flac", 4)) || (!strncasecmp(file->ext, "it", 2)) || (!strncasecmp(file->ext, "mod", 3)) ||
-		(!strncasecmp(file->ext, "mp3", 3)) || (!strncasecmp(file->ext, "ogg", 3)) || (!strncasecmp(file->ext, "opus", 4)) ||
-		(!strncasecmp(file->ext, "s3m", 3)) || (!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "xm", 2)))
+	else if ((!strncasecmp(file->ext, "flac", 4)) || (!strncasecmp(file->ext, "it", 2)) || (!strncasecmp(file->ext, "mod", 3))
+		|| (!strncasecmp(file->ext, "mp3", 3)) || (!strncasecmp(file->ext, "ogg", 3)) || (!strncasecmp(file->ext, "opus", 4))
+		|| (!strncasecmp(file->ext, "s3m", 3)) || (!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "xm", 2)))
 		Menu_PlayAudio(path);
-	else if (!strncasecmp(file->ext, "zip", 3)) {
+	else if ((!strncasecmp(file->ext, "7z", 2)) || (!strncasecmp(file->ext, "ar", 2)) || (!strncasecmp(file->ext, "cpio", 4))
+		|| (!strncasecmp(file->ext, "grz", 3)) || (!strncasecmp(file->ext, "iso", 3)) || (!strncasecmp(file->ext, "lrz", 3))
+		|| (!strncasecmp(file->ext, "mtree", 5)) || (!strncasecmp(file->ext, "rar", 3)) || (!strncasecmp(file->ext, "shar", 4))
+		|| (!strncasecmp(file->ext, "tar", 3)) || (!strncasecmp(file->ext, "taz", 3)) || (!strncasecmp(file->ext, "tbz", 3))
+		|| (!strncasecmp(file->ext, "tgz", 3)) || (!strncasecmp(file->ext, "tlz", 3)) || (!strncasecmp(file->ext, "txz", 3))
+		|| (!strncasecmp(file->ext, "tz", 2)) || (!strncasecmp(file->ext, "tz2", 3)) || (!strncasecmp(file->ext, "tzma", 4))
+		|| (!strncasecmp(file->ext, "tzo", 3)) || (!strncasecmp(file->ext, "tzst", 4)) || (!strncasecmp(file->ext, "uu", 2))
+		|| (!strncasecmp(file->ext, "war", 3)) || (!strncasecmp(file->ext, "xar", 3)) || (!strncasecmp(file->ext, "zip", 3))
+		|| (!strncasecmp(file->ext, "zst", 3))) {
 		if (R_SUCCEEDED(Archive_ExtractFile(path)))
 			Dirbrowse_PopulateFiles(true);
 	}
