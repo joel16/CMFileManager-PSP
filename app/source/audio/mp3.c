@@ -120,7 +120,9 @@ static void print_v2(Audio_Metadata *ID3tag, mpg123_id3v2 *v2) {
 }
 
 int MP3_Init(const char *path) {
-	int error = mpg123_init();
+	int error = 0;
+
+	error = mpg123_init();
 	if (error != MPG123_OK)
 		return error;
 
@@ -217,4 +219,5 @@ void MP3_Term(void) {
 
 	mpg123_close(mp3);
 	mpg123_delete(mp3);
+	mpg123_exit();
 }
