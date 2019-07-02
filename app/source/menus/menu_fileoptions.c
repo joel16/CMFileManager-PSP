@@ -6,11 +6,11 @@
 
 #include "common.h"
 #include "config.h"
+#include "dialog.h"
 #include "dirbrowse.h"
 #include "fs.h"
 #include "glib2d_helper.h"
 #include "menu_error.h"
-#include "progress_bar.h"
 #include "textures.h"
 #include "utils.h"
 
@@ -121,8 +121,7 @@ static int FileOptions_Rename(void) {
 	return 0;
 }
 
-static int FileOptions_RmdirRecursive(char *path)
-{
+static int FileOptions_RmdirRecursive(char *path) {
 	SceUID dir = 0;
 	int i = 0, ret = 0;
 	File *filelist = NULL;
@@ -392,7 +391,7 @@ static int FileOptions_CopyFile(char *src, char *dst, bool display_animation) {
 		offset += bytes_read;
 
 		if (display_animation)
-			ProgressBar_DisplayProgress(copymode == 1? "Moving" : "Copying", Utils_Basename(src), offset, size);
+			Dialog_DisplayProgress(copymode == 1? "Moving" : "Copying", Utils_Basename(src), offset, size);
 	}
 	while(offset < size);
 
@@ -459,7 +458,7 @@ static int FileOptions_CopyDir(char *src, char *dst) {
 				free(outbuffer);
 			}
 
-			ProgressBar_DisplayProgress(copymode == 1? "Moving" : "Copying", Utils_Basename(entries[i].d_name), i, entryCount);
+			Dialog_DisplayProgress(copymode == 1? "Moving" : "Copying", Utils_Basename(entries[i].d_name), i, entryCount);
 		}
 
 		free(entries);
@@ -646,29 +645,7 @@ static void HandleCut(void) {
 }
 
 void Menu_DisplayDeleteDialog(void) {
-	int text_width = intraFontMeasureText(font, "Do you wish to continue?");
-
-	G2D_DrawRect(0, 20, 480, 252, G2D_RGBA(0, 0, 0, config.dark_theme? 50: 80));
-
-	G2D_DrawImage(config.dark_theme? dialog_dark : dialog, ((480 - dialog->w) / 2), ((272 - dialog->h) / 2));
-
-	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-	intraFontPrint(font, ((480 - dialog->w) / 2) + 10, ((272 - dialog->h) / 2) + 20, "Confirm deletion");
-
-	intraFontSetStyle(font, 0.7f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-	intraFontPrint(font, ((480 - (text_width)) / 2), ((272 - dialog->h) / 2) + 60, "Do you wish to continue?");
-
-	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-
-	if (delete_dialog_selection == 0)
-		G2D_DrawRect((364 - intraFontMeasureText(font, "NO")) - 5, (180 - (font->texYSize - 20)) - 5, intraFontMeasureText(font, "NO") + 10, (font->texYSize - 10) + 10, 
-			config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
-	else if (delete_dialog_selection == 1)
-		G2D_DrawRect((409 - (intraFontMeasureText(font, "YES"))) - 5, (180 - (font->texYSize - 20)) - 5, intraFontMeasureText(font, "YES") + 10, (font->texYSize - 10) + 10, 
-			config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
-
-	intraFontPrint(font, 409 - (intraFontMeasureText(font, "YES")), (182 - (font->texYSize - 30)), "YES");
-	intraFontPrint(font, 364 - intraFontMeasureText(font, "NO"), (182 - (font->texYSize - 30)), "NO");
+	Dialog_DisplayPrompt("Confirm deletion", "Do you wish to continue?", NULL, &delete_dialog_selection, false);
 }
 
 void Menu_ControlFileProperties(void) {
