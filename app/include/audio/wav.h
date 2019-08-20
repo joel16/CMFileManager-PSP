@@ -6,4 +6,5 @@ u8 WAV_GetChannels(void);
 void WAV_Decode(void *buf, unsigned int length, void *userdata);
 u64 WAV_GetPosition(void);
 u64 WAV_GetLength(void);
+u64 WAV_Seek(u64 index);
 void WAV_Term(void);

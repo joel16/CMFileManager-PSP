@@ -18,7 +18,7 @@ typedef enum {
 
 static int state = 0;
 
-static char *Menu_ConvertSecondsToString(char *string, u64 seconds) {
+static void Menu_ConvertSecondsToString(char *string, u64 seconds) {
 	int h = 0, m = 0, s = 0;
 	h = (seconds / 3600);
 	m = (seconds - (3600 * h)) / 60;
@@ -28,23 +28,18 @@ static char *Menu_ConvertSecondsToString(char *string, u64 seconds) {
 		snprintf(string, 35, "%02d:%02d:%02d", h, m, s);
 	else
 		snprintf(string, 35, "%02d:%02d", m, s);
-
-	return string;
 }
 
 void Menu_PlayAudio(const char *path) {
 	Audio_Init(path);
-
-	u64 length = Audio_GetLengthSeconds();
+	
 	char *position_time = malloc(35);
 	char *length_time = malloc(35);
 	float length_time_width = 0;
 
-	if (length) {
-		length_time = Menu_ConvertSecondsToString(length_time, Audio_GetLengthSeconds());
-		intraFontSetStyle(font, 0.7f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-		length_time_width = intraFontMeasureText(font, length_time);
-	}
+	Menu_ConvertSecondsToString(length_time, Audio_GetLengthSeconds());
+	intraFontSetStyle(font, 0.7f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+	length_time_width = intraFontMeasureText(font, length_time);
 
 	while(playing) {
 		g2dClear(config.dark_theme? BLACK_BG : WHITE);
@@ -86,17 +81,12 @@ void Menu_PlayAudio(const char *path) {
 		G2D_DrawImage(state == MUSIC_STATE_SHUFFLE? btn_shuffle_overlay : btn_shuffle, 205 + ((275 - btn_shuffle->w) / 2) - 45, 62 + ((200 - btn_shuffle->h) / 2) + 50);
 		G2D_DrawImage(state == MUSIC_STATE_REPEAT? btn_repeat_overlay : btn_repeat, 205 + ((275 - btn_repeat->w) / 2) + 45, 62 + ((200 - btn_repeat->h) / 2) + 50);
 
-		if (length) {
-			position_time = Menu_ConvertSecondsToString(position_time, Audio_GetPositionSeconds());
-			intraFontPrint(font, 230, 240, position_time);
-			intraFontPrint(font, 455 - length_time_width, 240, length_time);
-		}
-
-		// Progress bar
-		if (Audio_GetPosition() != -1) {
-			G2D_DrawRect(230, 245, 225, 2, G2D_RGBA(97, 97, 97, 150));
-			G2D_DrawRect(230, 245, (((double)Audio_GetPosition()/(double)Audio_GetLength()) * 225.0), 2, WHITE);
-		}
+		Menu_ConvertSecondsToString(position_time, Audio_GetPositionSeconds());
+		intraFontPrint(font, 230, 240, position_time);
+		intraFontPrint(font, 455 - length_time_width, 240, length_time);
+		
+		G2D_DrawRect(230, 245, 225, 2, G2D_RGBA(97, 97, 97, 150));
+		G2D_DrawRect(230, 245, (((double)Audio_GetPosition()/(double)Audio_GetLength()) * 225.0), 2, WHITE);
 
 		g2dFlip(G2D_VSYNC);
 

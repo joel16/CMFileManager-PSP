@@ -6,4 +6,5 @@ u8 FLAC_GetChannels(void);
 void FLAC_Decode(void *buf, unsigned int length, void *userdata);
 u64 FLAC_GetPosition(void);
 u64 FLAC_GetLength(void);
+u64 FLAC_Seek(u64 index);
 void FLAC_Term(void);
