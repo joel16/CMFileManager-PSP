@@ -5,6 +5,7 @@
 
 #include "common.h"
 #include "config.h"
+#include "log.h"
 #include "menus/menu_main.h"
 #include "kubridge.h"
 #include "systemctrl.h"
@@ -62,16 +63,22 @@ static int Init_Services(void) {
 	Utils_IsMemCardInserted(&is_ms_inserted);
 	is_psp_go = Utils_IsModelPSPGo();
 	
-	if (R_FAILED(ret = Config_Load()))
+	if (R_FAILED(ret = Config_Load())) {
+		log_print("Config_Load failed: 0x%lx\n", ret);
 		return ret;
+	}
 
-	if (R_FAILED(ret = Config_GetLastDirectory()))
+	if (R_FAILED(ret = Config_GetLastDirectory())) {
+		log_print("Config_GetLastDirectory failed: 0x%lx\n", ret);
 		return ret;
+	}
 
 	Textures_Load();
 
-	if (R_FAILED(ret = intraFontInit()))
+	if (R_FAILED(ret = intraFontInit())) {
+		log_print("intraFontInit failed: 0x%lx\n", ret);
 		return ret;
+	}
 
 	font = intraFontLoadMem("ram:/Roboto.pgf", Roboto_pgf_start, Roboto_pgf_size, INTRAFONT_CACHE_ALL);
 
@@ -79,7 +86,6 @@ static int Init_Services(void) {
 	PSP_CTRL_CANCEL = Utils_GetCancelButton();
 
 	Utils_InitUSB();
-
 	return 0;
 }
 
