@@ -159,7 +159,8 @@ int MP3_Init(const char *path) {
 		if (v2 != NULL) {
 			print_v2(&metadata, v2);
 
-			for (size_t count = 0; count < v2->pictures; count++) {
+			size_t count = 0;
+			for (count = 0; count < v2->pictures; count++) {
 				mpg123_picture *pic = &v2->picture[count];
 				char *str = pic->mime_type.p;
 
