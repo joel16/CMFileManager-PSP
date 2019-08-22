@@ -216,14 +216,14 @@ static int FileOptions_RmdirRecursive(char *path) {
 	return sceIoRmdir(path);
 }
 
-static int FileOptions_DeleteFile(void) {
-	File *file = Dirbrowse_GetFileIndex(position);
+static int FileOptions_DeleteFile(File *file) {
+	file = Dirbrowse_GetFileIndex(position);
 
 	if (file == NULL)
 		return -1;
 	
 	if (strncmp(file->name, "..", 2) == 0)
-			return -2;
+		return -2;
 
 	char path[512];
 	strcpy(path, cwd);
@@ -254,6 +254,8 @@ static void HandleDelete(void) {
 
 	if ((multi_select_index > 0) && (strlen(multi_select_dir) != 0)) {
 		for (i = 0; i < multi_select_index; i++) {
+			Dialog_DisplayProgress("Delete", "Deleting multiple files...", i, multi_select_index);
+
 			if (strlen(multi_select_paths[i]) != 0) {
 				if (strncmp(multi_select_paths[i], "..", 2) != 0) {
 					if (FS_DirExists(multi_select_paths[i])) {
@@ -271,11 +273,16 @@ static void HandleDelete(void) {
 
 		FileOptions_ResetClipboard();
 	}
-	else if (R_FAILED(FileOptions_DeleteFile())) {
-		scePowerUnlock(0);
-		return;
-	}
+	else {
+		File *file = Dirbrowse_GetFileIndex(position);
+		Dialog_DisplayMessage("Delete", "Deleting", file->name);
 
+		if (R_FAILED(FileOptions_DeleteFile(file))) {
+			scePowerUnlock(0);
+			return;
+		}
+	}
+	
 	Dirbrowse_PopulateFiles(true);
 	scePowerUnlock(0);
 	MENU_STATE = MENU_STATE_HOME;
