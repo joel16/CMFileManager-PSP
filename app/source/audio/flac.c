@@ -14,7 +14,8 @@ int FLAC_Init(const char *path) {
 
 	FLAC__StreamMetadata *tags;
 	if (FLAC__metadata_get_tags(path, &tags)) {
-		for (int i = 0; i < tags->data.vorbis_comment.num_comments; i++)  {
+		int i = 0;
+		for (i = 0; i < tags->data.vorbis_comment.num_comments; i++)  {
 			char *tag = (char *)tags->data.vorbis_comment.comments[i].entry;
 
 			if (!strncasecmp("TITLE=", tag, 6)) {
