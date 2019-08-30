@@ -40,6 +40,9 @@ static Audio_Metadata empty_metadata = {0};
 static Audio_Decoder decoder = {0}, empty_decoder = {0};
 bool playing = true, paused = false;
 
+// audio driver function prototype
+int pspAudioSetFrequency(int frequency);
+
 static void Audio_Decode(void *buf, unsigned int length, void *userdata) {
 	if (playing == false || paused == true) {
 		short *buf_short = (short *)buf;
@@ -142,6 +145,7 @@ void Audio_Init(const char *path) {
 
 	(* decoder.init)(path);
 	pspAudioInit((* decoder.channels)() == 2? PSP_AUDIO_FORMAT_STEREO : PSP_AUDIO_FORMAT_MONO);
+	pspAudioSetFrequency((* decoder.rate)() == 48000? 48000 : 44100);
 	pspAudioSetChannelCallback(0, Audio_Decode, NULL);
 }
 

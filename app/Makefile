@@ -1,6 +1,6 @@
 TARGET = CMFileManager
 
-SOURCES   := data glib2d source source/audio source/menus
+SOURCES   := data drivers glib2d source source/audio source/menus
 CFILES    := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.c))
 SFILES    := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.S))
 CPPFILES  := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.cpp))

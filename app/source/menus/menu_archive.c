@@ -1,6 +1,7 @@
 #include <archive.h>
 #include <archive_entry.h>
 #include <malloc.h>
+#include <psppower.h>
 
 #include "common.h"
 #include "config.h"
@@ -126,6 +127,11 @@ int Archive_ExtractArchive(const char *path) {
 		}
 		
 		ret = archive_write_disk_set_options(dst, ARCHIVE_EXTRACT_UNLINK);
+		if (ret != ARCHIVE_OK) {
+			Menu_DisplayError("archive_write_disk_set_options failed:", ret);
+			break;
+		}
+		
 		ret = archive_write_header(dst, entry);
 		if (ret != ARCHIVE_OK) {
 			Menu_DisplayError("archive_write_header failed:", ret);
@@ -146,7 +152,8 @@ int Archive_ExtractArchive(const char *path) {
 
 int Archive_ExtractFile(const char *path) {
 	int dialog_selection = 0;
-
+	scePowerLock(0);
+	
 	while (1) {
 		Dialog_DisplayPrompt("Extract file", "This may take a few minutes.", "Do you want to continue?", &dialog_selection, true);
 		Utils_ReadControls();
@@ -165,11 +172,13 @@ int Archive_ExtractFile(const char *path) {
 		if (Utils_IsButtonPressed(PSP_CTRL_ENTER)) {
 			if (dialog_selection == 1) {
 				return Archive_ExtractArchive(path);
+				scePowerUnlock(0);
 			}
 			else
 				break;
 		}
 	}
 
+	scePowerUnlock(0);
 	return -1;
 }

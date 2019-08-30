@@ -4,6 +4,7 @@
 #include <pspnet.h>
 #include <pspnet_apctl.h>
 #include <pspnet_inet.h>
+#include <psppower.h>
 #include <psputility.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -105,6 +106,7 @@ void Menu_DisplayFTP(void) {
 	unsigned short int psp_port;
 	int ret = 0;
 
+	scePowerLock(0);
 	sceUtilityLoadNetModule(PSP_NET_MODULE_COMMON);
 	sceUtilityLoadNetModule(PSP_NET_MODULE_INET);
 
@@ -169,6 +171,9 @@ void Menu_DisplayFTP(void) {
 		if (((Utils_IsButtonHeld(PSP_CTRL_LTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_RTRIGGER))) || ((Utils_IsButtonHeld(PSP_CTRL_RTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER))))
 			Screenshot_Capture();
 
+		if (Utils_IsButtonPressed(PSP_CTRL_START))
+			
+
 		if ((Utils_IsButtonPressed(PSP_CTRL_ENTER)) || (Utils_IsButtonPressed(PSP_CTRL_CANCEL))) {
 			sceKernelDelayThread(100 * 1000);
 			break;
@@ -181,4 +186,5 @@ void Menu_DisplayFTP(void) {
 
 	sceUtilityUnloadNetModule(PSP_NET_MODULE_INET);
 	sceUtilityUnloadNetModule(PSP_NET_MODULE_COMMON);
+	scePowerUnlock(0);
 }

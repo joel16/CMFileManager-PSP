@@ -18,6 +18,10 @@ typedef enum {
 
 static int state = 0;
 
+// display driver function prototypes
+int pspDisplayEnable(void);
+int pspDisplayDisable(void);
+
 static void Menu_ConvertSecondsToString(char *string, u64 seconds) {
 	int h = 0, m = 0, s = 0;
 	h = (seconds / 3600);
@@ -40,6 +44,8 @@ void Menu_PlayAudio(const char *path) {
 	Menu_ConvertSecondsToString(length_time, Audio_GetLengthSeconds());
 	intraFontSetStyle(font, 0.7f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 	length_time_width = intraFontMeasureText(font, length_time);
+
+	//bool screen_disabled = false;
 
 	while(playing) {
 		g2dClear(config.dark_theme? BLACK_BG : WHITE);
@@ -91,6 +97,10 @@ void Menu_PlayAudio(const char *path) {
 		g2dFlip(G2D_VSYNC);
 
 		Utils_ReadControls();
+
+		if (Utils_IsButtonPressed(PSP_CTRL_START)) {
+			pspDisplayDisable();
+		}
 
 		if (Utils_IsButtonPressed(PSP_CTRL_ENTER))
 			Audio_Pause();

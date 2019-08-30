@@ -1,4 +1,4 @@
-SUBDIRS = app launcher
+SUBDIRS = app audio_driver display_driver launcher
 
 all:
 	@for dir in $(SUBDIRS); do $(MAKE) -C $$dir; done
