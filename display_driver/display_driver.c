@@ -21,13 +21,13 @@ int pspGetBrightness(int *brightness) {
 }
 
 int pspSetBrightness(int brightness) {
-	u32 k1 = 0;
-	k1 = pspSdkSetK1(0);
-
-	sceDisplaySetBrightness(brightness, 0);
-
-	pspSdkSetK1(k1);
-	return 0;
+    u32 k1 = 0;
+    k1 = pspSdkSetK1(0);
+    
+    sceDisplaySetBrightness(brightness, 0);
+    
+    pspSdkSetK1(k1);
+    return 0;
 }
 
 int pspDisplayEnable(void) {
