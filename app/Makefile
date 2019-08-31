@@ -1,6 +1,6 @@
 TARGET = CMFileManager
 
-SOURCES   := data glib2d source source/audio source/menus
+SOURCES   := data drivers glib2d source source/audio source/menus
 CFILES    := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.c))
 SFILES    := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.S))
 CPPFILES  := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.cpp))
@@ -13,7 +13,7 @@ OBJS := $(addsuffix .o,$(BINFILES)) \
 PSP_LARGE_MEMORY = 1
 
 VERSION_MAJOR :=  3
-VERSION_MINOR :=  0
+VERSION_MINOR :=  1
 VERSION_MICRO :=  0
 
 INCDIR   = ../libs/include ../libs/include/ogg ../libs/include/opus include include/menus glib2d

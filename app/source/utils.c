@@ -6,7 +6,6 @@
 
 #include "common.h"
 #include "config.h"
-#include "log.h"
 #include "kubridge.h"
 #include "pspusbdevice.h"
 #include "systemctrl.h"
@@ -20,6 +19,7 @@
 static SceCtrlData current, previous;
 static bool g_usb_module_loaded = false;
 static bool g_usb_actived = false;
+static SceUID audio_driver = 0, display_driver = 0;
 
 struct UsbModule {
 	char *path;
@@ -118,6 +118,24 @@ static void Utils_StopUnloadModules(SceUID modID) {
 	sceKernelUnloadModule(modID);
 }
 
+void Utils_InitAudioDriver(void) {
+	audio_driver = Utils_LoadStartModule("audio_driver.prx");
+}
+
+void Utils_ExitAudioDriver(void) {
+	if (audio_driver)
+		Utils_StopUnloadModules(audio_driver);
+}
+
+void Utils_InitDisplayDriver(void) {
+	display_driver = Utils_LoadStartModule("display_driver.prx");
+}
+
+void Utils_ExitDisplayDriver(void) {
+	if (display_driver)
+		Utils_StopUnloadModules(display_driver);
+}
+
 void Utils_InitUSB(void) {
 	int i = 0;
 
@@ -142,7 +160,7 @@ static void Utils_StartUSBStorage(void) {
 
 static void Utils_StopUSBStorage(void) {
 	sceUsbDeactivate(0x1c8);
-	sceIoDevctl("fatms0:", 0x0240D81E, NULL, 0, NULL, 0 ); // Avoid corrupted files
+	sceIoDevctl("fatms0:", 0x0240D81E, NULL, 0, NULL, 0); // Avoid corrupted files
 	psp_usb_cable_connection = false;
 }
 
