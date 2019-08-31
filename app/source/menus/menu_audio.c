@@ -18,10 +18,6 @@ typedef enum {
 
 static int state = 0;
 
-// display driver function prototypes
-int pspDisplayEnable(void);
-int pspDisplayDisable(void);
-
 static void Menu_ConvertSecondsToString(char *string, u64 seconds) {
 	int h = 0, m = 0, s = 0;
 	h = (seconds / 3600);
@@ -45,7 +41,7 @@ void Menu_PlayAudio(const char *path) {
 	intraFontSetStyle(font, 0.7f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 	length_time_width = intraFontMeasureText(font, length_time);
 
-	//bool screen_disabled = false;
+	bool screen_disabled = false;
 
 	while(playing) {
 		g2dClear(config.dark_theme? BLACK_BG : WHITE);
@@ -99,7 +95,12 @@ void Menu_PlayAudio(const char *path) {
 		Utils_ReadControls();
 
 		if (Utils_IsButtonPressed(PSP_CTRL_START)) {
-			pspDisplayDisable();
+			screen_disabled = !screen_disabled;
+
+			if (screen_disabled)
+				pspDisplayDisable();
+			else
+				pspDisplayEnable();
 		}
 
 		if (Utils_IsButtonPressed(PSP_CTRL_ENTER))
@@ -116,4 +117,8 @@ void Menu_PlayAudio(const char *path) {
 	free(position_time);
 
 	Audio_Term();
+	
+	// If user tries to exit with screen disabled, enable it.
+	if (screen_disabled)
+		pspDisplayEnable();
 }

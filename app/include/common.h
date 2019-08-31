@@ -60,3 +60,7 @@ extern char initial_cwd[128];
 
 extern bool is_ms_inserted;
 extern bool is_psp_go;
+
+// display driver function prototypes
+extern int pspDisplayEnable(void);
+extern int pspDisplayDisable(void);

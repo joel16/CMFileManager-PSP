@@ -2,9 +2,9 @@
 
 #include "pspstub.s"
 
-	STUB_START "display_driver",0x40090000,0x00130005
-	STUB_FUNC  0x19F94895,pspGetBrightness
-	STUB_FUNC  0xB6551455,pspSetBrightness
-	STUB_FUNC  0xAC18FDEC,pspDisplayEnable
-	STUB_FUNC  0xDA2E4C8C,pspDisplayDisable
+	STUB_START "display_driver",0x40090000,0x00040005
+	STUB_FUNC  0x9C096DA0,pspGetBrightness
+	STUB_FUNC  0x193400C8,pspSetBrightness
+	STUB_FUNC  0xE3CA895B,pspDisplayEnable
+	STUB_FUNC  0x105212A9,pspDisplayDisable
 	STUB_END

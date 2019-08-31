@@ -6,7 +6,6 @@
 
 #include "common.h"
 #include "config.h"
-#include "log.h"
 #include "kubridge.h"
 #include "pspusbdevice.h"
 #include "systemctrl.h"

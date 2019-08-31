@@ -13,3 +13,7 @@ char initial_cwd[128];
 
 bool is_ms_inserted;
 bool is_psp_go;
+
+// display driver function prototypes
+int pspDisplayEnable(void);
+int pspDisplayDisable(void);

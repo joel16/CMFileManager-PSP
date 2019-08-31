@@ -138,6 +138,8 @@ void Menu_DisplayFTP(void) {
 	int msg_width = intraFontMeasureText(font, msg);
 	int result_width = intraFontMeasureText(font, "Press Cross/Circle to exit.");
 
+	bool screen_disabled = false;
+
 	while (1) {
 		g2dClear(config.dark_theme? BLACK_BG : WHITE);
 		G2D_DrawRect(0, 0, 480, 20, config.dark_theme? STATUS_BAR_DARK : STATUS_BAR_LIGHT);
@@ -171,8 +173,14 @@ void Menu_DisplayFTP(void) {
 		if (((Utils_IsButtonHeld(PSP_CTRL_LTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_RTRIGGER))) || ((Utils_IsButtonHeld(PSP_CTRL_RTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER))))
 			Screenshot_Capture();
 
-		if (Utils_IsButtonPressed(PSP_CTRL_START))
-			
+		if (Utils_IsButtonPressed(PSP_CTRL_START)) {
+			screen_disabled = !screen_disabled;
+
+			if (screen_disabled)
+				pspDisplayDisable();
+			else
+				pspDisplayEnable();
+		}
 
 		if ((Utils_IsButtonPressed(PSP_CTRL_ENTER)) || (Utils_IsButtonPressed(PSP_CTRL_CANCEL))) {
 			sceKernelDelayThread(100 * 1000);
@@ -187,4 +195,8 @@ void Menu_DisplayFTP(void) {
 	sceUtilityUnloadNetModule(PSP_NET_MODULE_INET);
 	sceUtilityUnloadNetModule(PSP_NET_MODULE_COMMON);
 	scePowerUnlock(0);
+	
+	// If user tries to exit with screen disabled, enable it.
+	if (screen_disabled)
+		pspDisplayEnable();
 }
