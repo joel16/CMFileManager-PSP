@@ -61,7 +61,7 @@ int pspAudioOutBlocking(unsigned int channel, unsigned int vol1, unsigned int vo
 
 static int AudioChannelThread(int args, void *argp) {
 	volatile int bufidx = 0;
-	int channel=*(int *)argp;
+	int channel = *(int *)argp;
 
 	while (audio_terminate == 0) {
 		void *bufptr = &audio_sndbuf[channel][bufidx];
@@ -120,7 +120,7 @@ int pspAudioInit(int format) {
 
 	for (i = 0; i < PSP_NUM_AUDIO_CHANNELS; i++) {
 		str[6]= '0' + i;
-		AudioStatus[i].threadhandle = sceKernelCreateThread(str, (void*)&AudioChannelThread, 0x12, 0x10000, 0, NULL);
+		AudioStatus[i].threadhandle = sceKernelCreateThread(str, (void *)&AudioChannelThread, 0x12, 0x10000, 0, NULL);
 
 		if (AudioStatus[i].threadhandle < 0) {
 			AudioStatus[i].threadhandle = -1;
