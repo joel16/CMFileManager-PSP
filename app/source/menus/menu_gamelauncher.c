@@ -73,14 +73,14 @@ static int Game_ReadSFOTitle(SceUID file, char *buffer, int size, char *id_buf, 
 
 static bool Game_GetPBPMeta(const char *path, eboot_meta *meta) {
     char title_buf[128];
-	SceUID file = 0;
+    SceUID file = 0;
     pbp pbp_data = { 0 };
-
-	if (R_FAILED(file = sceIoOpen(path, PSP_O_RDONLY, 0777)))
-		return false;
-		
-	sceIoRead(file, &pbp_data, sizeof(pbp));
-
+    
+    if (R_FAILED(file = sceIoOpen(path, PSP_O_RDONLY, 0777)))
+        return false;
+        
+    sceIoRead(file, &pbp_data, sizeof(pbp));
+    
     // Get title
     int title_size = pbp_data.icon0_offset - pbp_data.sfo_offset;
     void *buffer = NULL;
@@ -89,25 +89,25 @@ static bool Game_GetPBPMeta(const char *path, eboot_meta *meta) {
     Game_ReadSFOTitle(file, buffer, title_size, title_buf, sizeof(title_buf));
     snprintf(meta->title, 128, title_buf);
     free(buffer);
-
+    
     // Get icon0
-	sceIoLseek(file, pbp_data.icon0_offset, PSP_SEEK_SET);
-	meta->icon0_size = pbp_data.icon1_offset - pbp_data.icon0_offset;
-	if (meta->icon0_size) {
+    sceIoLseek(file, pbp_data.icon0_offset, PSP_SEEK_SET);
+    meta->icon0_size = pbp_data.icon1_offset - pbp_data.icon0_offset;
+    if (meta->icon0_size) {
         meta->icon0_data = malloc(meta->icon0_size);
-		sceIoRead(file, meta->icon0_data, meta->icon0_size);
-	}
-
+        sceIoRead(file, meta->icon0_data, meta->icon0_size);
+    }
+    
     // Get pic1
-	sceIoLseek(file, pbp_data.pic1_offset, PSP_SEEK_SET);
-	meta->pic1_size = pbp_data.snd0_offset - pbp_data.pic1_offset;
-	if (meta->pic1_size) {
+    sceIoLseek(file, pbp_data.pic1_offset, PSP_SEEK_SET);
+    meta->pic1_size = pbp_data.snd0_offset - pbp_data.pic1_offset;
+    if (meta->pic1_size) {
         meta->pic1_data = malloc(meta->pic1_size);
-		sceIoRead(file, meta->pic1_data, meta->pic1_size);
-	}
-
-	sceIoClose(file);
-	return false;
+        sceIoRead(file, meta->pic1_data, meta->pic1_size);
+    }
+    
+    sceIoClose(file);
+    return false;
 }
 
 void Game_DisplayLauncher(const char *path) {
@@ -146,13 +146,21 @@ void Game_DisplayLauncher(const char *path) {
         
         if (icon0)
             G2D_DrawImage(icon0, 50, 56);
-        else
-            G2D_DrawRect(50, 56, 144, 80, WHITE);
+        else {
+            G2D_DrawRect(50, 56, 144, 80, G2D_RGBA(46, 46, 50, 255));
+            intraFontSetStyle(font, 0.65f, G2D_RGBA(232, 234, 238, 255), G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+            intraFontPrint(font, 50 + ((144 - intraFontMeasureText(font, "ICON0 not found")) / 2), 96, "ICON0 not found");
+        }
+
+        G2D_DrawRect(260, 190, 200, 50, G2D_RGBA(46, 46, 50, 255));
         
         intraFontSetStyle(font, 0.7f, G2D_RGBA(232, 234, 238, 255), G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
         intraFontPrint(font, 242 + ((238 - intraFontMeasureText(font, meta.title)) / 2), 56, meta.title);
         intraFontSetStyle(font, 0.65f, G2D_RGBA(232, 234, 238, 255), G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
         intraFontPrint(font, 242 + ((238 - intraFontMeasureText(font, install_date)) / 2), 76, install_date);
+
+        intraFontPrint(font, 242 + ((238 - intraFontMeasureText(font, "Press Square to save ICON0")) / 2), 210, "Press Square to save ICON0");
+        intraFontPrint(font, 242 + ((238 - intraFontMeasureText(font, "Press Triangle to save PIC1")) / 2), 230, "Press Triangle to save PIC1");
         g2dFlip(G2D_VSYNC);
         
         Utils_ReadControls();
