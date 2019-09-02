@@ -1,14 +1,14 @@
 #include <malloc.h>
-#include <pspiofilemgr.h>
 #include <stdio.h>
 
 #include "common.h"
+#include "fs.h"
 #include "glib2d_helper.h"
 #include "screenshot.h"
 #include "textures.h"
 #include "utils.h"
 
-struct pbp {
+typedef struct {
     char id[4];
     unsigned int version;
     unsigned int sfo_offset;
@@ -19,44 +19,95 @@ struct pbp {
     unsigned int snd0_offset;
     unsigned int psp_offset;
     unsigned int psar_offset;
-}__attribute__((packed));
+} pbp;
 
-char *Game_GetDirname(const char *path) {
-    char *token = NULL, *directory = NULL;
-    size_t length = 0;
-    
-    token = strrchr(path, '/');
-    if (token == NULL)
-        return "NULL";
+typedef struct {
+    unsigned short key_offset;
+    unsigned char alignment;
+    unsigned char data_type;
+    unsigned int value_size;
+    unsigned int value_size_with_padding;
+    unsigned int data_offset;
+} sfo_index;
+
+typedef struct {
+    char id[4];
+    unsigned int version;
+    unsigned int key_offset;
+    unsigned int value_offset;
+    unsigned int pair_count;
+} sfo;
+
+typedef struct {
+    unsigned char *icon0_data;
+    int icon0_size;
+    unsigned char *pic1_data;
+    int pic1_size;
+    char *title;
+} eboot_meta;
+
+// From https://github.com/codestation/prxshot/blob/master/sfo.c#L48
+static int Game_ReadSFOTitle(SceUID file, char *buffer, int size, char *id_buf, int id_size) {
+    sfo *sfo_data = (sfo *)buffer;
+    // read the sfo header
+    sceIoRead(file, sfo_data, sizeof(sfo));
+    // allocate memory to read the sfo block
+    void *sfo_block = buffer + size;
+    sceIoRead(file, sfo_block, size);
+    // get the sfo index table inside the block
+    sfo_index *index_block = sfo_block;
+    unsigned int keys_offset_block = sizeof(sfo) + (sizeof(sfo_index) * sfo_data->pair_count);
+    void *value_block = sfo_block + sfo_data->value_offset - sizeof(sfo);
+    for (int i = 0; i < sfo_data->pair_count; i++) {
+        char *key_addr = sfo_block + index_block[i].key_offset + keys_offset_block - sizeof(sfo);
+        if (!strcmp(key_addr, "TITLE")) {
+            memcpy(id_buf, value_block, id_size);
+            return id_size;
+        }
         
-    length = strlen(token);
-    directory = malloc(length);
-    memcpy(directory, token+1, length);
-    return directory;
+        value_block += index_block[i].value_size_with_padding;
+    }
+    
+    return 0;
 }
 
-static bool Game_GetIcon0(const char *path, g2dTexture **image, struct pbp *pbp_data) {
-	SceUID fd = 0;
+static bool Game_GetPBPMeta(const char *path, eboot_meta *meta) {
+    char title_buf[128];
+	SceUID file = 0;
+    pbp pbp_data = { 0 };
 
-	if (R_FAILED(fd = sceIoOpen(path, PSP_O_RDONLY, 0777)))
+	if (R_FAILED(file = sceIoOpen(path, PSP_O_RDONLY, 0777)))
 		return false;
 		
-	sceIoRead(fd, pbp_data, sizeof(struct pbp));
-	sceIoLseek(fd, pbp_data->icon0_offset, PSP_SEEK_SET);
-	int icon0_size = pbp_data->icon1_offset - pbp_data->icon0_offset;
-	
-	unsigned char icon[icon0_size];
-	if (icon0_size) {
-		sceIoRead(fd, icon, icon0_size);
-		*image = g2dTexLoadMemory(icon, icon0_size, G2D_SWIZZLE);
+	sceIoRead(file, &pbp_data, sizeof(pbp));
+
+    // Get title
+    int title_size = pbp_data.icon0_offset - pbp_data.sfo_offset;
+    void *buffer = NULL;
+    buffer = malloc(4096);
+    meta->title = malloc(128);
+    Game_ReadSFOTitle(file, buffer, title_size, title_buf, sizeof(title_buf));
+    snprintf(meta->title, 128, title_buf);
+    free(buffer);
+
+    // Get icon0
+	sceIoLseek(file, pbp_data.icon0_offset, PSP_SEEK_SET);
+	meta->icon0_size = pbp_data.icon1_offset - pbp_data.icon0_offset;
+	if (meta->icon0_size) {
+        meta->icon0_data = malloc(meta->icon0_size);
+		sceIoRead(file, meta->icon0_data, meta->icon0_size);
 	}
-	else {
-		sceIoClose(fd);
-		return false;
+
+    // Get pic1
+	sceIoLseek(file, pbp_data.pic1_offset, PSP_SEEK_SET);
+	meta->pic1_size = pbp_data.snd0_offset - pbp_data.pic1_offset;
+	if (meta->pic1_size) {
+        meta->pic1_data = malloc(meta->pic1_size);
+		sceIoRead(file, meta->pic1_data, meta->pic1_size);
 	}
-	
-	sceIoClose(fd);
-	return true;
+
+	sceIoClose(file);
+	return false;
 }
 
 void Game_DisplayLauncher(const char *path) {
@@ -80,29 +131,26 @@ void Game_DisplayLauncher(const char *path) {
     };
     
     g2dTexture *icon0 = NULL;
-    struct pbp pbp_data = { 0 };
-    bool ret = Game_GetIcon0(path, &icon0, &pbp_data);
+    eboot_meta meta = { 0 };
+    Game_GetPBPMeta(path, &meta);
+    icon0 = g2dTexLoadMemory(meta.icon0_data, meta.icon0_size, G2D_SWIZZLE);
     
     char install_date[128];
     snprintf(install_date, 128, "Installed %d %s %d", stat.st_ctime.day, months[stat.st_ctime.month], stat.st_ctime.year);
 
-    char *dirname = NULL;
-    dirname = Game_GetDirname(path);
-    
     while (1) {
         g2dClear(G2D_RGBA(32, 33, 36, 255));
         G2D_DrawRect(240, 10, 2, 262, G2D_RGBA(78, 80, 85, 255));
         G2D_DrawRect(242, 146, 238, 2, G2D_RGBA(78, 80, 85, 255));
+        G2D_DrawImage(ic_play_btn, 312, 125);
         
-        if (ret)
-            G2D_DrawImage(ic_play_btn, 312, 125);
+        if (icon0)
+            G2D_DrawImage(icon0, 50, 56);
         else
-            G2D_DrawRect(312, 125, 144, 80, WHITE);
-        
-        G2D_DrawImage(icon0, 50, 56);
+            G2D_DrawRect(50, 56, 144, 80, WHITE);
         
         intraFontSetStyle(font, 0.7f, G2D_RGBA(232, 234, 238, 255), G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-        intraFontPrint(font, 242 + ((238 - intraFontMeasureText(font, dirname)) / 2), 56, dirname);
+        intraFontPrint(font, 242 + ((238 - intraFontMeasureText(font, meta.title)) / 2), 56, meta.title);
         intraFontSetStyle(font, 0.65f, G2D_RGBA(232, 234, 238, 255), G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
         intraFontPrint(font, 242 + ((238 - intraFontMeasureText(font, install_date)) / 2), 76, install_date);
         g2dFlip(G2D_VSYNC);
@@ -114,6 +162,32 @@ void Game_DisplayLauncher(const char *path) {
         
         if (Utils_IsButtonPressed(PSP_CTRL_ENTER))
             Utils_LaunchEboot(path);
+
+        if (Utils_IsButtonPressed(PSP_CTRL_SQUARE)) {
+            if (meta.icon0_size) {
+                char icon0_path[160];
+                snprintf(icon0_path, 160, "%s%s", Utils_IsEF0()? "ef0:/PSP/PHOTO/CMFileManager/" : "ms0:/PSP/PHOTO/CMFileManager/", meta.title);
+                
+                if (!(FS_DirExists(icon0_path)))
+                    FS_RecursiveMakeDir(icon0_path);
+
+                strcat(icon0_path, "/icon0.png");
+                FS_WriteFile(icon0_path, meta.icon0_data, meta.icon0_size);
+            }
+        }
+
+        if (Utils_IsButtonPressed(PSP_CTRL_TRIANGLE)) {
+            if (meta.pic1_size) {
+                char pic1_path[160];
+                snprintf(pic1_path, 160, "%s%s", Utils_IsEF0()? "ef0:/PSP/PHOTO/CMFileManager/" : "ms0:/PSP/PHOTO/CMFileManager/", meta.title);
+                
+                if (!(FS_DirExists(pic1_path)))
+                    FS_RecursiveMakeDir(pic1_path);
+
+                strcat(pic1_path, "/pic1.png");
+                FS_WriteFile(pic1_path, meta.pic1_data, meta.pic1_size);
+            }
+        }
             
         if (Utils_IsButtonPressed(PSP_CTRL_CANCEL))
             break;
@@ -121,6 +195,10 @@ void Game_DisplayLauncher(const char *path) {
 
     if (icon0)
         g2dTexFree(&icon0);
+    
+    if (meta.title)
+        free(meta.title);
 
-    free(dirname);
+    if (meta.icon0_data)
+        free(meta.icon0_data);
 }

@@ -123,7 +123,7 @@ static int Screenshot_GenFilename(int number, char *filename) {
 		return ret;
 
 	if (!(FS_DirExists(Utils_IsEF0()? "ef0:/PSP/PHOTO/CMFileManager/" : "ms0:/PSP/PHOTO/CMFileManager/")))
-		FS_MakeDir(Utils_IsEF0()? "ef0:/PSP/PHOTO/CMFileManager" : "ms0:/PSP/PHOTO/CMFileManager");
+		FS_RecursiveMakeDir(Utils_IsEF0()? "ef0:/PSP/PHOTO/CMFileManager" : "ms0:/PSP/PHOTO/CMFileManager");
 	
 	sprintf(filename, Utils_IsEF0()? "ef0:/PSP/PHOTO/CMFileManager/screenshot_%02d%02d%02d-%i.bmp" : 
 		"ms0:/PSP/PHOTO/CMFileManager/screenshot_%02d%02d%02d-%i.bmp", time.year, time.month, time.day, num);
