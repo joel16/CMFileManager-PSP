@@ -15,7 +15,7 @@ extern unsigned char ic_fso_type_app_png_start[], ic_fso_type_compress_png_start
 	stat_sys_wifi_signal_on_png_start[], ic_material_light_usb_png_start[], default_artwork_png_start[], default_artwork_blur_png_start[], btn_playback_play_png_start[], 
 	btn_playback_pause_png_start[], btn_playback_rewind_png_start[], btn_playback_forward_png_start[], btn_playback_repeat_png_start[], btn_playback_shuffle_png_start[], 
 	btn_playback_repeat_overlay_png_start[], btn_playback_shuffle_overlay_png_start[], bg_header_png_start[], ic_material_light_sdcard_png_start[], 
-	ic_material_light_secure_png_start[], ic_material_light_sdcard_dark_png_start[], ic_material_light_secure_dark_png_start[];
+	ic_material_light_secure_png_start[], ic_material_light_sdcard_dark_png_start[], ic_material_light_secure_dark_png_start[], ic_play_btn_png_start[];
 
 extern unsigned int ic_fso_type_app_png_size, ic_fso_type_compress_png_size, ic_fso_type_audio_png_size, ic_fso_folder_png_size, 
 	ic_fso_folder_dark_png_size, ic_fso_default_png_size, ic_fso_type_image_png_size, ic_fso_type_system_png_size, ic_fso_type_text_png_size, 
@@ -31,7 +31,7 @@ extern unsigned int ic_fso_type_app_png_size, ic_fso_type_compress_png_size, ic_
 	stat_sys_wifi_signal_on_png_size, ic_material_light_usb_png_size, default_artwork_png_size, default_artwork_blur_png_size, btn_playback_play_png_size, 
 	btn_playback_pause_png_size, btn_playback_rewind_png_size, btn_playback_forward_png_size, btn_playback_repeat_png_size, btn_playback_shuffle_png_size, 
 	btn_playback_repeat_overlay_png_size, btn_playback_shuffle_overlay_png_size, bg_header_png_size, ic_material_light_sdcard_png_size, ic_material_light_secure_png_size, 
-	ic_material_light_sdcard_dark_png_size, ic_material_light_secure_dark_png_size;
+	ic_material_light_sdcard_dark_png_size, ic_material_light_secure_dark_png_size, ic_play_btn_png_size;
 
 void Textures_Load(void) {
 	icon_app = g2dTexLoadMemory(ic_fso_type_app_png_start, ic_fso_type_app_png_size, G2D_SWIZZLE);
@@ -96,9 +96,11 @@ void Textures_Load(void) {
 	icon_secure = g2dTexLoadMemory(ic_material_light_secure_png_start, ic_material_light_secure_png_size, G2D_SWIZZLE);
 	icon_sd_dark = g2dTexLoadMemory(ic_material_light_sdcard_dark_png_start, ic_material_light_sdcard_dark_png_size, G2D_SWIZZLE);
 	icon_secure_dark = g2dTexLoadMemory(ic_material_light_secure_dark_png_start, ic_material_light_secure_dark_png_size, G2D_SWIZZLE);
+	ic_play_btn = g2dTexLoadMemory(ic_play_btn_png_start, ic_play_btn_png_size, G2D_SWIZZLE);
 }
 
 void Textures_Free(void) {
+	g2dTexFree(&ic_play_btn);
 	g2dTexFree(&icon_secure_dark);
 	g2dTexFree(&icon_sd_dark);
 	g2dTexFree(&icon_secure);

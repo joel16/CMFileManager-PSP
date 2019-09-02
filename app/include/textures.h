@@ -9,7 +9,7 @@ g2dTexture *icon_app, *icon_archive, *icon_audio, *icon_cd, *icon_dir, *icon_dir
           *battery_full, *battery_full_charging, *battery_low, *battery_unknown, *wifi_off, *wifi_on, *usb_icon, \
           *default_artwork, *default_artwork_blur, *btn_play, *btn_pause, *btn_rewind, *btn_forward, \
           *btn_repeat, *btn_shuffle, *btn_repeat_overlay, *btn_shuffle_overlay, \
-          *bg_header, *icon_sd, *icon_secure, *icon_sd_dark, *icon_secure_dark;
+          *bg_header, *icon_sd, *icon_secure, *icon_sd_dark, *icon_secure_dark, *ic_play_btn;
 
 
 void Textures_Load(void);

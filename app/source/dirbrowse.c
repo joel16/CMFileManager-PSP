@@ -11,6 +11,7 @@
 #include "menu_audio.h"
 #include "menu_error.h"
 #include "menu_gallery.h"
+#include "menu_gamelauncher.h"
 #include "textures.h"
 #include "utils.h"
 
@@ -245,7 +246,7 @@ void Dirbrowse_OpenFile(void) {
 		|| (!strncasecmp(file->ext, "pgm", 3)) || (!strncasecmp(file->ext, "ppm", 3)) || (!strncasecmp(file->ext, "tga", 3)))
 		Gallery_DisplayImage(path);
 	else if (!strncasecmp(file->ext, "pbp", 3))
-		Utils_LaunchEboot(path);
+		Game_DisplayLauncher(path);
 	else if ((!strncasecmp(file->ext, "flac", 4)) || (!strncasecmp(file->ext, "it", 2)) || (!strncasecmp(file->ext, "mod", 3))
 		|| (!strncasecmp(file->ext, "mp3", 3)) || (!strncasecmp(file->ext, "ogg", 3)) || (!strncasecmp(file->ext, "opus", 4))
 		|| (!strncasecmp(file->ext, "s3m", 3)) || (!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "xm", 2)))
