@@ -14,7 +14,7 @@ CMFileManager PSP is a PSP application built using the unofficial PSPSDK and [gl
 - Image viewer (BMP, GIF - non animated, JPG, PCX, PNG, PGM, PPM and TGA).
 - Auto USB mount (with ef0:/ and ms0:/ support for PSP Go).
 - Dark theme mode.
-- EBOOT (homebrew/game) launcher.
+- EBOOT (homebrew/game) launcher - Also allows you to rip icon0/pic1 from eboot if it exists.
 - Browse other drives like flah0, flash1 and UMD (if not using PSP Go).
 - Support for both ef0:/ (internal) and ms0:/ (external) drives on PSP Go.
 - Screenshots in .BMP format. Use L + R to capture a screenshot.
