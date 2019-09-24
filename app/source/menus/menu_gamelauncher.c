@@ -58,7 +58,9 @@ static int Game_ReadSFOTitle(SceUID file, char *buffer, int size, char *id_buf, 
     sfo_index *index_block = sfo_block;
     unsigned int keys_offset_block = sizeof(sfo) + (sizeof(sfo_index) * sfo_data->pair_count);
     void *value_block = sfo_block + sfo_data->value_offset - sizeof(sfo);
-    for (int i = 0; i < sfo_data->pair_count; i++) {
+
+    int i = 0;
+    for (i = 0; i < sfo_data->pair_count; i++) {
         char *key_addr = sfo_block + index_block[i].key_offset + keys_offset_block - sizeof(sfo);
         if (!strcmp(key_addr, "TITLE")) {
             memcpy(id_buf, value_block, id_size);
