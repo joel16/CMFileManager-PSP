@@ -76,7 +76,7 @@ static int Game_ReadSFOTitle(SceUID file, char *buffer, int size, char *id_buf, 
 static bool Game_GetPBPMeta(const char *path, eboot_meta *meta) {
     char title_buf[128];
     SceUID file = 0;
-    pbp pbp_data = { 0 };
+    pbp pbp_data = {{0}};
     
     if (R_FAILED(file = sceIoOpen(path, PSP_O_RDONLY, 0777)))
         return false;
