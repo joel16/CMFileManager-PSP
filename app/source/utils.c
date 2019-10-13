@@ -104,11 +104,14 @@ int Utils_Alphasort(const void *p1, const void *p2) {
 }
 
 static int Utils_LoadStartModule(char *path) {
-	int ret = 0;
+	int ret = 0, status = 0;
 	SceUID modID = 0;
 
-	modID = kuKernelLoadModule(path, 0, NULL);
-	ret = sceKernelStartModule(modID, strlen(path) + 1, path, 0, NULL);
+	if (R_FAILED(ret = modID = kuKernelLoadModule(path, 0, NULL)))
+		return ret;
+	
+	if (R_FAILED(ret = sceKernelStartModule(modID, 0, NULL, &status, NULL)))
+		return ret;
 
 	return ret;
 }

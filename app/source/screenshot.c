@@ -7,10 +7,7 @@
 
 #include "common.h"
 #include "fs.h"
-#include "menu_error.h"
 #include "utils.h"
-
-static int num = 0;
 
 #define BMP_ID "BM"
 
@@ -115,7 +112,7 @@ static int G2D_WriteImageFilePNG(const char *path) {
 	return 0;
 }
 
-static int Screenshot_GenFilename(int number, char *filename) {
+static int Screenshot_GenFilename(int count, char *filename) {
 	int ret = 0;
 	pspTime time;
 
@@ -126,22 +123,23 @@ static int Screenshot_GenFilename(int number, char *filename) {
 		FS_RecursiveMakeDir(Utils_IsEF0()? "ef0:/PSP/PHOTO/CMFileManager" : "ms0:/PSP/PHOTO/CMFileManager");
 	
 	sprintf(filename, Utils_IsEF0()? "ef0:/PSP/PHOTO/CMFileManager/screenshot_%02d%02d%02d-%i.bmp" : 
-		"ms0:/PSP/PHOTO/CMFileManager/screenshot_%02d%02d%02d-%i.bmp", time.year, time.month, time.day, num);
+		"ms0:/PSP/PHOTO/CMFileManager/screenshot_%02d%02d%02d-%i.bmp", time.year, time.month, time.day, count);
 
 	return 0;
 }
 
 void Screenshot_Capture(void) {
+	int count = 0;
 	static char filename[256];
 
 	sprintf(filename, "%s", "screenshot");
-	Screenshot_GenFilename(num, filename);
+	Screenshot_GenFilename(count, filename);
 
 	while (FS_FileExists(filename)) {
-		num++;
-		Screenshot_GenFilename(num, filename);
+		count++;
+		Screenshot_GenFilename(count, filename);
 	}
 
 	G2D_WriteImageFilePNG(filename);
-	num++;
+	count++;
 }
