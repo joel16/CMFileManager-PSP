@@ -23,7 +23,7 @@ ASFLAGS  := $(CFLAGS)
 
 LIBDIR  = ../libs/lib
 LDFLAGS =
-LIBS    = -lpsputility -lpspgum -lpspgu -lpsprtc -lpspvram \
+LIBS    = -lpsputility -lintrafont -lpspgum -lpspgu -lpsprtc -lpspvram \
           -lxmp-lite -lmpg123 -lvorbisfile -lvorbis -lopusfile -lopus -lFLAC -logg -lpspaudio \
           -larchive -lbz2 -llzma -lz \
           -lpspsdk -lpspctrl -lpsppower \

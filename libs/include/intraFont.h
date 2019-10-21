@@ -202,11 +202,13 @@ void intraFontShutdown(void);
 intraFont* intraFontLoad(const char *filename,unsigned int options);
 
 /**
- * Load a pgf font from mem.
+ * Load a pgf font from memory.
  *
  * @param filename - Path to the font
- * @param font_buffer - Font in mem
- * @param filesize - Size of buffer
+ *
+ * @param font_buffer - Pointer to the font buffer.
+ *
+ * @param filesize - Size of the pointer.
  *
  * @param  options - INTRAFONT_XXX flags as defined above including flags related to CACHE (ored together)
  *
