@@ -59,7 +59,7 @@ static void StatusBar_GetBatteryStatus(int x, int y, int *percent_width) {
 		intraFontPrint(font, (x - *percent_width - 6), y, buf);
 	}
 	else {
-		snprintf(buf, 13, "%d%%", percent);
+		snprintf(buf, 13, "0%%");
 		*percent_width = intraFontMeasureText(font, buf);
 		intraFontPrint(font, (x - *percent_width - 6), y, buf);
 		G2D_DrawImage(battery_unknown, x, 2);
