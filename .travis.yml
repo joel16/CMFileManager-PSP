@@ -2,11 +2,13 @@ language: c
 
 sudo: required
 
+dist: bionic
+
 services: 
   - docker
 
 script:
-  - docker run -it --rm -v "$PWD:/src" ticky/pspdev make
+  - docker run -it --rm -v "$PWD:/src" haydenkow/nu-pspdev make
   - sh .travis/.build.sh
 
 deploy:
