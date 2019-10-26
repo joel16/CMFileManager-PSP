@@ -12,6 +12,7 @@
  *
  * $Id: pspaudiolib.c 1145 2005-10-12 15:32:44Z mrbrown $
  */
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <pspthreadman.h>
@@ -19,12 +20,12 @@
 
 #include "audio/pspaudiolib_cm.h"
 
-static int audio_ready = 0;
+static bool audio_ready = false;
 static short audio_sndbuf[PSP_NUM_AUDIO_CHANNELS][2][PSP_NUM_AUDIO_SAMPLES][2];
 
 static psp_audio_channelinfo AudioStatus[PSP_NUM_AUDIO_CHANNELS];
 
-static volatile int audio_terminate = 0;
+static volatile bool audio_terminate = false;
 
 void pspAudioSetVolume(int channel, int left, int right) {
 	AudioStatus[channel].volumeright = right;
@@ -63,7 +64,7 @@ static int AudioChannelThread(int args, void *argp) {
 	volatile int bufidx = 0;
 	int channel = *(int *)argp;
 
-	while (audio_terminate == 0) {
+	while (!audio_terminate) {
 		void *bufptr = &audio_sndbuf[channel][bufidx];
 		pspAudioCallback_t callback;
 		callback=AudioStatus[channel].callback;
@@ -78,7 +79,7 @@ static int AudioChannelThread(int args, void *argp) {
 		}
 
 		pspAudioOutBlocking(channel, AudioStatus[channel].volumeleft,AudioStatus[channel].volumeright, bufptr);
-		bufidx=(bufidx? 0 : 1);
+		bufidx = (bufidx? 0 : 1);
 	}
 
 	sceKernelExitThread(0);
@@ -87,13 +88,13 @@ static int AudioChannelThread(int args, void *argp) {
 
 int pspAudioInit(int format) {
 	int i = 0, ret = 0;
-	int failed = 0;
+	bool failed = false;
 	char str[32];
 
-	audio_terminate = 0;
-	audio_ready = 0;
+	audio_terminate = false;
+	audio_ready = false;
 
-	for (i = 0; i<PSP_NUM_AUDIO_CHANNELS; i++) {
+	for (i = 0; i < PSP_NUM_AUDIO_CHANNELS; i++) {
 		AudioStatus[i].handle = -1;
 		AudioStatus[i].threadhandle = -1;
 		AudioStatus[i].volumeright = PSP_VOLUME_MAX;
@@ -101,9 +102,9 @@ int pspAudioInit(int format) {
 		AudioStatus[i].callback = 0;
 		AudioStatus[i].pdata = 0;
 	}
-	for (i = 0; i<PSP_NUM_AUDIO_CHANNELS; i++) {
+	for (i = 0; i < PSP_NUM_AUDIO_CHANNELS; i++) {
 		if ((AudioStatus[i].handle = sceAudioChReserve(-1, PSP_NUM_AUDIO_SAMPLES, format)) < 0)
-			failed = 1;
+			failed = true;
 	}
 	if (failed) {
 		for (i = 0; i < PSP_NUM_AUDIO_CHANNELS; i++) {
@@ -115,7 +116,7 @@ int pspAudioInit(int format) {
 		return -1;
 	}
 
-	audio_ready = 1;
+	audio_ready = true;
 	strcpy(str, "audiot0");
 
 	for (i = 0; i < PSP_NUM_AUDIO_CHANNELS; i++) {
@@ -130,12 +131,12 @@ int pspAudioInit(int format) {
 
 		ret = sceKernelStartThread(AudioStatus[i].threadhandle, sizeof(i), &i);
 		if (ret != 0) {
-			failed = 1;
+			failed = true;
 			break;
 		}
 	}
 	if (failed) {
-		audio_terminate = 1;
+		audio_terminate = true;
 		for (i = 0; i<PSP_NUM_AUDIO_CHANNELS; i++) {
 			if (AudioStatus[i].threadhandle != -1) {
 				//sceKernelWaitThreadEnd(AudioStatus[i].threadhandle,NULL);
@@ -145,7 +146,7 @@ int pspAudioInit(int format) {
 			AudioStatus[i].threadhandle = -1;
 		}
 
-		audio_ready = 0;
+		audio_ready = false;
 		return -1;
 	}
 	
@@ -153,14 +154,14 @@ int pspAudioInit(int format) {
 }
 
 void pspAudioEndPre(void) {
-	audio_ready = 0;
-	audio_terminate = 1;
+	audio_ready = false;
+	audio_terminate = true;
 }
 
 void pspAudioEnd(void) {
 	int i = 0;
-	audio_ready = 0;
-	audio_terminate=1;
+	audio_ready = false;
+	audio_terminate = true;
 
 	for (i = 0; i < PSP_NUM_AUDIO_CHANNELS; i++) {
 		if (AudioStatus[i].threadhandle != -1) {
