@@ -54,7 +54,6 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-#include <stddef.h>
 
 /**
  * \def G2D_SCR_W
@@ -389,7 +388,7 @@ g2dTexture *g2dTexLoad(char path[], g2dTex_Mode mode);
  * Swizzling is enabled only for 16*16+ textures (useless on small textures), pass G2D_SWIZZLE to enable it.
  * Texture supported up to 512*512 in size only (hardware limitation).
  */
-g2dTexture *g2dTexLoadMemory(void *data, size_t size, g2dTex_Mode mode);
+g2dTexture *g2dTexLoadMemory(void *data, int size, g2dTex_Mode mode);
 
 /**
  * \brief Resets the current coordinates.

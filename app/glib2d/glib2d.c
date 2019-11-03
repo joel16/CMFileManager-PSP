@@ -19,8 +19,8 @@
 
 #include "glib2d.h"
 
-#include <pspkernel.h>
 #include <pspdisplay.h>
+#include <pspkernel.h>
 #include <pspgu.h>
 #include <vram.h>
 #include <malloc.h>
@@ -1067,7 +1067,7 @@ static g2dTexture *_g2dTexLoadFile(const char *path) {
     return tex;
 }
 
-static g2dTexture *_g2dTexLoadMemory(void *data, size_t size) {
+static g2dTexture *_g2dTexLoadMemory(void *data, int size) {
     g2dTexture *tex = NULL;
     g2dColor *line = NULL;
     int width = 0, height = 0;
@@ -1127,7 +1127,7 @@ error:
     return tex;
 }
 
-g2dTexture *g2dTexLoadMemory(void *data, size_t size, g2dTex_Mode mode) {
+g2dTexture *g2dTexLoadMemory(void *data, int size, g2dTex_Mode mode) {
     g2dTexture *tex = NULL;
 
     if (data == NULL)
