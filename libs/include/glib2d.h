@@ -56,6 +56,22 @@ extern "C" {
 #include <stdbool.h>
 
 /**
+ * \def G2D_USE_*
+ * \brief Choose if the * extension support is enabled.
+ *
+ * Otherwise, this part will be not compiled to gain some space.
+ * Enable this to get * support, disable to avoid compilation errors
+ */
+
+#define G2D_USE_BMP
+#define G2D_USE_GIF
+#define G2D_USE_JPEG
+#define G2D_USE_PCX
+#define G2D_USE_PNG
+#define G2D_USE_PNM
+#define G2D_USE_TGA
+
+/**
  * \def G2D_SCR_W
  * \brief Screen width constant, in pixels.
  */

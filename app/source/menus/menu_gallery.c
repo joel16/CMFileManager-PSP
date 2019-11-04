@@ -11,9 +11,6 @@
 #include "textures.h"
 #include "utils.h"
 
-#define BYTES_PER_PIXEL 4
-#define TRANSPARENT_COLOR 0xFFFFFFFF
-
 static char album[1024][512];
 static int count = 0, selection = 0;
 static g2dTexture *image;
