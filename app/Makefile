@@ -1,6 +1,6 @@
 TARGET = CMFileManager
 
-SOURCES   := data drivers glib2d source source/audio source/menus
+SOURCES   := data drivers source source/audio source/menus
 CFILES    := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.c))
 SFILES    := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.S))
 CPPFILES  := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.cpp))
@@ -16,7 +16,7 @@ VERSION_MAJOR :=  3
 VERSION_MINOR :=  1
 VERSION_MICRO :=  0
 
-INCDIR   = ../libs/include ../libs/include/ogg ../libs/include/opus include include/menus glib2d
+INCDIR   = ../libs/include ../libs/include/ogg ../libs/include/opus include include/menus
 CFLAGS   = -O3 -G0 -Wall -Werror -ffast-math -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS  := $(CFLAGS)
