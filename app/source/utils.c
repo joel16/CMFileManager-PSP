@@ -121,8 +121,13 @@ static void Utils_StopUnloadModules(SceUID modID) {
 	sceKernelUnloadModule(modID);
 }
 
-void Utils_InitAudioDriver(void) {
-	audio_driver = Utils_LoadStartModule("audio_driver.prx");
+int Utils_InitAudioDriver(void) {
+	int ret = 0;
+
+	if (R_FAILED(ret = audio_driver = Utils_LoadStartModule("audio_driver.prx")))
+		return ret;
+
+	return 0;
 }
 
 void Utils_ExitAudioDriver(void) {
@@ -130,8 +135,13 @@ void Utils_ExitAudioDriver(void) {
 		Utils_StopUnloadModules(audio_driver);
 }
 
-void Utils_InitDisplayDriver(void) {
-	display_driver = Utils_LoadStartModule("display_driver.prx");
+int Utils_InitDisplayDriver(void) {
+	int ret = 0;
+
+	if (R_FAILED(ret = display_driver = Utils_LoadStartModule("display_driver.prx")))
+		return ret;
+
+	return 0;
 }
 
 void Utils_ExitDisplayDriver(void) {
@@ -139,8 +149,8 @@ void Utils_ExitDisplayDriver(void) {
 		Utils_StopUnloadModules(display_driver);
 }
 
-void Utils_InitUSB(void) {
-	int i = 0;
+int Utils_InitUSB(void) {
+	int i = 0, ret = 0;
 
 	if (!g_usb_module_loaded) {
 		for (i = 0; i < NELEMS(g_usb_modules); ++i) {
@@ -150,32 +160,62 @@ void Utils_InitUSB(void) {
 		g_usb_module_loaded = true;
 	}
 
-	sceUsbStart(PSP_USBBUS_DRIVERNAME, 0, 0);
-	sceUsbStart(PSP_USBSTOR_DRIVERNAME, 0, 0);
-	sceUsbstorBootSetCapacity(0x800000);
+	if (R_FAILED(ret = sceUsbStart(PSP_USBBUS_DRIVERNAME, 0, 0)))
+		return ret;
+	
+	if (R_FAILED(ret = sceUsbStart(PSP_USBSTOR_DRIVERNAME, 0, 0)))
+		return ret;
+
+	if (R_FAILED(ret = sceUsbstorBootSetCapacity(0x800000)))
+		return ret;
+	
 	g_usb_actived = true;
+	return 0;
 }
 
-static void Utils_StartUSBStorage(void) {
-	sceUsbActivate(0x1c8);
+static int Utils_StartUSBStorage(void) {
+	int ret = 0;
+	
+	if (R_FAILED(ret = sceUsbActivate(0x1c8)))
+		return ret;
+	
 	psp_usb_cable_connection = true;
+	return 0;
 }
 
-static void Utils_StopUSBStorage(void) {
-	sceUsbDeactivate(0x1c8);
-	sceIoDevctl("fatms0:", 0x0240D81E, NULL, 0, NULL, 0); // Avoid corrupted files
+static int Utils_StopUSBStorage(void) {
+	int ret = 0;
+
+	if (R_FAILED(ret = sceUsbDeactivate(0x1c8)))
+		return ret;
+	
+	if (R_FAILED(ret = sceIoDevctl("fatms0:", 0x0240D81E, NULL, 0, NULL, 0))) // Avoid corrupted files
+		return ret;
+	
 	psp_usb_cable_connection = false;
+	return 0;
 }
 
-static void Utils_DisableUSB(void) {
-	if (!g_usb_actived)
-		return;
+static int Utils_DisableUSB(void) {
+	int ret = 0;
 
-	Utils_StopUSBStorage();
-	sceUsbStop(PSP_USBSTOR_DRIVERNAME, 0, 0);
-	sceUsbStop(PSP_USBBUS_DRIVERNAME, 0, 0);
-	pspUsbDeviceFinishDevice();
+	if (!g_usb_actived)
+		return -1;
+
+	if (R_FAILED(ret = Utils_StopUSBStorage()))
+		return ret;
+	
+	if (R_FAILED(ret = sceUsbStop(PSP_USBSTOR_DRIVERNAME, 0, 0)))
+		return ret;
+	
+	if (R_FAILED(ret = sceUsbStop(PSP_USBBUS_DRIVERNAME, 0, 0)))
+		return ret;
+	
+	if (R_FAILED(ret = pspUsbDeviceFinishDevice()))
+		return ret;
+	
 	g_usb_actived = false;
+	return 0;
 }
 
 void Utils_ExitUSB(void) {

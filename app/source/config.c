@@ -90,7 +90,7 @@ int Config_GetLastDirectory(void) {
 		else
 			BROWSE_STATE = BROWSE_STATE_SD;
 		
-		if (FS_DirExists(temp_path) && (!strcmp(drive, root_path))) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
+		if (FS_DirExists(temp_path) && (!strcmp(drive, root_path))) // Incase a directory previously visited had been deleted, set start path to ef0:/ or ms0:/ to avoid errors.
 			strcpy(cwd, temp_path);
 		else
 			strcpy(cwd, is_psp_go? "ef0:/" : "ms0:/");

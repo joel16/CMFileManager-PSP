@@ -85,9 +85,21 @@ static int Init_Services(void) {
 	PSP_CTRL_ENTER = Utils_GetEnterButton();
 	PSP_CTRL_CANCEL = Utils_GetCancelButton();
 
-	Utils_InitUSB();
-	Utils_InitAudioDriver();
-	Utils_InitDisplayDriver();
+	if (R_FAILED(ret = Utils_InitUSB())) {
+		log_print("Utils_InitUSB failed: 0x%lx\n", ret);
+		return ret;
+	}
+	
+	if (R_FAILED(ret = Utils_InitAudioDriver())) {
+		log_print("Utils_InitAudioDriver failed: 0x%lx\n", ret);
+		return ret;
+	}
+
+	if (R_FAILED(ret = Utils_InitDisplayDriver())) {
+		log_print("Utils_InitDisplayDriver failed: 0x%lx\n", ret);
+		return ret;
+	}
+
 	return 0;
 }
 
