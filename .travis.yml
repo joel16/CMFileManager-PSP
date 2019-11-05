@@ -8,7 +8,7 @@ services:
   - docker
 
 script:
-  - docker run -it --rm -v "$PWD:/src" haydenkow/nu-pspdev make
+  - docker run -it --rm -v "$PWD:/src" haydenkow/nu-pspdev make -f Makefile.psp
   - sh .travis/.build.sh
 
 deploy:
