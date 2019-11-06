@@ -24,7 +24,7 @@ int Config_Save(config_t config) {
 	int len = snprintf(buf, 64, configFile, CONFIG_VERSION, config.dark_theme, config.sort, config.auto_usb_mount);
 
 	if (R_FAILED(ret = FS_WriteFile("config.cfg", buf, len))) {
-		log_print("Read config failed in Config_Save 0x%lx\n", ret);
+		Log_Print("Read config failed in Config_Save 0x%lx\n", ret);
 		free(buf);
 		return ret;
 	}
@@ -47,7 +47,7 @@ int Config_Load(void) {
 	char *buf = malloc(size + 1);
 
 	if (R_FAILED(ret = FS_ReadFile("config.cfg", buf, size))) {
-		log_print("Read config failed in Config_Load 0x%lx\n", ret);
+		Log_Print("Read config failed in Config_Load 0x%lx\n", ret);
 		free(buf);
 		return ret;
 	}
@@ -75,7 +75,7 @@ int Config_GetLastDirectory(void) {
 	
 	if (FS_FileExists("lastdir.txt")) {
 		if (R_FAILED(ret = FS_ReadFile("lastdir.txt", buf, 256))) {
-			log_print("FS_ReadFile lastdir failed 0x%lx\n", ret);
+			Log_Print("FS_ReadFile lastdir failed 0x%lx\n", ret);
 			free(buf);
 			return ret;
 		}
@@ -105,7 +105,7 @@ int Config_GetLastDirectory(void) {
 			BROWSE_STATE = BROWSE_STATE_INTERNAL;
 
 		if (R_FAILED(ret = FS_WriteFile("lastdir.txt", buf, len))) {
-			log_print("FS_WriteFile lastdir failed 0x%lx\n", ret);
+			Log_Print("FS_WriteFile lastdir failed 0x%lx\n", ret);
 			free(buf);
 			return ret;
 		}

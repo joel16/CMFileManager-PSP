@@ -62,21 +62,23 @@ static int Init_Services(void) {
 
 	Utils_IsMemCardInserted(&is_ms_inserted);
 	is_psp_go = Utils_IsModelPSPGo();
+
+	Log_OpenFileHande();
 	
 	if (R_FAILED(ret = Config_Load())) {
-		log_print("Config_Load failed: 0x%lx\n", ret);
+		Log_Print("Config_Load failed: 0x%lx\n", ret);
 		return ret;
 	}
 
 	if (R_FAILED(ret = Config_GetLastDirectory())) {
-		log_print("Config_GetLastDirectory failed: 0x%lx\n", ret);
+		Log_Print("Config_GetLastDirectory failed: 0x%lx\n", ret);
 		return ret;
 	}
 
 	Textures_Load();
 
 	if (R_FAILED(ret = intraFontInit())) {
-		log_print("intraFontInit failed: 0x%lx\n", ret);
+		Log_Print("intraFontInit failed: 0x%lx\n", ret);
 		return ret;
 	}
 
@@ -86,17 +88,17 @@ static int Init_Services(void) {
 	PSP_CTRL_CANCEL = Utils_GetCancelButton();
 
 	if (R_FAILED(ret = Utils_InitUSB())) {
-		log_print("Utils_InitUSB failed: 0x%lx\n", ret);
+		Log_Print("Utils_InitUSB failed: 0x%lx\n", ret);
 		return ret;
 	}
 	
 	if (R_FAILED(ret = Utils_InitAudioDriver())) {
-		log_print("Utils_InitAudioDriver failed: 0x%lx\n", ret);
+		Log_Print("Utils_InitAudioDriver failed: 0x%lx\n", ret);
 		return ret;
 	}
 
 	if (R_FAILED(ret = Utils_InitDisplayDriver())) {
-		log_print("Utils_InitDisplayDriver failed: 0x%lx\n", ret);
+		Log_Print("Utils_InitDisplayDriver failed: 0x%lx\n", ret);
 		return ret;
 	}
 
@@ -110,6 +112,7 @@ static void Term_Services(void) {
 
 	intraFontUnload(font);
 	Textures_Free();
+	Log_CloseFileHandle();
 	scePowerSetClockFrequency(cpu_clock, cpu_clock, bus_clock); // Restore previous clock frequency.
 	sceKernelExitGame();
 }

@@ -7,6 +7,7 @@
 #include "common.h"
 #include "config.h"
 #include "kubridge.h"
+#include "log.h"
 #include "pspusbdevice.h"
 #include "systemctrl.h"
 #include "systemctrl_se.h"
@@ -92,8 +93,8 @@ void Utils_AppendArr(char subject[], const char insert[], int pos) {
 }
 
 int Utils_Alphasort(const void *p1, const void *p2) {
-	SceIoDirent* entryA = (SceIoDirent*) p1;
-	SceIoDirent* entryB = (SceIoDirent*) p2;
+	SceIoDirent *entryA = (SceIoDirent *)p1;
+	SceIoDirent *entryB = (SceIoDirent *)p2;
 	
 	if ((FIO_S_ISDIR(entryA->d_stat.st_mode)) && !(FIO_S_ISDIR(entryB->d_stat.st_mode)))
 		return -1;
@@ -107,11 +108,15 @@ static int Utils_LoadStartModule(char *path) {
 	int ret = 0, status = 0;
 	SceUID modID = 0;
 
-	if (R_FAILED(ret = modID = kuKernelLoadModule(path, 0, NULL)))
+	if (R_FAILED(ret = modID = kuKernelLoadModule(path, 0, NULL))) {
+		Log_Print("kuKernelLoadModule(%s) failed: 0x%lx\n", path, ret);
 		return ret;
+	}
 	
-	if (R_FAILED(ret = sceKernelStartModule(modID, 0, NULL, &status, NULL)))
+	if (R_FAILED(ret = sceKernelStartModule(modID, 0, NULL, &status, NULL))) {
+		Log_Print("sceKernelStartModule(%s) failed: 0x%lx\n", path, ret);
 		return ret;
+	}
 
 	return ret;
 }
@@ -160,14 +165,20 @@ int Utils_InitUSB(void) {
 		g_usb_module_loaded = true;
 	}
 
-	if (R_FAILED(ret = sceUsbStart(PSP_USBBUS_DRIVERNAME, 0, 0)))
+	if (R_FAILED(ret = sceUsbStart(PSP_USBBUS_DRIVERNAME, 0, 0))) {
+		Log_Print("sceUsbStart(PSP_USBBUS_DRIVERNAME) failed: 0x%lx\n", ret);
 		return ret;
+	}
 	
-	if (R_FAILED(ret = sceUsbStart(PSP_USBSTOR_DRIVERNAME, 0, 0)))
+	if (R_FAILED(ret = sceUsbStart(PSP_USBSTOR_DRIVERNAME, 0, 0))) {
+		Log_Print("sceUsbStart(PSP_USBSTOR_DRIVERNAME) failed: 0x%lx\n", ret);
 		return ret;
+	}
 
-	if (R_FAILED(ret = sceUsbstorBootSetCapacity(0x800000)))
+	if (R_FAILED(ret = sceUsbstorBootSetCapacity(0x800000))) {
+		Log_Print("sceUsbstorBootSetCapacity(0x800000) failed: 0x%lx\n", ret);
 		return ret;
+	}
 	
 	g_usb_actived = true;
 	return 0;
@@ -176,8 +187,10 @@ int Utils_InitUSB(void) {
 static int Utils_StartUSBStorage(void) {
 	int ret = 0;
 	
-	if (R_FAILED(ret = sceUsbActivate(0x1c8)))
+	if (R_FAILED(ret = sceUsbActivate(0x1c8))) {
+		Log_Print("sceUsbActivate(0x1c8) failed: 0x%lx\n", ret);
 		return ret;
+	}
 	
 	psp_usb_cable_connection = true;
 	return 0;
@@ -186,11 +199,15 @@ static int Utils_StartUSBStorage(void) {
 static int Utils_StopUSBStorage(void) {
 	int ret = 0;
 
-	if (R_FAILED(ret = sceUsbDeactivate(0x1c8)))
+	if (R_FAILED(ret = sceUsbDeactivate(0x1c8))) {
+		Log_Print("sceUsbActivate(0x1c8) failed: 0x%lx\n", ret);
 		return ret;
+	}
 	
-	if (R_FAILED(ret = sceIoDevctl("fatms0:", 0x0240D81E, NULL, 0, NULL, 0))) // Avoid corrupted files
+	if (R_FAILED(ret = sceIoDevctl("fatms0:", 0x0240D81E, NULL, 0, NULL, 0))) {// Avoid corrupted files
+		Log_Print("sceIoDevctl(\"fatms0:\", 0x0240D81E, NULL, 0, NULL, 0) failed: 0x%lx\n", ret);
 		return ret;
+	}
 	
 	psp_usb_cable_connection = false;
 	return 0;
@@ -205,14 +222,20 @@ static int Utils_DisableUSB(void) {
 	if (R_FAILED(ret = Utils_StopUSBStorage()))
 		return ret;
 	
-	if (R_FAILED(ret = sceUsbStop(PSP_USBSTOR_DRIVERNAME, 0, 0)))
+	if (R_FAILED(ret = sceUsbStop(PSP_USBSTOR_DRIVERNAME, 0, 0))) {
+		Log_Print("sceUsbStop(PSP_USBSTOR_DRIVERNAME) failed: 0x%lx\n", ret);
 		return ret;
+	}
 	
-	if (R_FAILED(ret = sceUsbStop(PSP_USBBUS_DRIVERNAME, 0, 0)))
+	if (R_FAILED(ret = sceUsbStop(PSP_USBBUS_DRIVERNAME, 0, 0))) {
+		Log_Print("sceUsbStop(PSP_USBBUS_DRIVERNAME) failed: 0x%lx\n", ret);
 		return ret;
+	}
 	
-	if (R_FAILED(ret = pspUsbDeviceFinishDevice()))
+	if (R_FAILED(ret = pspUsbDeviceFinishDevice())) {
+		Log_Print("pspUsbDeviceFinishDevice() failed: 0x%lx\n", ret);
 		return ret;
+	}
 	
 	g_usb_actived = false;
 	return 0;
@@ -289,8 +312,10 @@ int Utils_LaunchEboot(const char *path) {
 	param.argp = (void *)path;
 	param.key = "game";
 
-	if (R_FAILED(ret = sctrlKernelLoadExecVSHWithApitype(Utils_IsEF0()? 0x152 : 0x141, path, &param)))
+	if (R_FAILED(ret = sctrlKernelLoadExecVSHWithApitype(Utils_IsEF0()? 0x152 : 0x141, path, &param))) {
+		Log_Print("sctrlKernelLoadExecVSHWithApitype(%x, %s) failed: 0x%lx\n", Utils_IsEF0()? 0x152 : 0x141, path, ret);
 		return ret;
+	}
 
 	return 0;
 }
