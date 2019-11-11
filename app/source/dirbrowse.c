@@ -16,7 +16,7 @@
 #include "utils.h"
 
 int position = 0;   // menu position
-int fileCount = 0;  // file count
+int file_count = 0;  // file count
 File *files = NULL; // file list
 
 void Dirbrowse_RecursiveFree(File *node) {
@@ -53,7 +53,7 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 	SceUID dir = 0;
 	Dirbrowse_RecursiveFree(files);
 	files = NULL;
-	fileCount = 0;
+	file_count = 0;
 
 	if (R_SUCCEEDED(dir = sceIoDopen(cwd))) {
 		int entryCount = 0, i = 0;
@@ -105,7 +105,7 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 				list->next = item;
 			}
 
-			fileCount++;
+			file_count++;
 		}
 
 		free(entries);
@@ -116,8 +116,8 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 	}
 
 	if (!refresh) {
-		if (position >= fileCount) 
-			position = fileCount - 1; // Keep index
+		if (position >= file_count) 
+			position = file_count - 1; // Keep index
 	}
 	else 
 		position = 0; // Refresh position

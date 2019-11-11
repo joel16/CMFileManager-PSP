@@ -16,7 +16,7 @@ typedef struct File
 extern File *files;
 
 extern int position;
-extern int fileCount;
+extern int file_count;
 
 extern u64 total_storage, used_storage;
 

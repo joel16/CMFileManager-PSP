@@ -69,12 +69,18 @@ static void Menu_ControlMenubar(void) {
 		menubar_selection++;
 
 	if (is_psp_go) {
-		Utils_SetMax(&menubar_selection, 0, is_ms_inserted? 5 : 4);
-		Utils_SetMin(&menubar_selection, is_ms_inserted? 5 : 4, 0);
+		if (config.dev_options) {
+			Utils_SetMax(&menubar_selection, 0, is_ms_inserted? 5 : 4);
+			Utils_SetMin(&menubar_selection, is_ms_inserted? 5 : 4, 0);
+		}
+		else {
+			Utils_SetMax(&menubar_selection, 0, is_ms_inserted? 1 : 0);
+			Utils_SetMin(&menubar_selection, is_ms_inserted? 1 : 0, 0);
+		}
 	}
 	else {
-		Utils_SetMax(&menubar_selection, 0, 5);
-		Utils_SetMin(&menubar_selection, 5, 0);
+		Utils_SetMax(&menubar_selection, 0, config.dev_options? 5 : 0);
+		Utils_SetMin(&menubar_selection, config.dev_options? 5 : 0, 0);
 	}
 
 	if (Utils_IsButtonPressed(PSP_CTRL_ENTER)) {
@@ -282,19 +288,19 @@ static void Menu_ControlMenubar(void) {
 }
 
 static void Menu_ControlHome(void) {
-	if (fileCount > 0) {
+	if (file_count > 0) {
 		if (Utils_IsButtonPressed(PSP_CTRL_UP))
 			position--;
 		else if (Utils_IsButtonPressed(PSP_CTRL_DOWN))
 			position++;
 
-		Utils_SetMax(&position, 0, fileCount - 1);
-		Utils_SetMin(&position, fileCount - 1, 0);
+		Utils_SetMax(&position, 0, file_count - 1);
+		Utils_SetMin(&position, file_count - 1, 0);
 
 		if (Utils_IsButtonPressed(PSP_CTRL_LEFT))
 			position = 0;
 		else if (Utils_IsButtonPressed(PSP_CTRL_RIGHT))
-			position = fileCount - 1;
+			position = file_count - 1;
 
 		if (Utils_IsButtonPressed(PSP_CTRL_SQUARE))
 			Menu_HandleMultiSelect();
@@ -333,19 +339,41 @@ static void Menu_DisplayMenubar(void) {
 			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 122);
 			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 30, "ef0:/");
 
-			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 152);
-			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 60, "flash0:/");
+			if (config.dev_options) {
+				G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 152);
+				intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 60, "flash0:/");
 
-			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 182);
-			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 90, "flash1:/");
+				G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 182);
+				intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 90, "flash1:/");
 
-			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 212);
-			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 120, "flash2:/");
+				G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 212);
+				intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 120, "flash2:/");
 
-			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 242);
-			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 150, "flash3:/");
+				G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 242);
+				intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 150, "flash3:/");
+			}
 		}
 		else {
+			if (config.dev_options) {
+				G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 122);
+				intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 30, "flash0:/");
+
+				G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 152);
+				intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 60, "flash1:/");
+
+				G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 182);
+				intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 90, "flash2:/");
+
+				G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 212);
+				intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 120, "flash3:/");
+			}
+		}
+	}
+	else {
+		G2D_DrawImage(config.dark_theme? icon_sd_dark : icon_sd, menubar_x + 10, 92);
+		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2), "ms0:/");
+		
+		if (config.dev_options) {
 			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 122);
 			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 30, "flash0:/");
 
@@ -357,26 +385,10 @@ static void Menu_DisplayMenubar(void) {
 
 			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 212);
 			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 120, "flash3:/");
+
+			G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 242);
+			intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 150, "disc0:/");
 		}
-	}
-	else {
-		G2D_DrawImage(config.dark_theme? icon_sd_dark : icon_sd, menubar_x + 10, 92);
-		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2), "ms0:/");
-
-		G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 122);
-		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 30, "flash0:/");
-
-		G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 152);
-		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 60, "flash1:/");
-
-		G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 182);
-		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 90, "flash2:/");
-
-		G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 212);
-		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 120, "flash3:/");
-
-		G2D_DrawImage(config.dark_theme? icon_secure_dark : icon_secure, menubar_x + 10, 242);
-		intraFontPrint(font, menubar_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 150, "disc0:/");
 	}
 }
 
