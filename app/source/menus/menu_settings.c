@@ -31,7 +31,7 @@ static void Menu_DisplaySortSettings(void) {
 
 		G2D_DrawImage(icon_back, 5, 25);
 		intraFontSetStyle(font, 0.7f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-		intraFontPrint(font, 40, 20 + ((40 - (font->texYSize - 30)) / 2), "Sorting Options");
+		intraFontPrint(font, 40, 23 + ((40 - (font->texYSize - 30)) / 2), "Sorting Options");
 
 		int printed = 0; // Print counter
 
@@ -44,7 +44,7 @@ static void Menu_DisplaySortSettings(void) {
 					G2D_DrawRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 				
 				intraFontSetStyle(font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-				intraFontPrint(font, 20, 62 + ((42 - (font->texYSize - 30)) / 2) + (42 * printed), main_menu_items[i]);
+				intraFontPrint(font, 20, 64 + ((42 - (font->texYSize - 30)) / 2) + (42 * printed), main_menu_items[i]);
 
 				printed++;
 			}
@@ -168,7 +168,7 @@ void Menu_DisplaySettings(void) {
 
 		G2D_DrawImage(icon_back, 5, 25);
 		intraFontSetStyle(font, 0.7f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-		intraFontPrint(font, 40, 20 + ((40 - (font->texYSize - 30)) / 2), "Settings");
+		intraFontPrint(font, 40, 23 + ((40 - (font->texYSize - 30)) / 2), "Settings");
 
 		int printed = 0; // Print counter
 
@@ -181,7 +181,7 @@ void Menu_DisplaySettings(void) {
 					G2D_DrawRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
 				intraFontSetStyle(font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-				intraFontPrint(font, 20, 62 + ((42 - (font->texYSize - 30)) / 2) + (42 * printed), main_menu_items[i]);
+				intraFontPrint(font, 20, 64 + ((42 - (font->texYSize - 30)) / 2) + (42 * printed), main_menu_items[i]);
 
 				if (config.dark_theme) {
 					if (i == 2)
