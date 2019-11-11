@@ -143,13 +143,14 @@ static void Menu_DisplaySupportDialog(void) {
 }
 
 void Menu_DisplaySettings(void) {
-	int selection = 0, max_items = 5, i = 0;
+	int selection = 0, max_items = 6, i = 0;
 
 	const char *main_menu_items[] = {
 		"FTP connection",
 		"Sorting options",
 		"Dark theme",
 		"Auto USB mount",
+		"Developer options",
 		"Support",
 		"About"
 	};
@@ -157,7 +158,6 @@ void Menu_DisplaySettings(void) {
 	displayAbout = false;
 
 	int width = icon_toggle_on->w;
-	int height = icon_toggle_on->h;
 
 	while (1) {
 		g2dClear(config.dark_theme? BLACK_BG : WHITE);
@@ -183,19 +183,26 @@ void Menu_DisplaySettings(void) {
 				intraFontSetStyle(font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 				intraFontPrint(font, 20, 62 + ((42 - (font->texYSize - 30)) / 2) + (42 * printed), main_menu_items[i]);
 
+				if (config.dark_theme) {
+					if (i == 2)
+						G2D_DrawImage(config.dark_theme? icon_toggle_dark_on : icon_toggle_off, 455 - width, 66 + (42 * printed));
+					else if (i == 3)
+						G2D_DrawImage(config.auto_usb_mount? icon_toggle_dark_on : icon_toggle_off, 455 - width, 66 + (42 * printed));
+					else if (i == 4)
+						G2D_DrawImage(config.dev_options? icon_toggle_dark_on : icon_toggle_off, 455 - width, 66 + (42 * printed));
+				}
+				else {
+					if (i == 2)
+						G2D_DrawImage(config.dark_theme? icon_toggle_on : icon_toggle_off, 455 - width,  66 + (42 * printed));
+					else if (i == 3)
+						G2D_DrawImage(config.auto_usb_mount? icon_toggle_on : icon_toggle_off, 455 - width,  66 + (42 * printed));
+					else if (i == 4)
+						G2D_DrawImage(config.dev_options? icon_toggle_on : icon_toggle_off, 455 - width,  66 + (42 * printed));
+				}
+
 				printed++;
 			}
 		}
-
-		if (config.dark_theme)
-			G2D_DrawImage(config.dark_theme? icon_toggle_dark_on : icon_toggle_off, 455 - width, 146 + ((42 - height) / 2));
-		else
-			G2D_DrawImage(config.dark_theme? icon_toggle_on : icon_toggle_off, 455 - width,  146 + ((42 - height) / 2));
-
-		if (config.dark_theme)
-			G2D_DrawImage(config.auto_usb_mount? icon_toggle_dark_on : icon_toggle_off, 455 - width, 188 + ((42 - height) / 2));
-		else
-			G2D_DrawImage(config.auto_usb_mount? icon_toggle_on : icon_toggle_off, 455 - width,  188 + ((42 - height) / 2));
 
 		if (displayAbout)
 			Menu_DisplayAboutDialog();
@@ -243,9 +250,13 @@ void Menu_DisplaySettings(void) {
 						Config_Save(config);
 						break;
 					case 4:
-						displaySupport = true;
+						config.dev_options = !config.dev_options;
+						Config_Save(config);
 						break;
 					case 5:
+						displaySupport = true;
+						break;
+					case 6:
 						displayAbout = true;
 						break;
 				}

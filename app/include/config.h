@@ -1,9 +1,12 @@
 #pragma once
 
+#include <stdbool.h>
+
 typedef struct {
-	bool dark_theme;
 	int sort;
+	bool dark_theme;
 	bool auto_usb_mount;
+	bool dev_options;
 } config_t;
 
 config_t config;

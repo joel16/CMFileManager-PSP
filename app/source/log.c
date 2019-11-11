@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "config.h"
 #include "utils.h"
 
 static SceUID log_handle = 0;
@@ -26,6 +27,9 @@ int Log_CloseFileHandle(void) {
 }
 
 int Log_Print(const char *format, ...) {
+	if (!config.dev_options)
+		return -1;
+	
 	va_list list;
 	char string[1024] = {0};
 
