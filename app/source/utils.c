@@ -154,6 +154,28 @@ void Utils_ExitDisplayDriver(void) {
 		Utils_StopUnloadModules(display_driver);
 }
 
+int Utils_GetAudioDriverInfo(SceKernelModuleInfo *info) {
+	int ret = 0;
+
+	if (R_FAILED(ret = sceKernelQueryModuleInfo(audio_driver, info))) {
+		Log_Print("sceKernelQueryModuleInfo(audio_driver.prx) failed: 0x%lx\n", ret);
+		return ret;
+	}
+	
+	return 0;
+}
+
+int Utils_GetDisplayDriverInfo(SceKernelModuleInfo *info) {
+	int ret = 0;
+
+	if (R_FAILED(ret = sceKernelQueryModuleInfo(audio_driver, info))) {
+		Log_Print("sceKernelQueryModuleInfo(audio_driver.prx) failed: 0x%lx\n", ret);
+		return ret;
+	}
+	
+	return 0;
+}
+
 int Utils_InitUSB(void) {
 	int i = 0, ret = 0;
 

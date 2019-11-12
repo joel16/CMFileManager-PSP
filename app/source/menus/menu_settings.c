@@ -96,6 +96,10 @@ static void Menu_ControlAboutDialog(void) {
 static void Menu_DisplayAboutDialog(void) {
 	int text_width = intraFontMeasureText(font, "CM File Manager PSP vX.X.X");
 	int author_width = intraFontMeasureText(font, "Author: Joel16");
+	
+	SceKernelModuleInfo audio_driver_info, display_driver_info;
+	int aud_ret = Utils_GetAudioDriverInfo(&audio_driver_info);
+	int disp_ret = Utils_GetDisplayDriverInfo(&display_driver_info);
 
 	G2D_DrawRect(0, 20, 480, 252, G2D_RGBA(0, 0, 0, config.dark_theme? 50: 80));
 
@@ -105,8 +109,12 @@ static void Menu_DisplayAboutDialog(void) {
 	intraFontPrint(font, ((480 - dialog->w) / 2) + 10, ((272 - dialog->h) / 2) + 20, "About");
 
 	intraFontSetStyle(font, 0.7f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-	intraFontPrintf(font, ((480 - (text_width)) / 2), ((272 - dialog->h) / 2) + 50, "CM File Manager PSP v%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO);
-	intraFontPrint(font, ((480 - (author_width)) / 2), ((272 - dialog->h) / 2) + 50 + 16, "Author: Joel16");
+	intraFontPrintf(font, ((480 - (text_width)) / 2), ((272 - dialog->h) / 2) + 34, "CM File Manager PSP v%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO);
+	intraFontPrint(font, ((480 - (author_width)) / 2), ((272 - dialog->h) / 2) + 50, "Author: Joel16");
+	if (R_SUCCEEDED(aud_ret))
+		intraFontPrintf(font, ((480 - (author_width)) / 2), ((272 - dialog->h) / 2) + 50 + 16, "Audio Driver: %s", audio_driver_info.name);
+	if (R_SUCCEEDED(disp_ret))
+		intraFontPrintf(font, ((480 - (author_width)) / 2), ((272 - dialog->h) / 2) + 50 + 32, "Display Driver: %s", display_driver_info.name);
 
 	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 	G2D_DrawRect((409 - (intraFontMeasureText(font, "OK"))) - 5, (180 - (font->texYSize - 20)) - 5, intraFontMeasureText(font, "OK") + 10, (font->texYSize - 10) + 10, 
