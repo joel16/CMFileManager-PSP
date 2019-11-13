@@ -2,8 +2,7 @@
 #include <pspdisplay_kernel.h>
 #include <pspsysmem_kernel.h>
 
-PSP_MODULE_INFO("display_driver", PSP_MODULE_KERNEL, 1, 0);
-PSP_MAIN_THREAD_ATTR(0);
+PSP_MODULE_INFO("display_driver", PSP_MODULE_KERNEL, 1, 1);
 
 int sceDisplayEnable(void);
 int sceDisplayDisable(void);

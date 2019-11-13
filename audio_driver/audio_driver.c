@@ -1,8 +1,7 @@
 #include <pspsdk.h>
 #include <pspaudio_kernel.h>
 
-PSP_MODULE_INFO("audio_driver", PSP_MODULE_KERNEL, 1, 0);
-PSP_MAIN_THREAD_ATTR(0);
+PSP_MODULE_INFO("audio_driver", PSP_MODULE_KERNEL, 1, 1);
 
 int pspAudioSetFrequency(int frequency) {
 	u32 k1 = 0;

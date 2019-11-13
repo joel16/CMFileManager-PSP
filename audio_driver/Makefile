@@ -1,11 +1,10 @@
 TARGET = audio_driver
-OBJS = audio_driver.o
+OBJS = audio_driver.o exports.o
 
-BUILD_PRX   = 1
 PRX_EXPORTS = exports.exp
 
 # Use the kernel's small inbuilt libc
-# USE_KERNEL_LIBC = 1
+USE_KERNEL_LIBC = 1
 # Use only kernel libraries
 USE_KERNEL_LIBS = 1
 
@@ -17,7 +16,7 @@ ASFLAGS = $(CFLAGS)
 LIBDIR =
 
 LDFLAGS = -nostartfiles
-LIBS = -lpspkernel -lpspaudio_driver
+LIBS = -lpspaudio_driver
 
 PSPSDK=$(shell psp-config --pspsdk-path)
-include $(PSPSDK)/lib/build.mak
+include $(PSPSDK)/lib/build_prx.mak
