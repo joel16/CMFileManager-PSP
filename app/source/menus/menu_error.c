@@ -12,7 +12,7 @@
 #include "utils.h"
 
 void Menu_DisplayError(const char *msg, int ret) {
-	char *result = malloc(64);
+	char *result = (char *)calloc(64, sizeof(char));
 	if (ret != 0)
 		snprintf(result, 64, "Ret: %08X\n", ret);
 	

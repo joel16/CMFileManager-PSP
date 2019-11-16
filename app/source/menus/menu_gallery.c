@@ -8,6 +8,7 @@
 #include "config.h"
 #include "fs.h"
 #include "glib2d_helper.h"
+#include "menu_error.h"
 #include "textures.h"
 #include "utils.h"
 
@@ -131,7 +132,10 @@ void Gallery_DisplayImage(char *path) {
 	selection = Gallery_GetCurrentIndex(path);
 	image = g2dTexLoad(path, G2D_SWIZZLE);
 
-	if (image->h > 272) {
+	bool error_load = false;
+	if (image->h > 512 || image->w > 512)
+		error_load = true;
+	else if (image->h > 272) {
 		scale_factor = (272.0f / image->h);
 		width = image->w * scale_factor;
 		height = image->h * scale_factor;
@@ -162,7 +166,13 @@ void Gallery_DisplayImage(char *path) {
 		last = current;
 
 		g2dClear(G2D_RGBA(33, 39, 43, 255));
-		Gallery_DrawImage(G2D_SCR_W / 2, G2D_SCR_H / 2, width, height, zoom_factor, degrees);
+
+		if (!error_load)
+			Gallery_DrawImage(G2D_SCR_W / 2, G2D_SCR_H / 2, width, height, zoom_factor, degrees);
+		else {
+			Menu_DisplayError("Image is too large and cannot be displayed", 0);
+			break;
+		}
 		
 		if (display_support)
 			Gallery_DisplaySupportDialog();
@@ -170,12 +180,12 @@ void Gallery_DisplayImage(char *path) {
 		g2dFlip(G2D_VSYNC);
 
 		Utils_ReadControls();
-		
-		if (display_support) {
+
+		if (display_support && !error_load) {
 			if ((Utils_IsButtonPressed(PSP_CTRL_ENTER)) || (Utils_IsButtonPressed(PSP_CTRL_CANCEL)) || (Utils_IsButtonPressed(PSP_CTRL_SELECT)))
 				display_support = false;
 		}
-		else {
+		else if (!error_load) {
 			if (Utils_IsButtonPressed(PSP_CTRL_SELECT))
 				display_support = true;
 
@@ -257,6 +267,8 @@ void Gallery_DisplayImage(char *path) {
 		}
 	}
 
-	g2dTexFree(&image);
+	if (image)
+		g2dTexFree(&image);
+	
 	MENU_STATE = MENU_STATE_HOME;
 }
