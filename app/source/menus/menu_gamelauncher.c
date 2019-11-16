@@ -87,7 +87,7 @@ static bool Game_GetPBPMeta(const char *path, eboot_meta *meta) {
     int title_size = pbp_data.icon0_offset - pbp_data.sfo_offset;
     void *buffer = NULL;
     buffer = malloc(4096);
-    meta->title = malloc(128);
+    meta->title = (char *)calloc(128, sizeof(char));
     Game_ReadSFOTitle(file, buffer, title_size, title_buf, sizeof(title_buf));
     snprintf(meta->title, 128, title_buf);
     free(buffer);

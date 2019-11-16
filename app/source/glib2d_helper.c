@@ -1,10 +1,8 @@
 #include <pspkernel.h>
 #include <pspdisplay.h>
-#include <pspdebug.h>
 #include <pspgu.h>
 #include <string.h>
 #include <psputility.h>
-#include <malloc.h>
 
 #include <glib2d.h>
 

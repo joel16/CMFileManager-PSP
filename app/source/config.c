@@ -115,8 +115,7 @@ int Config_Load(void) {
 
 int Config_GetLastDirectory(void) {
 	int ret = 0;
-	char *buf = NULL;
-	buf = malloc(256);
+	char *buf = (char *)calloc(256, sizeof(char));
 	
 	if (FS_FileExists("lastdir.txt")) {
 		if (R_FAILED(ret = FS_ReadFile("lastdir.txt", buf, 256))) {

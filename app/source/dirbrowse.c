@@ -207,7 +207,7 @@ void Dirbrowse_DisplayFiles(void) {
 
 static void Dirbrowse_SaveLastDirectory(void) {
 	if ((BROWSE_STATE == BROWSE_STATE_INTERNAL) || (BROWSE_STATE == BROWSE_STATE_SD)) {
-		char *buf = malloc(256);
+		char *buf = (char *)calloc(256, sizeof(char));
 		int len = snprintf(buf, 256, "%s\n", cwd);
 		FS_WriteFile("lastdir.txt", buf, len);
 		free(buf);

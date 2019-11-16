@@ -6,8 +6,8 @@
 #include <pspnet_inet.h>
 #include <psppower.h>
 #include <psputility.h>
+#include <malloc.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "common.h"
@@ -128,7 +128,7 @@ void Menu_DisplayFTP(void) {
 	else
 		ftppsp_add_device("ms0:");
 
-	char *msg = malloc(64);
+	char *msg = (char *)calloc(64, sizeof(char));
 
 	if (ret < 0)
 		snprintf(msg, 64, "Connection Failed. Please enable Wi-Fi");

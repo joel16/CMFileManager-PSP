@@ -33,8 +33,8 @@ static void Menu_ConvertSecondsToString(char *string, u64 seconds) {
 void Menu_PlayAudio(const char *path) {
 	Audio_Init(path);
 	
-	char *position_time = malloc(35);
-	char *length_time = malloc(35);
+	char *position_time = (char *)calloc(35, sizeof(char));
+	char *length_time = (char *)calloc(35, sizeof(char));
 	float length_time_width = 0;
 
 	Menu_ConvertSecondsToString(length_time, Audio_GetLengthSeconds());

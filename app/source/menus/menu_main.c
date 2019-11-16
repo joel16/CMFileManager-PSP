@@ -93,7 +93,7 @@ static void Menu_ControlMenubar(void) {
 				strcpy(root_path, "ms0:/");
 
 				if (FS_FileExists("lastdir.txt")) {
-					buf = malloc(256);
+					buf = (char *)calloc(256, sizeof(char));
 					if (R_FAILED(FS_ReadFile("lastdir.txt", buf, 256))) {
 						free(buf);
 						strcpy(cwd, "ms0:/");
@@ -117,7 +117,7 @@ static void Menu_ControlMenubar(void) {
 				strcpy(root_path, "ef0:/");
 
 				if (FS_FileExists("lastdir.txt")) {
-					buf = malloc(256);
+					buf = (char *)calloc(256, sizeof(char));
 					if (R_FAILED(FS_ReadFile("lastdir.txt", buf, 256))) {
 						free(buf);
 						strcpy(cwd, "ef0:/");
@@ -156,7 +156,7 @@ static void Menu_ControlMenubar(void) {
 
 			if (is_psp_go && is_ms_inserted) {
 				if (FS_FileExists("lastdir.txt")) {
-					buf = malloc(256);
+					buf = (char *)calloc(256, sizeof(char));
 					if (R_FAILED(FS_ReadFile("lastdir.txt", buf, 256))) {
 						free(buf);
 						strcpy(cwd, "ef0:/");

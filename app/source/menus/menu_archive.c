@@ -19,7 +19,7 @@ static char *Archive_RemoveFileExt(char *filename) {
 
    	if (filename == NULL)
    		return NULL;
-   	if ((ret = malloc(strlen(filename) + 1)) == NULL)
+   	if ((ret = (char *)calloc(256, sizeof(char))) == NULL)
    		return NULL;
 
    	strcpy(ret, filename);
@@ -81,7 +81,7 @@ static int Archive_WriteData(struct archive *src, struct archive *dst) {
 }
 
 int Archive_ExtractArchive(const char *path) {
-	char *dest_path = malloc(256);
+	char *dest_path = (char *)calloc(256, sizeof(char));
 	char *dirname_without_ext = Archive_RemoveFileExt((char *)path);
 	
 	snprintf(dest_path, 512, "%s/", dirname_without_ext);
