@@ -5,7 +5,7 @@ OBJS   = source/main.o
 PSP_LARGE_MEMORY = 1
 
 VERSION_MAJOR :=  3
-VERSION_MINOR :=  0
+VERSION_MINOR :=  2
 VERSION_MICRO :=  0
 
 INCDIR   = ../libs/include
@@ -18,7 +18,7 @@ LDFLAGS =
 LIBS    = -lpspsdk -lpspsystemctrl_user
 
 EXTRA_TARGETS    = EBOOT.PBP
-PSP_EBOOT_TITLE  = CM File Manager PSP
+PSP_EBOOT_TITLE  = CM File Manager PSP v$(VERSION_MAJOR).$(VERSION_MINOR)$(VERSION_MICRO)
 PSP_EBOOT_ICON   = ../ICON0.PNG
 
 PSPSDK=$(shell psp-config --pspsdk-path)

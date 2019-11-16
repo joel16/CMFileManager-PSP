@@ -30,7 +30,7 @@ LIBS    = -lpsputility -lintrafont -lglib2d -lpspgum -lpspgu -lpsprtc -lpspvram 
           -lpspreg -lpspusb -lpspusbstor -lpspusbdevice -lpspumd -lpspkubridge -lpspsystemctrl_user -lm
 
 EXTRA_TARGETS    = EBOOT.PBP
-PSP_EBOOT_TITLE  = CM File Manager PSP
+PSP_EBOOT_TITLE  = CM File Manager PSP v$(VERSION_MAJOR).$(VERSION_MINOR)$(VERSION_MICRO)
 PSP_EBOOT_ICON   = ../ICON0.PNG
 
 PSPSDK=$(shell psp-config --pspsdk-path)
