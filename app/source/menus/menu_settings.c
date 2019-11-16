@@ -1,3 +1,9 @@
+#include <archive.h>
+#include <archive_entry.h>
+#include <FLAC/format.h>
+#include <opus.h>
+#include <xmp.h>
+
 #include "common.h"
 #include "config.h"
 #include "dirbrowse.h"
@@ -8,7 +14,7 @@
 #include "textures.h"
 #include "utils.h"
 
-static bool displayAbout, displaySupport;
+static bool display_about, display_support;
 
 static void Menu_DisplaySortSettings(void) {
 	int selection = 0, max_items = 3, i = 0;
@@ -90,41 +96,34 @@ static void Menu_DisplaySortSettings(void) {
 
 static void Menu_ControlAboutDialog(void) {
 	if ((Utils_IsButtonPressed(PSP_CTRL_ENTER)) || (Utils_IsButtonPressed(PSP_CTRL_CANCEL)))
-		displayAbout = false;
+		display_about = false;
 }
 
 static void Menu_DisplayAboutDialog(void) {
-	int text_width = intraFontMeasureText(font, "CM File Manager PSP vX.X.X");
-	int author_width = intraFontMeasureText(font, "Author: Joel16");
-	
-	SceKernelModuleInfo audio_driver_info, display_driver_info;
-	int aud_ret = Utils_GetAudioDriverInfo(&audio_driver_info);
-	int disp_ret = Utils_GetDisplayDriverInfo(&display_driver_info);
-
 	G2D_DrawRect(0, 20, 480, 252, G2D_RGBA(0, 0, 0, config.dark_theme? 50: 80));
 
-	G2D_DrawImage(config.dark_theme? dialog_dark : dialog, ((480 - dialog->w) / 2), ((272 - dialog->h) / 2));
-
+	G2D_DrawImage(config.dark_theme? properties_dialog_dark : properties_dialog, 131, 32);
 	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-	intraFontPrint(font, ((480 - dialog->w) / 2) + 10, ((272 - dialog->h) / 2) + 20, "About");
+
+	G2D_DrawRect((340 - intraFontMeasureText(font, "OK")) - 5, (230 - (font->texYSize - 6)) - 5, intraFontMeasureText(font, "OK") + 10, (font->texYSize - 6) + 10, 
+		config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+
+	intraFontPrint(font, 138, 50, "About");
+	intraFontPrint(font, 340 - intraFontMeasureText(font, "OK"), 230 - (font->texYSize - 20), "OK");
 
 	intraFontSetStyle(font, 0.7f, config.dark_theme? TEXT_MIN_COLOUR_DARK : TEXT_MIN_COLOUR_LIGHT, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-	intraFontPrintf(font, ((480 - (text_width)) / 2), ((272 - dialog->h) / 2) + 34, "CM File Manager PSP v%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO);
-	intraFontPrint(font, ((480 - (author_width)) / 2), ((272 - dialog->h) / 2) + 50, "Author: Joel16");
-	if (R_SUCCEEDED(aud_ret))
-		intraFontPrintf(font, ((480 - (author_width)) / 2), ((272 - dialog->h) / 2) + 50 + 16, "Audio Driver: %s", audio_driver_info.name);
-	if (R_SUCCEEDED(disp_ret))
-		intraFontPrintf(font, ((480 - (author_width)) / 2), ((272 - dialog->h) / 2) + 50 + 32, "Display Driver: %s", display_driver_info.name);
-
-	intraFontSetStyle(font, 0.7f, config.dark_theme? TITLE_COLOUR_DARK : TITLE_COLOUR, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-	G2D_DrawRect((409 - (intraFontMeasureText(font, "OK"))) - 5, (180 - (font->texYSize - 20)) - 5, intraFontMeasureText(font, "OK") + 10, (font->texYSize - 10) + 10, 
-		config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
-	intraFontPrint(font, 409 - (intraFontMeasureText(font, "OK")), (182 - (font->texYSize - 30)), "OK");
+	intraFontPrintf(font, 140, 74, "CM File Manager PSP v%d.%d.%d", VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO);
+	intraFontPrint(font, 140, 90, "Author: Joel16");
+	intraFontPrint(font, 140, 122, "Libraries:");
+	intraFontPrintf(font, 140, 138, "libarchive v%d.%d.%d", ARCHIVE_VERSION_NUMBER / 1000000, (ARCHIVE_VERSION_NUMBER / 1000) % 1000, ARCHIVE_VERSION_NUMBER % 1000);
+	intraFontPrintf(font, 140, 154, "libflac v%s", FLAC__VERSION_STRING);
+	intraFontPrintf(font, 140, 170, "libxmp v%s", XMP_VERSION);
+	intraFontPrint(font, 140, 186, opus_get_version_string());
 }
 
 static void Menu_ControlSupportDialog(void) {
 	if ((Utils_IsButtonPressed(PSP_CTRL_ENTER)) || (Utils_IsButtonPressed(PSP_CTRL_CANCEL)))
-		displaySupport = false;
+		display_support = false;
 }
 
 static void Menu_DisplaySupportDialog(void) {
@@ -163,7 +162,7 @@ void Menu_DisplaySettings(void) {
 		"About"
 	};
 
-	displayAbout = false;
+	display_about = false;
 
 	int width = icon_toggle_on->w;
 
@@ -212,9 +211,9 @@ void Menu_DisplaySettings(void) {
 			}
 		}
 
-		if (displayAbout)
+		if (display_about)
 			Menu_DisplayAboutDialog();
-		else if (displaySupport)
+		else if (display_support)
 			Menu_DisplaySupportDialog();
 
 		g2dFlip(G2D_VSYNC);
@@ -224,9 +223,9 @@ void Menu_DisplaySettings(void) {
 		if (((Utils_IsButtonHeld(PSP_CTRL_LTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_RTRIGGER))) || ((Utils_IsButtonHeld(PSP_CTRL_RTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER))))
 			Screenshot_Capture();
 
-		if (displayAbout)
+		if (display_about)
 			Menu_ControlAboutDialog();
-		else if (displaySupport)
+		else if (display_support)
 			Menu_ControlSupportDialog();
 		else {
 			if ((Utils_IsButtonPressed(PSP_CTRL_CANCEL)) || (Utils_IsButtonPressed(PSP_CTRL_START)))
@@ -262,10 +261,10 @@ void Menu_DisplaySettings(void) {
 						Config_Save(config);
 						break;
 					case 5:
-						displaySupport = true;
+						display_support = true;
 						break;
 					case 6:
-						displayAbout = true;
+						display_about = true;
 						break;
 				}
 			}

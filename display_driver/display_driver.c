@@ -3,6 +3,7 @@
 #include <pspsysmem_kernel.h>
 
 PSP_MODULE_INFO("display_driver", PSP_MODULE_KERNEL, 1, 1);
+PSP_NO_CREATE_MAIN_THREAD();
 
 int sceDisplayEnable(void);
 int sceDisplayDisable(void);
@@ -59,7 +60,7 @@ int pspDisplayDisable(void) {
 
 int module_start(SceSize args, void *argp) {
 	return 0; 
-} 
+}
 
 int module_stop(void) {
 	return 0; 

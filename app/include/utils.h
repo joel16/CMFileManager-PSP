@@ -1,7 +1,6 @@
 #pragma once
 
 #include <pspctrl.h>
-#include <pspmodulemgr.h>
 #include <stdbool.h>
 
 /// Checks whether a result code indicates success.
@@ -24,8 +23,6 @@ int Utils_InitAudioDriver(void);
 void Utils_ExitAudioDriver(void);
 int Utils_InitDisplayDriver(void);
 void Utils_ExitDisplayDriver(void);
-int Utils_GetAudioDriverInfo(SceKernelModuleInfo *info);
-int Utils_GetDisplayDriverInfo(SceKernelModuleInfo *info);
 int Utils_InitUSB(void);
 void Utils_ExitUSB(void);
 void Utils_HandleUSB(void);
