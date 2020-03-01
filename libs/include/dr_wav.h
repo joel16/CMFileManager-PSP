@@ -1,6 +1,6 @@
 /*
 WAV audio loader and writer. Choice of public domain or MIT-0. See license statements at the end of this file.
-dr_wav - v0.11.1 - 2019-10-07
+dr_wav - v0.11.4 - 2020-01-29
 
 David Reid - mackron@gmail.com
 */
@@ -1076,6 +1076,20 @@ void drwav_free(void* p, const drwav_allocation_callbacks* pAllocationCallbacks)
     #endif
 #endif
 
+/*
+These limits are used for basic validation when initializing the decoder. If you exceed these limits, first of all: what on Earth are
+you doing?! (Let me know, I'd be curious!) Second, you can adjust these by #define-ing them before the dr_wav implementation.
+*/
+#ifndef DRWAV_MAX_SAMPLE_RATE
+#define DRWAV_MAX_SAMPLE_RATE       384000
+#endif
+#ifndef DRWAV_MAX_CHANNELS
+#define DRWAV_MAX_CHANNELS          256
+#endif
+#ifndef DRWAV_MAX_BITS_PER_SAMPLE
+#define DRWAV_MAX_BITS_PER_SAMPLE   64
+#endif
+
 static const drwav_uint8 drwavGUID_W64_RIFF[16] = {0x72,0x69,0x66,0x66, 0x2E,0x91, 0xCF,0x11, 0xA5,0xD6, 0x28,0xDB,0x04,0xC1,0x00,0x00};    /* 66666972-912E-11CF-A5D6-28DB04C10000 */
 static const drwav_uint8 drwavGUID_W64_WAVE[16] = {0x77,0x61,0x76,0x65, 0xF3,0xAC, 0xD3,0x11, 0x8C,0xD1, 0x00,0xC0,0x4F,0x8E,0xDB,0x8A};    /* 65766177-ACF3-11D3-8CD1-00C04F8EDB8A */
 static const drwav_uint8 drwavGUID_W64_JUNK[16] = {0x6A,0x75,0x6E,0x6B, 0xF3,0xAC, 0xD3,0x11, 0x8C,0xD1, 0x00,0xC0,0x4F,0x8E,0xDB,0x8A};    /* 6B6E756A-ACF3-11D3-8CD1-00C04F8EDB8A */
@@ -1086,14 +1100,14 @@ static const drwav_uint8 drwavGUID_W64_SMPL[16] = {0x73,0x6D,0x70,0x6C, 0xF3,0xA
 
 static DRWAV_INLINE drwav_bool32 drwav__guid_equal(const drwav_uint8 a[16], const drwav_uint8 b[16])
 {
-    const drwav_uint32* a32 = (const drwav_uint32*)a;
-    const drwav_uint32* b32 = (const drwav_uint32*)b;
+    int i;
+    for (i = 0; i < 16; i += 1) {
+        if (a[i] != b[i]) {
+            return DRWAV_FALSE;
+        }
+    }
 
-    return
-        a32[0] == b32[0] &&
-        a32[1] == b32[1] &&
-        a32[2] == b32[2] &&
-        a32[3] == b32[3];
+    return DRWAV_TRUE;
 }
 
 static DRWAV_INLINE drwav_bool32 drwav__fourcc_equal(const unsigned char* a, const char* b)
@@ -1446,8 +1460,10 @@ static void* drwav__realloc_from_callbacks(void* p, size_t szNew, size_t szOld, 
             return NULL;
         }
 
-        DRWAV_COPY_MEMORY(p2, p, szOld);
-        pAllocationCallbacks->onFree(p, pAllocationCallbacks->pUserData);
+        if (p != NULL) {
+            DRWAV_COPY_MEMORY(p2, p, szOld);
+            pAllocationCallbacks->onFree(p, pAllocationCallbacks->pUserData);
+        }
 
         return p2;
     }
@@ -1862,8 +1878,11 @@ drwav_bool32 drwav_init__internal(drwav* pWav, drwav_chunk_proc onChunk, void* p
     }
 
     /* Basic validation. */
-    if (fmt.sampleRate == 0 || fmt.channels == 0 || fmt.bitsPerSample == 0 || fmt.blockAlign == 0) {
-        return DRWAV_FALSE; /* Invalid channel count. Probably an invalid WAV file. */
+    if ((fmt.sampleRate    == 0 || fmt.sampleRate    > DRWAV_MAX_SAMPLE_RATE)     ||
+        (fmt.channels      == 0 || fmt.channels      > DRWAV_MAX_CHANNELS)        ||
+        (fmt.bitsPerSample == 0 || fmt.bitsPerSample > DRWAV_MAX_BITS_PER_SAMPLE) ||
+        fmt.blockAlign == 0) {
+        return DRWAV_FALSE; /* Probably an invalid WAV file. */
     }
 
 
@@ -2926,11 +2945,12 @@ drwav_bool32 drwav_seek_to_pcm_frame(drwav* pWav, drwav_uint64 targetFrameIndex)
 {
     /* Seeking should be compatible with wave files > 2GB. */
 
-    if (pWav->onWrite != NULL) {
-        return DRWAV_FALSE; /* No seeking in write mode. */
+    if (pWav == NULL || pWav->onSeek == NULL) {
+        return DRWAV_FALSE;
     }
 
-    if (pWav == NULL || pWav->onSeek == NULL) {
+    /* No seeking in write mode. */
+    if (pWav->onWrite != NULL) {
         return DRWAV_FALSE;
     }
 
@@ -3060,10 +3080,10 @@ drwav_uint64 drwav_write_pcm_frames_le(drwav* pWav, drwav_uint64 framesToWrite, 
 
     while (bytesToWrite > 0) {
         size_t bytesJustWritten;
-        drwav_uint64 bytesToWriteThisIteration = bytesToWrite;
-        if (bytesToWriteThisIteration > DRWAV_SIZE_MAX) {
-            bytesToWriteThisIteration = DRWAV_SIZE_MAX;
-        }
+        drwav_uint64 bytesToWriteThisIteration;
+
+        bytesToWriteThisIteration = bytesToWrite;
+        DRWAV_ASSERT(bytesToWriteThisIteration <= DRWAV_SIZE_MAX);  /* <-- This is checked above. */
 
         bytesJustWritten = drwav_write_raw(pWav, (size_t)bytesToWriteThisIteration, pRunningData);
         if (bytesJustWritten == 0) {
@@ -3106,9 +3126,7 @@ drwav_uint64 drwav_write_pcm_frames_be(drwav* pWav, drwav_uint64 framesToWrite, 
         drwav_uint64 bytesToWriteThisIteration;
 
         bytesToWriteThisIteration = bytesToWrite;
-        if (bytesToWriteThisIteration > DRWAV_SIZE_MAX) {
-            bytesToWriteThisIteration = DRWAV_SIZE_MAX;
-        }
+        DRWAV_ASSERT(bytesToWriteThisIteration <= DRWAV_SIZE_MAX);  /* <-- This is checked above. */
 
         /*
         WAV files are always little-endian. We need to byte swap on big-endian architectures. Since our input buffer is read-only we need
@@ -3116,8 +3134,8 @@ drwav_uint64 drwav_write_pcm_frames_be(drwav* pWav, drwav_uint64 framesToWrite, 
         */
         sampleCount = sizeof(temp)/bytesPerSample;
 
-        if (bytesToWriteThisIteration > sampleCount*bytesPerSample) {
-            bytesToWriteThisIteration = sampleCount*bytesPerSample;
+        if (bytesToWriteThisIteration > ((drwav_uint64)sampleCount)*bytesPerSample) {
+            bytesToWriteThisIteration = ((drwav_uint64)sampleCount)*bytesPerSample;
         }
 
         DRWAV_COPY_MEMORY(temp, pRunningData, (size_t)bytesToWriteThisIteration);
@@ -3422,6 +3440,7 @@ drwav_uint64 drwav_read_pcm_frames_s16__ima(drwav* pWav, drwav_uint64 framesToRe
                     drwav_uint32 iByte;
                     drwav_uint8 nibbles[4];
                     if (pWav->onRead(pWav->pUserData, &nibbles, 4) != 4) {
+                        pWav->ima.cachedFrameCount = 0;
                         return totalFramesRead;
                     }
                     pWav->ima.bytesRemainingInBlock -= 4;
@@ -3560,7 +3579,8 @@ static void drwav__pcm_to_s16(drwav_int16* pOut, const unsigned char* pIn, size_
         unsigned int shift  = (8 - bytesPerSample) * 8;
 
         unsigned int j;
-        for (j = 0; j < bytesPerSample && j < 8; j += 1) {
+        for (j = 0; j < bytesPerSample; j += 1) {
+            DRWAV_ASSERT(j < 8);
             sample |= (drwav_uint64)(pIn[j]) << shift;
             shift  += 8;
         }
@@ -3882,7 +3902,8 @@ static void drwav__pcm_to_f32(float* pOut, const unsigned char* pIn, size_t samp
         unsigned int shift  = (8 - bytesPerSample) * 8;
 
         unsigned int j;
-        for (j = 0; j < bytesPerSample && j < 8; j += 1) {
+        for (j = 0; j < bytesPerSample; j += 1) {
+            DRWAV_ASSERT(j < 8);
             sample |= (drwav_uint64)(pIn[j]) << shift;
             shift  += 8;
         }
@@ -4032,7 +4053,7 @@ drwav_uint64 drwav_read_pcm_frames_f32__alaw(drwav* pWav, drwav_uint64 framesToR
 
     totalFramesRead = 0;
 
-    while (bytesPerFrame > 0) {
+    while (framesToRead > 0) {
         drwav_uint64 framesRead = drwav_read_pcm_frames(pWav, drwav_min(framesToRead, sizeof(sampleData)/bytesPerFrame), sampleData);
         if (framesRead == 0) {
             break;
@@ -4155,7 +4176,11 @@ void drwav_u8_to_f32(float* pOut, const drwav_uint8* pIn, size_t sampleCount)
     }
 #else
     for (i = 0; i < sampleCount; ++i) {
-        *pOut++ = (pIn[i] / 255.0f) * 2 - 1;
+        float x = pIn[i];
+        x = x * 0.00784313725490196078f;    /* 0..255 to 0..2 */
+        x = x - 1;                          /* 0..2 to -1..1 */
+
+        *pOut++ = x;
     }
 #endif
 }
@@ -4169,7 +4194,7 @@ void drwav_s16_to_f32(float* pOut, const drwav_int16* pIn, size_t sampleCount)
     }
 
     for (i = 0; i < sampleCount; ++i) {
-        *pOut++ = pIn[i] / 32768.0f;
+        *pOut++ = pIn[i] * 0.000030517578125f;
     }
 }
 
@@ -4182,12 +4207,8 @@ void drwav_s24_to_f32(float* pOut, const drwav_uint8* pIn, size_t sampleCount)
     }
 
     for (i = 0; i < sampleCount; ++i) {
-        unsigned int s0 = pIn[i*3 + 0];
-        unsigned int s1 = pIn[i*3 + 1];
-        unsigned int s2 = pIn[i*3 + 2];
-
-        int sample32 = (int)((s0 << 8) | (s1 << 16) | (s2 << 24));
-        *pOut++ = (float)(sample32 / 2147483648.0);
+        double x = (double)(((drwav_int32)(((drwav_uint32)(pIn[i*3+0]) << 8) | ((drwav_uint32)(pIn[i*3+1]) << 16) | ((drwav_uint32)(pIn[i*3+2])) << 24)) >> 8);
+        *pOut++ = (float)(x * 0.00000011920928955078125);
     }
 }
 
@@ -4284,7 +4305,8 @@ static void drwav__pcm_to_s32(drwav_int32* pOut, const unsigned char* pIn, size_
         unsigned int shift  = (8 - bytesPerSample) * 8;
 
         unsigned int j;
-        for (j = 0; j < bytesPerSample && j < 8; j += 1) {
+        for (j = 0; j < bytesPerSample; j += 1) {
+            DRWAV_ASSERT(j < 8);
             sample |= (drwav_uint64)(pIn[j]) << shift;
             shift  += 8;
         }
@@ -5033,6 +5055,20 @@ void drwav_free(void* p, const drwav_allocation_callbacks* pAllocationCallbacks)
 /*
 REVISION HISTORY
 ================
+v0.11.4 - 2020-01-29
+  - Fix some static analysis warnings.
+  - Fix a bug when reading f32 samples from an A-law encoded stream.
+
+v0.11.3 - 2020-01-12
+  - Minor changes to some f32 format conversion routines.
+  - Minor bug fix for ADPCM conversion when end of file is reached.
+
+v0.11.2 - 2019-12-02
+  - Fix a possible crash when using custom memory allocators without a custom realloc() implementation.
+  - Fix an integer overflow bug.
+  - Fix a null pointer dereference bug.
+  - Add limits to sample rate, channels and bits per sample to tighten up some validation.
+
 v0.11.1 - 2019-10-07
   - Internal code clean up.
 
@@ -5315,7 +5351,7 @@ For more information, please refer to <http://unlicense.org/>
 ===============================================================================
 ALTERNATIVE 2 - MIT No Attribution
 ===============================================================================
-Copyright 2018 David Reid
+Copyright 2020 David Reid
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
