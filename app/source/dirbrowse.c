@@ -61,16 +61,16 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 	file_count = 0;
 	
 	if (R_SUCCEEDED(dir = fsOpenDir(cwd))) {
-		int entryCount = 0, i = 0;
+		int entry_count = 0, i = 0;
 		SceIoDirent *entries = (SceIoDirent *)calloc(MAX_FILES, sizeof(SceIoDirent));
 
-		while (fsReadDir(dir, &entries[entryCount]) > 0)
-			entryCount++;
+		while (fsReadDir(dir, &entries[entry_count]) > 0)
+			entry_count++;
 
 		fsCloseDir(dir);
-		qsort(entries, entryCount, sizeof(SceIoDirent), cmpstringp);
+		qsort(entries, entry_count, sizeof(SceIoDirent), cmpstringp);
 
-		for (i = 0; i < entryCount; i++) {
+		for (i = 0; i < entry_count; i++) {
 			// Ingore null filename
 			if (entries[i].d_name[0] == '\0') 
 				continue;

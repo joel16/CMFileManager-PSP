@@ -1,16 +1,20 @@
 #include <pspsdk.h>
 #include <pspiofilemgr_kernel.h>
 
+#include "systemctrl.h"
+
 PSP_MODULE_INFO("audio_driver", PSP_MODULE_KERNEL, 1, 1);
 PSP_NO_CREATE_MAIN_THREAD();
 
 int fsOpenDir(const char *dirname) {
-	u32 k1 = 0;
+	u32 k1 = 0;;
+	int oldlevel = sctrlKernelSetUserLevel(4);
 	k1 = pspSdkSetK1(0);
-
+	
 	int ret = sceIoDopen(dirname);
-
+	
 	pspSdkSetK1(k1);
+	sctrlKernelSetUserLevel(oldlevel);
 	return ret;
 }
 
