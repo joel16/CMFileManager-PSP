@@ -358,13 +358,13 @@ static int FileOptions_CopyFile(char *src, char *dst, bool display_animation) {
 	int ret = 0;
 
 	if (R_FAILED(ret = src_file = sceIoOpen(src, PSP_O_RDONLY, 0))) {
-		Menu_DisplayError("FSUSER_OpenFile failed:", ret);
+		Menu_DisplayError("sceIoOpen r failed:", ret);
 		return ret;
 	}
 
 	if (R_FAILED(ret = dst_file = sceIoOpen(dst, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777))) {
 		sceIoClose(src_file);
-		Menu_DisplayError("FSUSER_OpenFile failed:", ret);
+		Menu_DisplayError("sceIoOpen w failed:", ret);
 		return ret;
 	}
 
@@ -383,7 +383,7 @@ static int FileOptions_CopyFile(char *src, char *dst, bool display_animation) {
 			free(buf);
 			sceIoClose(src_file);
 			sceIoClose(dst_file);
-			Menu_DisplayError("FSFILE_Read failed:", ret);
+			Menu_DisplayError("sceIoRead failed:", ret);
 			return ret;
 		}
 
@@ -391,7 +391,7 @@ static int FileOptions_CopyFile(char *src, char *dst, bool display_animation) {
 			free(buf);
 			sceIoClose(src_file);
 			sceIoClose(dst_file);
-			Menu_DisplayError("FSFILE_Write failed:", ret);
+			Menu_DisplayError("sceIoWrite failed:", ret);
 			return ret;
 		}
 

@@ -23,6 +23,8 @@ int Utils_InitAudioDriver(void);
 void Utils_ExitAudioDriver(void);
 int Utils_InitDisplayDriver(void);
 void Utils_ExitDisplayDriver(void);
+int Utils_InitFSDriver(void);
+void Utils_ExitFSDriver(void);
 int Utils_InitUSB(void);
 void Utils_ExitUSB(void);
 void Utils_HandleUSB(void);

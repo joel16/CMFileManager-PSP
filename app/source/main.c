@@ -90,10 +90,12 @@ static int Init_Services(void) {
 	Utils_InitUSB();
 	Utils_InitAudioDriver();
 	Utils_InitDisplayDriver();
+	Utils_InitFSDriver();
 	return 0;
 }
 
 static void Term_Services(void) {
+	Utils_ExitFSDriver();
 	Utils_ExitDisplayDriver();
 	Utils_ExitAudioDriver();
 	Utils_ExitUSB();

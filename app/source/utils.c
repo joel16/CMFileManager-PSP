@@ -20,7 +20,7 @@
 static SceCtrlData current, previous;
 static bool g_usb_module_loaded = false;
 static bool g_usb_actived = false;
-static SceUID audio_driver = 0, display_driver = 0;
+static SceUID audio_driver = 0, display_driver = 0, fs_driver = 0;
 
 struct UsbModule {
 	char *path;
@@ -152,6 +152,20 @@ int Utils_InitDisplayDriver(void) {
 void Utils_ExitDisplayDriver(void) {
 	if (display_driver)
 		Utils_StopUnloadModules(display_driver);
+}
+
+int Utils_InitFSDriver(void) {
+	int ret = 0;
+
+	if (R_FAILED(ret = fs_driver = Utils_LoadStartModule("fs_driver.prx")))
+		return ret;
+
+	return 0;
+}
+
+void Utils_ExitFSDriver(void) {
+	if (fs_driver)
+		Utils_StopUnloadModules(fs_driver);
 }
 
 int Utils_InitUSB(void) {

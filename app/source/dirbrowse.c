@@ -19,6 +19,11 @@ int position = 0;   // menu position
 int file_count = 0;  // file count
 File *files = NULL; // file list
 
+// PRX function prototype
+int fsOpenDir(const char *dirname);
+int fsReadDir(SceUID dir, SceIoDirent *dirent);
+int fsCloseDir(SceUID dir);
+
 void Dirbrowse_RecursiveFree(File *node) {
 	if (node == NULL) // End of list
 		return;
@@ -54,15 +59,15 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 	Dirbrowse_RecursiveFree(files);
 	files = NULL;
 	file_count = 0;
-
-	if (R_SUCCEEDED(dir = sceIoDopen(cwd))) {
+	
+	if (R_SUCCEEDED(dir = fsOpenDir(cwd))) {
 		int entryCount = 0, i = 0;
 		SceIoDirent *entries = (SceIoDirent *)calloc(MAX_FILES, sizeof(SceIoDirent));
 
-		while (sceIoDread(dir, &entries[entryCount]) > 0)
+		while (fsReadDir(dir, &entries[entryCount]) > 0)
 			entryCount++;
 
-		sceIoDclose(dir);
+		fsCloseDir(dir);
 		qsort(entries, entryCount, sizeof(SceIoDirent), cmpstringp);
 
 		for (i = 0; i < entryCount; i++) {
