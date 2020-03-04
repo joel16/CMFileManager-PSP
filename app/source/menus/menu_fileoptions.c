@@ -342,8 +342,8 @@ static int sceIoMove(const char *src, const char *dest) {
 
 	// Thanks to TN for finding this.
 	u32 data[2];
-	data[0] = (u32)(p1+1);
-	data[1] = (u32)(p2+1);
+	data[0] = (u32)(p1 + 1);
+	data[1] = (u32)(p2 + 1);
 
 	if (R_FAILED(ret = sceIoDevctl(strage, 0x02415830, &data, sizeof(data), NULL, 0))) {
 		Menu_DisplayError("sceIoDevctl() failed!", ret);

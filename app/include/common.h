@@ -52,7 +52,7 @@ extern jmp_buf exitJmp;
 extern int MENU_STATE;
 extern int BROWSE_STATE;
 
-extern intraFont *font;
+extern intraFont *font, *jpn_font, *chn_font, *kor_font;
 
 extern char cwd[512];
 extern char root_path[10];

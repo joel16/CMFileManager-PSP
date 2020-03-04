@@ -174,6 +174,10 @@ static void Menu_ControlMenubar(void) {
 					free(buf);
 				}
 			}
+			else {
+				sceIoUnassign("flash0:");
+				sceIoAssign("flash0:", "lflash0:0,0", "flashfat0:", IOASSIGN_RDWR, NULL, 0);
+			}
 					
 			BROWSE_STATE = (is_psp_go && is_ms_inserted)? BROWSE_STATE_INTERNAL : BROWSE_STATE_FLASH0;
 					
@@ -188,6 +192,15 @@ static void Menu_ControlMenubar(void) {
 		else if (menubar_selection == 2) {
 			if (BROWSE_STATE == BROWSE_STATE_UMD)
 				sceUmdDeactivate(1, "disc0:");
+
+			if (is_psp_go && is_ms_inserted) {
+				sceIoUnassign("flash0:");
+				sceIoAssign("flash0:", "lflash0:0,0", "flashfat0:", IOASSIGN_RDWR, NULL, 0);
+			}
+			else {
+				sceIoUnassign("flash1:");
+				sceIoAssign("flash1:", "lflash0:0,1", "flashfat1:", IOASSIGN_RDWR, NULL, 0);
+			}
 
 			memset(root_path, 0, strlen(root_path));
 			strcpy(root_path, (is_psp_go && is_ms_inserted)? "flash0:/" : "flash1:/");
@@ -207,6 +220,15 @@ static void Menu_ControlMenubar(void) {
 			if (BROWSE_STATE == BROWSE_STATE_UMD)
 				sceUmdDeactivate(1, "disc0:");
 
+			if (is_psp_go && is_ms_inserted) {
+				sceIoUnassign("flash1:");
+				sceIoAssign("flash1:", "lflash0:0,1", "flashfat1:", IOASSIGN_RDWR, NULL, 0);
+			}
+			else {
+				sceIoUnassign("flash2:");
+				sceIoAssign("flash2:", "lflash0:0,2", "flashfat2:", IOASSIGN_RDWR, NULL, 0);
+			}
+
 			memset(root_path, 0, strlen(root_path));
 			strcpy(root_path, (is_psp_go && is_ms_inserted)? "flash1:/" : "flash2:/");
 			strcpy(cwd, (is_psp_go && is_ms_inserted)? "flash1:/" : "flash2:/");
@@ -224,6 +246,11 @@ static void Menu_ControlMenubar(void) {
 		else if (menubar_selection == 4) {
 			if (BROWSE_STATE == BROWSE_STATE_UMD)
 				sceUmdDeactivate(1, "disc0:");
+
+			if (is_psp_go && is_ms_inserted) {
+				sceIoUnassign("flash2:");
+				sceIoAssign("flash2:", "lflash0:0,2", "flashfat2:", IOASSIGN_RDWR, NULL, 0);
+			}
 
 			memset(root_path, 0, strlen(root_path));
 			strcpy(root_path, (is_psp_go && is_ms_inserted)? "flash2:/" : "flash3:/");
