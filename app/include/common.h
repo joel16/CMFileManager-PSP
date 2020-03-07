@@ -8,7 +8,6 @@
 #include <setjmp.h>
 
 #define MAX_FILES 2048
-#define FILES_PER_PAGE 5
 
 enum MENU_STATES {
 	MENU_STATE_HOME = 0,

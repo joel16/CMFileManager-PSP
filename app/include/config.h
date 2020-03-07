@@ -7,6 +7,7 @@ typedef struct {
 	bool dark_theme;
 	bool auto_usb_mount;
 	bool dev_options;
+	bool large_icons;
 } config_t;
 
 config_t config;

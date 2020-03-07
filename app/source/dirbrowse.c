@@ -16,7 +16,7 @@
 #include "utils.h"
 
 int position = 0;   // menu position
-int file_count = 0;  // file count
+int file_count = 0; // file count
 File *files = NULL; // file list
 
 // PRX function prototype
@@ -116,7 +116,7 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 		free(entries);
 	}
 	else {
-		Menu_DisplayError("sceIoDopen() failed!", dir);
+		Menu_DisplayError("fsOpenDir() failed!", dir);
 		return dir;
 	}
 
@@ -141,33 +141,39 @@ void Dirbrowse_DisplayFiles(void) {
 
 	int i = 0, printed = 0;
 	File *file = files; // Draw file list
+	int large_icon = config.large_icons;
+	const int distance = large_icon? 42 : 21;
+	const int max_files = large_icon? 5 : 10;
+	const int icon_dist_x[] = {25, 34};
+	const int icon_dist_y[] = {63, 65};
+	const float icon_size[] = {18.0f, 36.0f};
 
 	for(; file != NULL; file = file->next) {
-		if (printed == FILES_PER_PAGE) // Limit the files per page
+		if (printed == max_files) // Limit the files per page
 			break;
 
-		if (position < FILES_PER_PAGE || i > (position - FILES_PER_PAGE)) {
+		if (position < max_files || i > (position - max_files)) {
 			if (i == position)
-				G2D_DrawRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
+				G2D_DrawRect(0, 62 + (distance * printed), 480, distance, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
 			// Do not allow parent dir to be multi-selected
 			if (strncmp(file->name, "..", 2)) {
 				if (strcmp(multi_select_dir, cwd) == 0) {
-					multi_select[i] == true? G2D_DrawImage(config.dark_theme? icon_check_dark : icon_check, 5, 71 + (42 * printed)) : 
-						G2D_DrawImage(config.dark_theme? icon_uncheck_dark : icon_uncheck, 5, 71 + (42 * printed));
+					G2D_DrawImageScale(multi_select[i] == true? (config.dark_theme? icon_check_dark : icon_check) : (config.dark_theme? icon_uncheck_dark : icon_uncheck), 5,
+						(large_icon? 71 : 65) + (distance * printed), large_icon? 24.0f : 15.0f, large_icon? 24.0f : 15.0f);
 				}
 				else
-					G2D_DrawImage(config.dark_theme? icon_uncheck_dark : icon_uncheck, 5, 71 + (42 * printed));
+					G2D_DrawImageScale(config.dark_theme? icon_uncheck_dark : icon_uncheck, 5, (large_icon? 71 : 65) + (distance * printed), large_icon? 24.0f : 15.0f, large_icon? 24.0f : 15.0f);
 			}
 
 			if (file->isDir)
-				G2D_DrawImage(config.dark_theme? icon_dir_dark : icon_dir, 34, 65 + (42 * printed));
+				G2D_DrawImageScale(config.dark_theme? icon_dir_dark : icon_dir, icon_dist_x[large_icon], icon_dist_y[large_icon] + (distance * printed), icon_size[large_icon], icon_size[large_icon]);
 			else if (!strncasecmp(file->ext, "pbp", 3))
-				G2D_DrawImage(icon_app, 34, 65 + (42 * printed));
+				G2D_DrawImageScale(icon_app, icon_dist_x[large_icon], icon_dist_y[large_icon] + (distance * printed), icon_size[large_icon], icon_size[large_icon]);
 			else if ((!strncasecmp(file->ext, "flac", 4)) || (!strncasecmp(file->ext, "it", 2)) || (!strncasecmp(file->ext, "mod", 3))
 				|| (!strncasecmp(file->ext, "mp3", 3)) || (!strncasecmp(file->ext, "ogg", 3)) || (!strncasecmp(file->ext, "opus", 4))
 				|| (!strncasecmp(file->ext, "s3m", 3)) || (!strncasecmp(file->ext, "wav", 3)) || (!strncasecmp(file->ext, "xm", 2)))
-				G2D_DrawImage(icon_audio, 34, 65 + (42 * printed));
+				G2D_DrawImageScale(icon_audio, icon_dist_x[large_icon], icon_dist_y[large_icon] + (distance * printed), icon_size[large_icon], icon_size[large_icon]);
 			else if ((!strncasecmp(file->ext, "7z", 2)) || (!strncasecmp(file->ext, "ar", 2)) || (!strncasecmp(file->ext, "cpio", 4))
 				|| (!strncasecmp(file->ext, "grz", 3)) || (!strncasecmp(file->ext, "iso", 3)) || (!strncasecmp(file->ext, "lrz", 3))
 				|| (!strncasecmp(file->ext, "mtree", 5)) || (!strncasecmp(file->ext, "rar", 3)) || (!strncasecmp(file->ext, "shar", 4))
@@ -177,31 +183,30 @@ void Dirbrowse_DisplayFiles(void) {
 				|| (!strncasecmp(file->ext, "tzo", 3)) || (!strncasecmp(file->ext, "tzst", 4)) || (!strncasecmp(file->ext, "uu", 2))
 				|| (!strncasecmp(file->ext, "war", 3)) || (!strncasecmp(file->ext, "xar", 3)) || (!strncasecmp(file->ext, "zip", 3))
 				|| (!strncasecmp(file->ext, "zst", 3)))
-				G2D_DrawImage(icon_archive, 34, 65 + (42 * printed));
+				G2D_DrawImageScale(icon_archive, icon_dist_x[large_icon], icon_dist_y[large_icon] + (distance * printed), icon_size[large_icon], icon_size[large_icon]);
 			else if ((!strncasecmp(file->ext, "bmp", 3)) || (!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3))
 				|| (!strncasecmp(file->ext, "jpeg", 4)) || (!strncasecmp(file->ext, "pcx", 3)) || (!strncasecmp(file->ext, "png", 3))
 				|| (!strncasecmp(file->ext, "pgm", 3)) || (!strncasecmp(file->ext, "ppm", 3)) || (!strncasecmp(file->ext, "tga", 3)))
-				G2D_DrawImage(icon_image, 34, 65 + (42 * printed));
+				G2D_DrawImageScale(icon_image, icon_dist_x[large_icon], icon_dist_y[large_icon] + (distance * printed), icon_size[large_icon], icon_size[large_icon]);
 			else if (!strncasecmp(file->ext, "prx", 3))
-				G2D_DrawImage(icon_prx, 34, 65 + (42 * printed));
+				G2D_DrawImageScale(icon_prx, icon_dist_x[large_icon], icon_dist_y[large_icon] + (distance * printed), icon_size[large_icon], icon_size[large_icon]);
 			else if ((!strncasecmp(file->ext, "cfg", 3)) || (!strncasecmp(file->ext, "log", 3)) || (!strncasecmp(file->ext, "txt", 3)))
-				G2D_DrawImage(icon_text, 34, 65 + (42 * printed));
+				G2D_DrawImageScale(icon_text, icon_dist_x[large_icon], icon_dist_y[large_icon] + (distance * printed), icon_size[large_icon], icon_size[large_icon]);
 			else
-				G2D_DrawImage(icon_file, 34, 65 + (42 * printed));
+				G2D_DrawImageScale(icon_file, icon_dist_x[large_icon], icon_dist_y[large_icon] + (distance * printed), icon_size[large_icon], icon_size[large_icon]);
 
 			char size[16];
-
 			intraFontSetStyle(font, 0.6f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
-			if (!file->isDir) {
+			if (!file->isDir && large_icon) {
 				Utils_GetSizeString(size, file->size);
-				intraFontPrint(font, 475 - intraFontMeasureText(font, size), 95 + (42 * printed), size);
+				intraFontPrint(font, 475 - intraFontMeasureText(font, size), 95 + (distance * printed), size);
 			}
 			
 			intraFontSetStyle(font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 			if (strncmp(file->name, "..", 2) == 0)
-				intraFontPrint(font, 80, 62 + ((42 - (font->texYSize - 32)) / 2) + (42 * printed), "Parent folder");
+				intraFontPrint(font, large_icon? 80: 50, icon_dist_y[large_icon] + ((distance - (font->texYSize - 32)) / 2) + (distance * printed), "Parent folder");
 			else 
-				intraFontPrint(font, 80, 62 + ((42 - (font->texYSize - 32)) / 2) + (42 * printed), file->name);
+				intraFontPrint(font, large_icon? 80: 50, icon_dist_y[large_icon] + ((distance - (font->texYSize - 32)) / 2) + (distance * printed), file->name);
 
 			printed++; // Increase printed counter
 		}

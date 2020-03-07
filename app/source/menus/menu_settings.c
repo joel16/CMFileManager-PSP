@@ -14,6 +14,8 @@
 #include "textures.h"
 #include "utils.h"
 
+#define MAX_ITEMS_PAGE 5
+
 static bool display_about, display_support;
 
 static void Menu_DisplaySortSettings(void) {
@@ -42,10 +44,10 @@ static void Menu_DisplaySortSettings(void) {
 		int printed = 0; // Print counter
 
 		for (i = 0; i < max_items + 1; i++) {
-			if (printed == FILES_PER_PAGE)
+			if (printed == MAX_ITEMS_PAGE)
 				break;
 
-			if (selection < FILES_PER_PAGE || i > (selection - FILES_PER_PAGE)) {
+			if (selection < MAX_ITEMS_PAGE || i > (selection - MAX_ITEMS_PAGE)) {
 				if (i == selection)
 					G2D_DrawRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 				
@@ -55,18 +57,11 @@ static void Menu_DisplaySortSettings(void) {
 				printed++;
 			}
 		}
-
-		config.sort == 0? G2D_DrawImage(config.dark_theme? icon_radio_dark_on : icon_radio_on, (460 - width), 69) : 
-			G2D_DrawImage(config.dark_theme? icon_radio_dark_off : icon_radio_off, (460 - width), 69);
 		
-		config.sort == 1? G2D_DrawImage(config.dark_theme? icon_radio_dark_on : icon_radio_on, (460 - width), 111) : 
-			G2D_DrawImage(config.dark_theme? icon_radio_dark_off : icon_radio_off, (460 - width), 111);
-
-		config.sort == 2? G2D_DrawImage(config.dark_theme? icon_radio_dark_on : icon_radio_on, (460 - width), 153) : 
-			G2D_DrawImage(config.dark_theme? icon_radio_dark_off : icon_radio_off, (460 - width), 153);
-		
-		config.sort == 3? G2D_DrawImage(config.dark_theme? icon_radio_dark_on : icon_radio_on, (460 - width), 195) : 
-			G2D_DrawImage(config.dark_theme? icon_radio_dark_off : icon_radio_off, (460 - width), 195);
+		G2D_DrawImage(config.sort == 0? (config.dark_theme? icon_radio_dark_on : icon_radio_on) : (config.dark_theme? icon_radio_dark_off : icon_radio_off), (460 - width), 69);
+		G2D_DrawImage(config.sort == 1? (config.dark_theme? icon_radio_dark_on : icon_radio_on) : (config.dark_theme? icon_radio_dark_off : icon_radio_off), (460 - width), 111);
+		G2D_DrawImage(config.sort == 2? (config.dark_theme? icon_radio_dark_on : icon_radio_on) : (config.dark_theme? icon_radio_dark_off : icon_radio_off), (460 - width), 153);
+		G2D_DrawImage(config.sort == 3? (config.dark_theme? icon_radio_dark_on : icon_radio_on) : (config.dark_theme? icon_radio_dark_off : icon_radio_off), (460 - width), 195);
 		
 		g2dFlip(G2D_VSYNC);
 
@@ -157,6 +152,7 @@ void Menu_DisplaySettings(void) {
 		"Sorting options",
 		"Dark theme",
 		"Auto USB mount",
+		"Large icons",
 		"Developer options",
 		"Support",
 		"About"
@@ -180,32 +176,24 @@ void Menu_DisplaySettings(void) {
 		int printed = 0; // Print counter
 
 		for (i = 0; i < max_items + 1; i++) {
-			if (printed == FILES_PER_PAGE)
+			if (printed == MAX_ITEMS_PAGE)
 				break;
 
-			if (selection < FILES_PER_PAGE || i > (selection - FILES_PER_PAGE)) {
+			if (selection < MAX_ITEMS_PAGE || i > (selection - MAX_ITEMS_PAGE)) {
 				if (i == selection)
 					G2D_DrawRect(0, 62 + (42 * printed), 480, 42, config.dark_theme? SELECTOR_COLOUR_DARK : SELECTOR_COLOUR_LIGHT);
 
 				intraFontSetStyle(font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 				intraFontPrint(font, 20, 64 + ((42 - (font->texYSize - 30)) / 2) + (42 * printed), main_menu_items[i]);
 
-				if (config.dark_theme) {
-					if (i == 2)
-						G2D_DrawImage(config.dark_theme? icon_toggle_dark_on : icon_toggle_off, 455 - width, 66 + (42 * printed));
-					else if (i == 3)
-						G2D_DrawImage(config.auto_usb_mount? icon_toggle_dark_on : icon_toggle_off, 455 - width, 66 + (42 * printed));
-					else if (i == 4)
-						G2D_DrawImage(config.dev_options? icon_toggle_dark_on : icon_toggle_off, 455 - width, 66 + (42 * printed));
-				}
-				else {
-					if (i == 2)
-						G2D_DrawImage(config.dark_theme? icon_toggle_on : icon_toggle_off, 455 - width,  66 + (42 * printed));
-					else if (i == 3)
-						G2D_DrawImage(config.auto_usb_mount? icon_toggle_on : icon_toggle_off, 455 - width,  66 + (42 * printed));
-					else if (i == 4)
-						G2D_DrawImage(config.dev_options? icon_toggle_on : icon_toggle_off, 455 - width,  66 + (42 * printed));
-				}
+				if (i == 2)
+					G2D_DrawImage(config.dark_theme? (config.dark_theme? icon_toggle_dark_on : icon_toggle_on) : icon_toggle_off, 455 - width, 66 + (42 * printed));
+				else if (i == 3)
+					G2D_DrawImage(config.auto_usb_mount? (config.dark_theme? icon_toggle_dark_on : icon_toggle_on) : icon_toggle_off, 455 - width, 66 + (42 * printed));
+				else if (i == 4)
+					G2D_DrawImage(config.large_icons? (config.dark_theme? icon_toggle_dark_on : icon_toggle_on) : icon_toggle_off, 455 - width, 66 + (42 * printed));
+				else if (i == 5)
+					G2D_DrawImage(config.dev_options? (config.dark_theme? icon_toggle_dark_on : icon_toggle_on) : icon_toggle_off, 455 - width, 66 + (42 * printed));
 
 				printed++;
 			}
@@ -257,13 +245,17 @@ void Menu_DisplaySettings(void) {
 						Config_Save(config);
 						break;
 					case 4:
-						config.dev_options = !config.dev_options;
+						config.large_icons = !config.large_icons;
 						Config_Save(config);
 						break;
 					case 5:
-						display_support = true;
+						config.dev_options = !config.dev_options;
+						Config_Save(config);
 						break;
 					case 6:
+						display_support = true;
+						break;
+					case 7:
 						display_about = true;
 						break;
 				}

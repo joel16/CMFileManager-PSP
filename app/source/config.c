@@ -8,9 +8,9 @@
 #include "log.h"
 #include "utils.h"
 
-#define CONFIG_VERSION 1
+#define CONFIG_VERSION 2
 
-const char *config_file = "{\"config_ver\": %d, \"sort\": %d, \"dark_theme\": %d, \"auto_usb\": %d, \"dev_options\": %d}\n";
+const char *config_file = "{\"config_ver\": %d, \"sort\": %d, \"dark_theme\": %d, \"auto_usb\": %d, \"dev_options\": %d, \"large_icons\": %d}\n";
 static int config_version_holder = 0;
 
 static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
@@ -24,7 +24,7 @@ static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
 int Config_Save(config_t config) {
 	int ret = 0;
 	char *buf = (char *)calloc(128, sizeof(char));
-	int len = snprintf(buf, 128, config_file, CONFIG_VERSION, config.sort, config.dark_theme, config.auto_usb_mount, config.dev_options);
+	int len = snprintf(buf, 128, config_file, CONFIG_VERSION, config.sort, config.dark_theme, config.auto_usb_mount, config.dev_options, config.large_icons);
 
 	if (R_FAILED(ret = FS_WriteFile("config.json", buf, len))) {
 		Log_Print("Read config failed in Config_Save 0x%lx\n", ret);
@@ -44,6 +44,7 @@ int Config_Load(void) {
 		config.dark_theme = false;
 		config.auto_usb_mount = true;
 		config.dev_options = false;
+		config.large_icons = true;
 		Log_Print("File doesn't exist\n");
 		return Config_Save(config);
 	}
@@ -94,6 +95,10 @@ int Config_Load(void) {
 			config.dev_options = strtol(buf + token[i + 1].start, NULL, 10);
 			i++;
 		}
+		else if (jsoneq(buf, &token[i], "large_icons") == 0) {
+			config.large_icons = strtol(buf + token[i + 1].start, NULL, 10);
+			i++;
+		}
 		else
 			Log_Print("Unexpected key: %.*s\n", token[i].end - token[i].start, buf + token[i].start);
 	}
@@ -107,6 +112,7 @@ int Config_Load(void) {
 		config.dark_theme = false;
 		config.auto_usb_mount = true;
 		config.dev_options = false;
+		config.large_icons = true;
 		return Config_Save(config);
 	}
 	
