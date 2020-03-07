@@ -82,19 +82,16 @@ static int Init_Services(void) {
 		return ret;
 	}
 
-	font = intraFontLoadMem("ram:/NotoSans.pgf", NotoSans_pgf_start, NotoSans_pgf_size, INTRAFONT_CACHE_ALL);
-	jpn_font = intraFontLoadMem("ram:/NotoSans.pgf", NotoSans_pgf_start, NotoSans_pgf_size, INTRAFONT_STRING_SJIS);
-	chn_font = intraFontLoadMem("ram:/NotoSans.pgf", NotoSans_pgf_start, NotoSans_pgf_size, INTRAFONT_STRING_UTF8);
-	kor_font = intraFontLoadMem("ram:/NotoSans.pgf", NotoSans_pgf_start, NotoSans_pgf_size, 0);
+	font = intraFontLoadMem("ram:/NotoSans.pgf", NotoSans_pgf_start, NotoSans_pgf_size, INTRAFONT_STRING_UTF8 | INTRAFONT_CACHE_LARGE);
+	jpn_font = intraFontLoadMem("ram:/NotoSans.pgf", NotoSans_pgf_start, NotoSans_pgf_size, INTRAFONT_STRING_UTF8 | INTRAFONT_CACHE_LARGE);
+	chn_font = intraFontLoadMem("ram:/NotoSans.pgf", NotoSans_pgf_start, NotoSans_pgf_size, INTRAFONT_STRING_UTF8 | INTRAFONT_CACHE_LARGE);
+	kor_font = intraFontLoadMem("ram:/NotoSans.pgf", NotoSans_pgf_start, NotoSans_pgf_size, INTRAFONT_STRING_UTF8 | INTRAFONT_CACHE_LARGE);
+	sym_font = intraFontLoadMem("ram:/NotoSans.pgf", NotoSans_pgf_start, NotoSans_pgf_size, INTRAFONT_STRING_UTF8 | INTRAFONT_CACHE_LARGE);
 
 	intraFontSetAltFont(font, jpn_font);
 	intraFontSetAltFont(jpn_font, chn_font);
 	intraFontSetAltFont(chn_font, kor_font);
-
-	intraFontSetEncoding(font, INTRAFONT_STRING_UTF8);
-	intraFontSetEncoding(jpn_font, INTRAFONT_STRING_SJIS);
-	intraFontSetEncoding(chn_font, INTRAFONT_STRING_GBK);
-	intraFontSetEncoding(kor_font, INTRAFONT_STRING_BIG5);
+	intraFontSetAltFont(kor_font, sym_font);
 
 	PSP_CTRL_ENTER = Utils_GetEnterButton();
 	PSP_CTRL_CANCEL = Utils_GetCancelButton();

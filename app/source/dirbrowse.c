@@ -198,6 +198,10 @@ void Dirbrowse_DisplayFiles(void) {
 			}
 			
 			intraFontSetStyle(font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+			intraFontSetStyle(jpn_font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+			intraFontSetStyle(chn_font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+			intraFontSetStyle(kor_font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
+			intraFontSetStyle(sym_font, 0.7f, config.dark_theme? WHITE : BLACK, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 			if (strncmp(file->name, "..", 2) == 0)
 				intraFontPrint(font, 80, 62 + ((42 - (font->texYSize - 32)) / 2) + (42 * printed), "Parent folder");
 			else 
