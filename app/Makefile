@@ -14,7 +14,7 @@ PSP_LARGE_MEMORY = 1
 
 VERSION_MAJOR :=  3
 VERSION_MINOR :=  2
-VERSION_MICRO :=  0
+VERSION_MICRO :=  1
 
 INCDIR   = ../libs/include ../libs/include/ogg ../libs/include/opus include include/menus
 CFLAGS   = -O3 -G0 -Wall -Werror -ffast-math -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
