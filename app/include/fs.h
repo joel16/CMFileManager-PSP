@@ -21,3 +21,4 @@ int FS_WriteFile(char *path, void *buf, int size);
 char *FS_GetFilePermission(char *path);
 int FS_StorageGetMaxSize(const char *dev, u64 *size);
 int FS_StorageGetFreeSize(const char *dev, u64 *size);
+int FS_CountFiles(const char *path);

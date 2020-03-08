@@ -64,6 +64,11 @@ static int Init_Services(void) {
 	is_psp_go = Utils_IsModelPSPGo();
 
 	Log_OpenFileHande();
+
+	Utils_InitUSB();
+	Utils_InitAudioDriver();
+	Utils_InitDisplayDriver();
+	Utils_InitFSDriver();
 	
 	if (R_FAILED(ret = Config_Load())) {
 		Log_Print("Config_Load failed: 0x%lx\n", ret);
@@ -86,22 +91,16 @@ static int Init_Services(void) {
 
 	PSP_CTRL_ENTER = Utils_GetEnterButton();
 	PSP_CTRL_CANCEL = Utils_GetCancelButton();
-
-	Utils_InitUSB();
-	Utils_InitAudioDriver();
-	Utils_InitDisplayDriver();
-	Utils_InitFSDriver();
 	return 0;
 }
 
 static void Term_Services(void) {
+	intraFontUnload(font);
+	Textures_Free();
 	Utils_ExitFSDriver();
 	Utils_ExitDisplayDriver();
 	Utils_ExitAudioDriver();
 	Utils_ExitUSB();
-
-	intraFontUnload(font);
-	Textures_Free();
 	Log_CloseFileHandle();
 	scePowerSetClockFrequency(cpu_clock, cpu_clock, bus_clock); // Restore previous clock frequency.
 	sceKernelExitGame();

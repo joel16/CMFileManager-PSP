@@ -7,6 +7,7 @@
 #include "dirbrowse.h"
 #include "fs.h"
 #include "glib2d_helper.h"
+#include "log.h"
 #include "menu_archive.h"
 #include "menu_audio.h"
 #include "menu_error.h"
@@ -54,13 +55,16 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 	Dirbrowse_RecursiveFree(files);
 	files = NULL;
 	file_count = 0;
-	
-	if (R_SUCCEEDED(dir = pspOpenDir(cwd))) {
-		int entry_count = 0, i = 0;
-		SceIoDirent *entries = (SceIoDirent *)calloc(MAX_FILES, sizeof(SceIoDirent));
 
-		while (pspReadDir(dir, &entries[entry_count]) > 0)
-			entry_count++;
+	int entry_count = FS_CountFiles(cwd);
+	if (R_SUCCEEDED(dir = pspOpenDir(cwd))) {
+		int i = 0, ret = 0;
+		SceIoDirent *entries = (SceIoDirent *)calloc(entry_count, sizeof(SceIoDirent));
+
+		do {
+			ret = pspReadDir(dir, &entries[i]);
+			i++;
+		} while (ret > 0);
 
 		pspCloseDir(dir);
 		qsort(entries, entry_count, sizeof(SceIoDirent), cmpstringp);
@@ -71,7 +75,7 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 				continue;
 
 			// Ignore "." in all directories
-			if (!strcmp(entries[i].d_name, ".")) 
+			if (!strcmp(entries[i].d_name, "."))
 				continue;
 
 			// Ignore ".." in Root Directory

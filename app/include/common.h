@@ -7,8 +7,6 @@
 #include <stdbool.h>
 #include <setjmp.h>
 
-#define MAX_FILES 2048
-
 enum MENU_STATES {
 	MENU_STATE_HOME = 0,
 	MENU_STATE_MENUBAR = 1,

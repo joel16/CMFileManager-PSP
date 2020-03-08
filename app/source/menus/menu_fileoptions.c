@@ -91,7 +91,6 @@ static int FileOptions_CreateFile(void) {
 static int FileOptions_Rename(void) {
 	int ret = 0;
 	File *file = Dirbrowse_GetFileIndex(position);
-
 	if (file == NULL)
 		return -1;
 
@@ -122,21 +121,24 @@ static int FileOptions_Rename(void) {
 }
 
 static int FileOptions_RmdirRecursive(char *path) {
+	int ret = 0;
 	SceUID dir = 0;
-	int i = 0, ret = 0;
 	File *filelist = NULL;
 
-	if (R_SUCCEEDED(dir = sceIoDopen(path))) {
-		int entryCount = 0;
-		SceIoDirent *entries = (SceIoDirent *)calloc(MAX_FILES, sizeof(SceIoDirent));
+	int entry_count = FS_CountFiles(path);
+	if (R_SUCCEEDED(dir = pspOpenDir(path))) {
+		int i = 0;
+		SceIoDirent *entries = (SceIoDirent *)calloc(entry_count, sizeof(SceIoDirent));
 
-		while (sceIoDread(dir, &entries[entryCount]) > 0)
-			entryCount++;
+		do {
+			ret = pspReadDir(dir, &entries[i]);
+			i++;
+		} while (ret > 0);
 
-		sceIoDclose(dir);
-		qsort(entries, entryCount, sizeof(SceIoDirent), Utils_Alphasort);
+		pspCloseDir(dir);
+		qsort(entries, entry_count, sizeof(SceIoDirent), Utils_Alphasort);
 
-		for (i = 0; i < entryCount; i++) {
+		for (i = 0; i < entry_count; i++) {
 			if (strlen(entries[i].d_name) > 0) {
 				if ((!strcmp(entries[i].d_name, ".")) || (!strcmp(entries[i].d_name, "..")))
 					continue;
@@ -169,8 +171,8 @@ static int FileOptions_RmdirRecursive(char *path) {
 		free(entries);
 	}
 	else {
-		sceIoDclose(dir);
-		Menu_DisplayError("sceIoDopen() failed!", dir);
+		pspCloseDir(dir);
+		Menu_DisplayError("pspOpenDir() failed!", dir);
 		return dir;
 	}
 
@@ -218,7 +220,6 @@ static int FileOptions_RmdirRecursive(char *path) {
 
 static int FileOptions_DeleteFile(File *file) {
 	file = Dirbrowse_GetFileIndex(position);
-
 	if (file == NULL)
 		return -1;
 	
@@ -353,7 +354,7 @@ static int sceIoMove(const char *src, const char *dest) {
 	return 0;
 }
 
-static int FileOptions_CopyFile(char *src, char *dst, bool display_animation) {
+static int FileOptions_CopyFile(const char *src, const char *dst, bool display_animation) {
 	SceUID src_file, dst_file;
 	int ret = 0;
 
@@ -408,27 +409,27 @@ static int FileOptions_CopyFile(char *src, char *dst, bool display_animation) {
 	return 0;
 }
 
-static int FileOptions_CopyDir(char *src, char *dst) {
-	int dir = 0, i = 0;
-
-	if (R_SUCCEEDED(dir = sceIoDopen(src))) {
-
+static int FileOptions_CopyDir(const char *src, const char *dst) {
+	SceUID dir = 0;
+	int entry_count = FS_CountFiles(src);
+	if (R_SUCCEEDED(dir = pspOpenDir(src))) {
 		// Create Output Directory (is allowed to fail, we can merge folders after all)
 		sceIoMkdir(dst, 0777);
 
-		int entryCount = 0;
-		SceIoDirent *entries = (SceIoDirent *)calloc(MAX_FILES, sizeof(SceIoDirent));
+		int i = 0, ret = 0;
+		SceIoDirent *entries = (SceIoDirent *)calloc(entry_count, sizeof(SceIoDirent));
 
-		while (sceIoDread(dir, &entries[entryCount]) > 0)
-			entryCount++;
+		do {
+			ret = pspReadDir(dir, &entries[i]);
+			i++;
+		} while (ret > 0);
 
-		sceIoDclose(dir);
+		pspCloseDir(dir);
 
-		qsort(entries, entryCount, sizeof(SceIoDirent), Utils_Alphasort);
+		qsort(entries, entry_count, sizeof(SceIoDirent), Utils_Alphasort);
 
-		for (i = 0; i < entryCount; i++) {
+		for (i = 0; i < entry_count; i++) {
 			if (strlen(entries[i].d_name) > 0) {
-
 				if ((!strcmp(entries[i].d_name, ".")) || (!strcmp(entries[i].d_name, "..")))
 					continue;
 
@@ -465,14 +466,14 @@ static int FileOptions_CopyDir(char *src, char *dst) {
 				free(outbuffer);
 			}
 
-			Dialog_DisplayProgress(copymode == 1? "Moving" : "Copying", Utils_Basename(entries[i].d_name), i, entryCount);
+			Dialog_DisplayProgress(copymode == 1? "Moving" : "Copying", Utils_Basename(entries[i].d_name), i, entry_count);
 		}
 
 		free(entries);
 	}
 	else {
-		sceIoDclose(dir);
-		Menu_DisplayError("sceIoDopen() failed!", dir);
+		pspCloseDir(dir);
+		Menu_DisplayError("pspOpenDir() failed!", dir);
 		return dir;
 	}
 
@@ -481,7 +482,6 @@ static int FileOptions_CopyDir(char *src, char *dst) {
 
 static void FileOptions_Copy(int flag) {
 	File *file = Dirbrowse_GetFileIndex(position);
-	
 	if (file == NULL)
 		return;
 

@@ -22,17 +22,20 @@ static bool vertical_flip = false, horizantal_flip = false;
 static int Gallery_GetImageList(void) {
 	SceUID dir = 0;
 
-	if (R_SUCCEEDED(dir = sceIoDopen(cwd))) {
-		int entryCount = 0, i = 0;
-		SceIoDirent *entries = (SceIoDirent *)calloc(MAX_FILES, sizeof(SceIoDirent));
+	int entry_count = FS_CountFiles(cwd);
+	if (R_SUCCEEDED(dir = pspOpenDir(cwd))) {
+		int i = 0, ret = 0;
+		SceIoDirent *entries = (SceIoDirent *)calloc(entry_count, sizeof(SceIoDirent));
 
-		while (sceIoDread(dir, &entries[entryCount]) > 0)
-			entryCount++;
+		do {
+			ret = pspReadDir(dir, &entries[i]);
+			i++;
+		} while (ret > 0);
 
-		sceIoDclose(dir);
-		qsort(entries, entryCount, sizeof(SceIoDirent), Utils_Alphasort);
+		pspCloseDir(dir);
+		qsort(entries, entry_count, sizeof(SceIoDirent), Utils_Alphasort);
 
-		for (i = 0; i < entryCount; i++) {
+		for (i = 0; i < entry_count; i++) {
 			if ((!strncasecmp(FS_GetFileExt(entries[i].d_name), "bmp", 3)) || (!strncasecmp(FS_GetFileExt(entries[i].d_name), "gif", 3)) || (!strncasecmp(FS_GetFileExt(entries[i].d_name), "jpg", 3)) 
 				|| (!strncasecmp(FS_GetFileExt(entries[i].d_name), "pcx", 3)) || (!strncasecmp(FS_GetFileExt(entries[i].d_name), "png", 3)) || (!strncasecmp(FS_GetFileExt(entries[i].d_name), "pgm", 3)) 
 				|| (!strncasecmp(FS_GetFileExt(entries[i].d_name), "ppm", 3)) || (!strncasecmp(FS_GetFileExt(entries[i].d_name), "tga", 3))) {
@@ -44,11 +47,9 @@ static int Gallery_GetImageList(void) {
 
 		free(entries);
 	}
-	else {
-		sceIoDclose(dir);
+	else
 		return dir;
-	}
-
+	
 	return 0;
 }
 

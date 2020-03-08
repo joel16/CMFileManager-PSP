@@ -24,8 +24,8 @@ bool FS_FileExists(const char *path) {
 bool FS_DirExists(const char *path) {	
 	SceUID dir = 0;
 	
-	if (R_SUCCEEDED(dir = sceIoDopen(path))) {
-		sceIoDclose(dir);
+	if (R_SUCCEEDED(dir = pspOpenDir(path))) {
+		pspCloseDir(dir);
 		return true;
 	}
 	
@@ -151,4 +151,22 @@ char *FS_GetFilePermission(char *path) {
 		(stat.st_mode & FIO_S_IWOTH) ? "w" : "-", (stat.st_mode & FIO_S_IXOTH) ? "x" : "-");
 
 	return perms;
+}
+
+int FS_CountFiles(const char *path) {
+	int ret = 0, entry_count = 0;
+	SceUID dir = pspOpenDir(path);
+
+	do {
+		SceIoDirent entries;
+        memset(&entries, 0, sizeof(SceIoDirent));
+
+		ret = pspReadDir(dir, &entries);
+		if (ret > 0)
+			entry_count++;
+		
+	} while (ret > 0);
+
+	pspCloseDir(dir);
+	return entry_count;
 }
