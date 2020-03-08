@@ -19,11 +19,6 @@ int position = 0;   // menu position
 int file_count = 0; // file count
 File *files = NULL; // file list
 
-// PRX function prototype
-int fsOpenDir(const char *dirname);
-int fsReadDir(SceUID dir, SceIoDirent *dirent);
-int fsCloseDir(SceUID dir);
-
 void Dirbrowse_RecursiveFree(File *node) {
 	if (node == NULL) // End of list
 		return;
@@ -60,14 +55,14 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 	files = NULL;
 	file_count = 0;
 	
-	if (R_SUCCEEDED(dir = fsOpenDir(cwd))) {
+	if (R_SUCCEEDED(dir = pspOpenDir(cwd))) {
 		int entry_count = 0, i = 0;
 		SceIoDirent *entries = (SceIoDirent *)calloc(MAX_FILES, sizeof(SceIoDirent));
 
-		while (fsReadDir(dir, &entries[entry_count]) > 0)
+		while (pspReadDir(dir, &entries[entry_count]) > 0)
 			entry_count++;
 
-		fsCloseDir(dir);
+		pspCloseDir(dir);
 		qsort(entries, entry_count, sizeof(SceIoDirent), cmpstringp);
 
 		for (i = 0; i < entry_count; i++) {
@@ -116,7 +111,7 @@ int Dirbrowse_PopulateFiles(bool refresh) {
 		free(entries);
 	}
 	else {
-		Menu_DisplayError("fsOpenDir() failed!", dir);
+		Menu_DisplayError("pspOpenDir() failed!", dir);
 		return dir;
 	}
 

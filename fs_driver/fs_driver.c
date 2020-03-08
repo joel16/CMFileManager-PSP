@@ -3,11 +3,11 @@
 
 #include "systemctrl.h"
 
-PSP_MODULE_INFO("audio_driver", PSP_MODULE_KERNEL, 1, 1);
+PSP_MODULE_INFO("fs_driver", PSP_MODULE_KERNEL, 1, 0);
 PSP_NO_CREATE_MAIN_THREAD();
 
-int fsOpenDir(const char *dirname) {
-	u32 k1 = 0;;
+int pspOpenDir(const char *dirname) {
+	u32 k1 = 0;
 	int oldlevel = sctrlKernelSetUserLevel(4);
 	k1 = pspSdkSetK1(0);
 	
@@ -18,22 +18,16 @@ int fsOpenDir(const char *dirname) {
 	return ret;
 }
 
-int fsReadDir(SceUID dir, SceIoDirent *dirent) {
-	u32 k1 = 0;
-	k1 = pspSdkSetK1(0);
-
+int pspReadDir(SceUID dir, SceIoDirent *dirent) {
+	u32 k1 = pspSdkSetK1(0);
 	int ret = sceIoDread(dir, dirent);
-
 	pspSdkSetK1(k1);
 	return ret;
 }
 
-int fsCloseDir(SceUID dir) {
-	u32 k1 = 0;
-	k1 = pspSdkSetK1(0);
-
+int pspCloseDir(SceUID dir) {
+	u32 k1 = pspSdkSetK1(0);
 	int ret = sceIoDclose(dir);
-
 	pspSdkSetK1(k1);
 	return ret;
 }
