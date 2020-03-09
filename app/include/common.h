@@ -31,6 +31,8 @@ enum BROWSE_STATES {
 	BROWSE_STATE_UMD = 6
 };
 
+// E1828
+
 #define BLACK_BG              G2D_RGBA(48, 48, 48, 255)
 #define STATUS_BAR_LIGHT      G2D_RGBA(37, 79, 174, 255)
 #define STATUS_BAR_DARK       G2D_RGBA(38, 50, 56, 255)
