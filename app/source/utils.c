@@ -13,8 +13,6 @@
 #include "systemctrl_se.h"
 #include "utils.h"
 
-#define PATH_FLASH0 "flash0:/"
-#define PATH_USBDEVICE PATH_FLASH0 "kd/_usbdevice.prx"
 #define NELEMS(a) (sizeof(a) / sizeof(a[0]))
 
 static SceCtrlData current, previous;
@@ -28,7 +26,7 @@ struct UsbModule {
 };
 
 static struct UsbModule g_usb_modules[] = {
-	{ PATH_USBDEVICE, -1, },
+	{ "flash0:/kd/_usbdevice.prx", -1, },
 	{ "flash0:/kd/semawm.prx", -1, },
 	{ "flash0:/kd/usbstor.prx", -1, },
 	{ "flash0:/kd/usbstormgr.prx", -1, },
