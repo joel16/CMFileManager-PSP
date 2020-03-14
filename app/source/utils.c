@@ -126,7 +126,7 @@ static void Utils_StopUnloadModules(SceUID modID) {
 	sceKernelUnloadModule(modID);
 }
 
-int Utils_InitAudioDriver(void) {
+static int Utils_InitAudioDriver(void) {
 	int ret = 0;
 
 	if (R_FAILED(ret = audio_driver = Utils_LoadStartModule("audio_driver.prx")))
@@ -135,12 +135,12 @@ int Utils_InitAudioDriver(void) {
 	return 0;
 }
 
-void Utils_ExitAudioDriver(void) {
+static void Utils_ExitAudioDriver(void) {
 	if (audio_driver)
 		Utils_StopUnloadModules(audio_driver);
 }
 
-int Utils_InitDisplayDriver(void) {
+static int Utils_InitDisplayDriver(void) {
 	int ret = 0;
 
 	if (R_FAILED(ret = display_driver = Utils_LoadStartModule("display_driver.prx")))
@@ -149,12 +149,12 @@ int Utils_InitDisplayDriver(void) {
 	return 0;
 }
 
-void Utils_ExitDisplayDriver(void) {
+static void Utils_ExitDisplayDriver(void) {
 	if (display_driver)
 		Utils_StopUnloadModules(display_driver);
 }
 
-int Utils_InitFSDriver(void) {
+static int Utils_InitFSDriver(void) {
 	int ret = 0;
 
 	if (R_FAILED(ret = fs_driver = Utils_LoadStartModule("fs_driver.prx")))
@@ -163,12 +163,12 @@ int Utils_InitFSDriver(void) {
 	return 0;
 }
 
-void Utils_ExitFSDriver(void) {
+static void Utils_ExitFSDriver(void) {
 	if (fs_driver)
 		Utils_StopUnloadModules(fs_driver);
 }
 
-int Utils_InitUSB(void) {
+static int Utils_InitUSB(void) {
 	int i = 0, ret = 0;
 
 	if (!g_usb_module_loaded) {
@@ -255,7 +255,7 @@ static int Utils_DisableUSB(void) {
 	return 0;
 }
 
-void Utils_ExitUSB(void) {
+static void Utils_ExitUSB(void) {
 	int i = 0;
 
 	Utils_DisableUSB();
@@ -268,6 +268,20 @@ void Utils_ExitUSB(void) {
 
 		g_usb_module_loaded = false;
 	}
+}
+
+void Utils_InitKernelDrivers(void) {
+	Utils_InitUSB();
+	Utils_InitAudioDriver();
+	Utils_InitDisplayDriver();
+	Utils_InitFSDriver();
+}
+
+void Utils_TermKernelDrivers(void) {
+	Utils_ExitFSDriver();
+	Utils_ExitDisplayDriver();
+	Utils_ExitAudioDriver();
+	Utils_ExitUSB();
 }
 
 void Utils_HandleUSB(void) {

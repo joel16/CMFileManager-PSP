@@ -65,10 +65,7 @@ static int Init_Services(void) {
 
 	Log_OpenFileHande();
 
-	Utils_InitUSB();
-	Utils_InitAudioDriver();
-	Utils_InitDisplayDriver();
-	Utils_InitFSDriver();
+	Utils_InitKernelDrivers();
 	
 	if (R_FAILED(ret = Config_Load())) {
 		Log_Print("Config_Load failed: 0x%lx\n", ret);
@@ -97,10 +94,7 @@ static int Init_Services(void) {
 static void Term_Services(void) {
 	intraFontUnload(font);
 	Textures_Free();
-	Utils_ExitFSDriver();
-	Utils_ExitDisplayDriver();
-	Utils_ExitAudioDriver();
-	Utils_ExitUSB();
+	Utils_TermKernelDrivers();
 	Log_CloseFileHandle();
 	scePowerSetClockFrequency(cpu_clock, cpu_clock, bus_clock); // Restore previous clock frequency.
 	sceKernelExitGame();
