@@ -21,7 +21,7 @@ static bool g_usb_actived = false;
 static SceUID audio_driver = 0, display_driver = 0, fs_driver = 0;
 
 struct UsbModule {
-	char *path;
+	const char *path;
 	int modID;
 };
 
@@ -102,7 +102,7 @@ int Utils_Alphasort(const void *p1, const void *p2) {
 	return strcasecmp(entryA->d_name, entryB->d_name);
 }
 
-static int Utils_LoadStartModule(char *path) {
+static int Utils_LoadStartModule(const char *path) {
 	int ret = 0, status = 0;
 	SceUID modID = 0;
 
