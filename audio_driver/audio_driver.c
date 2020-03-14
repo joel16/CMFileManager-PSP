@@ -12,9 +12,9 @@ int pspAudioSetFrequency(int frequency) {
 }
 
 int module_start(SceSize args, void *argp) {
-	return 0; 
+	return 0;
 }
 
 int module_stop(void) {
-	return 0; 
+	return 0;
 }
