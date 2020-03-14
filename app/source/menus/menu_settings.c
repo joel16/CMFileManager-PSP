@@ -145,7 +145,7 @@ static void Menu_DisplaySupportDialog(void) {
 }
 
 void Menu_DisplaySettings(void) {
-	int selection = 0, max_items = 6, i = 0;
+	int selection = 0, max_items = 7, i = 0;
 
 	const char *main_menu_items[] = {
 		"FTP connection",
