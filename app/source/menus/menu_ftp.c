@@ -15,6 +15,7 @@
 #include "dirbrowse.h"
 #include "ftppsp.h"
 #include "glib2d_helper.h"
+#include "menu_error.h"
 #include "screenshot.h"
 #include "status_bar.h"
 #include "textures.h"
@@ -22,7 +23,7 @@
 
 static int running = 1;
 
-int FTP_DisplayNetDialog(void) {
+static int FTP_DisplayNetDialog(void) {
 	running = 1;
 	int done = 0;
 
@@ -95,10 +96,66 @@ static int FTP_NetInit(void) {
 	return 0;
 }
 
-void FTP_NetTerm(void) {
+static void FTP_NetTerm(void) {
 	sceNetApctlTerm();
 	sceNetInetTerm();
 	sceNetTerm();
+}
+
+static void FTP_FlashInit(void) {
+	int ret = 0;
+
+	if ((R_FAILED(ret = sceIoUnassign("flash0:"))) && (ret != 0x80020321))
+		Menu_DisplayError("sceIoUnassign(flash0) failed", ret);
+	
+	if (R_FAILED(ret = sceIoAssign("flash0:", "lflash0:0,0", "flashfat0:", IOASSIGN_RDWR, NULL, 0)))
+		Menu_DisplayError("sceIoAssign(flash0) failed", ret);
+
+	if ((R_FAILED(ret = sceIoUnassign("flash1:"))) && (ret != 0x80020321))
+		Menu_DisplayError("sceIoUnassign(flash1) failed", ret);
+		
+	if (R_FAILED(ret = sceIoAssign("flash1:", "lflash0:0,1", "flashfat1:", IOASSIGN_RDWR, NULL, 0)))
+		Menu_DisplayError("sceIoAssign(flash1) failed", ret);
+
+	if ((R_FAILED(ret = sceIoUnassign("flash2:"))) && (ret != 0x80020321))
+		Menu_DisplayError("sceIoUnassign(flash2) failed", ret);
+		
+	if (R_FAILED(ret = sceIoAssign("flash2:", "lflash0:0,2", "flashfat2:", IOASSIGN_RDWR, NULL, 0)))
+		Menu_DisplayError("sceIoAssign(flash2) failed", ret);
+
+	if ((R_FAILED(ret = sceIoUnassign("flash3:"))) && (ret != 0x80020321))
+		Menu_DisplayError("sceIoUnassign(flash3) failed", ret);
+		
+	if (R_FAILED(ret = sceIoAssign("flash3:", "lflash0:0,3", "flashfat3:", IOASSIGN_RDWR, NULL, 0)))
+		Menu_DisplayError("sceIoAssign(flash3) failed", ret);
+}
+
+static void FTP_FlashTerm(void) {
+	int ret = 0;
+
+	if ((R_FAILED(ret = sceIoUnassign("flash0:"))) && (ret != 0x80020321))
+		Menu_DisplayError("sceIoUnassign(flash0) failed", ret);
+	
+	if (R_FAILED(ret = sceIoAssign("flash0:", "lflash0:0,0", "flashfat0:", IOASSIGN_RDONLY, NULL, 0)))
+		Menu_DisplayError("sceIoAssign(flash0) failed", ret);
+
+	if ((R_FAILED(ret = sceIoUnassign("flash1:"))) && (ret != 0x80020321))
+		Menu_DisplayError("sceIoUnassign(flash1) failed", ret);
+		
+	if (R_FAILED(ret = sceIoAssign("flash1:", "lflash0:0,1", "flashfat1:", IOASSIGN_RDONLY, NULL, 0)))
+		Menu_DisplayError("sceIoAssign(flash1) failed", ret);
+
+	if ((R_FAILED(ret = sceIoUnassign("flash2:"))) && (ret != 0x80020321))
+		Menu_DisplayError("sceIoUnassign(flash2) failed", ret);
+		
+	if (R_FAILED(ret = sceIoAssign("flash2:", "lflash0:0,2", "flashfat2:", IOASSIGN_RDONLY, NULL, 0)))
+		Menu_DisplayError("sceIoAssign(flash2) failed", ret);
+
+	if ((R_FAILED(ret = sceIoUnassign("flash3:"))) && (ret != 0x80020321))
+		Menu_DisplayError("sceIoUnassign(flash3) failed", ret);
+		
+	if (R_FAILED(ret = sceIoAssign("flash3:", "lflash0:0,3", "flashfat3:", IOASSIGN_RDONLY, NULL, 0)))
+		Menu_DisplayError("sceIoAssign(flash3) failed", ret);
 }
 
 void Menu_DisplayFTP(void) {
@@ -114,6 +171,8 @@ void Menu_DisplayFTP(void) {
 		return;
 
 	FTP_DisplayNetDialog();
+	if (config.dev_options)
+		FTP_FlashInit();
 
 	ret = ftppsp_init(psp_ip, &psp_port);
 
@@ -190,6 +249,8 @@ void Menu_DisplayFTP(void) {
 
 	free(msg);
 	ftppsp_fini();
+	if (config.dev_options)
+		FTP_FlashTerm();
 	FTP_NetTerm();
 
 	sceUtilityUnloadNetModule(PSP_NET_MODULE_INET);
