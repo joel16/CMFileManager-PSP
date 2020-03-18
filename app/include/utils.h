@@ -28,7 +28,7 @@ bool Utils_IsEF0(void);
 int Utils_LaunchEboot(const char *path);
 u64 Utils_GetTotalStorage(void);
 u64 Utils_GetUsedStorage(void);
-void Utils_ReadControls(void);
+int Utils_ReadControls(void);
 int Utils_IsButtonPressed(enum PspCtrlButtons buttons);
 int Utils_IsButtonHeld(enum PspCtrlButtons buttons);
 int Utils_GetEnterButton(void);

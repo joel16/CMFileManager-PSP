@@ -75,7 +75,7 @@ static void Menu_DisplaySortSettings(void) {
 		else if (Utils_IsButtonPressed(PSP_CTRL_UP))
 			selection--;
 
-		if (((Utils_IsButtonHeld(PSP_CTRL_LTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_RTRIGGER))) || ((Utils_IsButtonHeld(PSP_CTRL_RTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER))))
+		if (Utils_IsButtonHeld(PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER))
 			Screenshot_Capture();
 
 		Utils_SetMax(&selection, 0, max_items);

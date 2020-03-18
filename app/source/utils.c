@@ -15,7 +15,7 @@
 
 #define NELEMS(a) (sizeof(a) / sizeof(a[0]))
 
-static SceCtrlData current, previous;
+static SceCtrlData current_pad, previous_pad;
 static bool g_usb_module_loaded = false;
 static bool g_usb_actived = false;
 static SceUID audio_driver = 0, display_driver = 0, fs_driver = 0;
@@ -414,17 +414,17 @@ static int Utils_GetRegistryValue(const char *dir, const char *name, unsigned in
 	return ret;
 }
 
-void Utils_ReadControls(void) {
-	previous = current;
-	sceCtrlReadBufferPositive(&current, 1);
+int Utils_ReadControls(void) {
+	previous_pad = current_pad;
+	return sceCtrlReadBufferPositive(&current_pad, 1);
 }
 
 int Utils_IsButtonPressed(enum PspCtrlButtons buttons) {
-	return (!(previous.Buttons & buttons)) && current.Buttons & buttons;
+	return ((current_pad.Buttons & buttons) == buttons) && ((previous_pad.Buttons & buttons) != buttons);
 }
 
 int Utils_IsButtonHeld(enum PspCtrlButtons buttons) {
-	return current.Buttons & buttons;
+	return ((current_pad.Buttons & buttons) == buttons) && ((previous_pad.Buttons & buttons) != buttons);
 }
 
 int Utils_GetEnterButton(void) {
@@ -453,9 +453,9 @@ int Utils_GetCancelButton(void) {
 }
 
 float Utils_GetAnalogX(void) {
-	return (((float)current.Lx - 122.5f) / 122.5f);
+	return (((float)current_pad.Lx - 122.5f) / 122.5f);
 }
 
 float Utils_GetAnalogY(void) {
-	return (((float)current.Ly - 122.5f) / 122.5f);
+	return (((float)current_pad.Ly - 122.5f) / 122.5f);
 }

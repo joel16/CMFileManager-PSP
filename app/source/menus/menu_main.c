@@ -508,10 +508,10 @@ void Menu_Main(void) {
 		else if (MENU_STATE == MENU_STATE_SETTINGS)
 			Menu_DisplaySettings();
 
-		if (((Utils_IsButtonHeld(PSP_CTRL_LTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_RTRIGGER))) || ((Utils_IsButtonHeld(PSP_CTRL_RTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER))))
+		if (Utils_IsButtonHeld(PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER))
 			Screenshot_Capture();
-
-		else if (((Utils_IsButtonHeld(PSP_CTRL_START)) && (Utils_IsButtonPressed(PSP_CTRL_SELECT))) || ((Utils_IsButtonHeld(PSP_CTRL_SELECT)) && (Utils_IsButtonPressed(PSP_CTRL_START))))
+			
+		if (Utils_IsButtonHeld(PSP_CTRL_START | PSP_CTRL_SELECT))
 			longjmp(exitJmp, 1);
 
 		Utils_HandleUSB();

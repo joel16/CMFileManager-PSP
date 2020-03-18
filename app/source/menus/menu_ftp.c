@@ -229,7 +229,7 @@ void Menu_DisplayFTP(void) {
 
 		Utils_ReadControls();
 
-		if (((Utils_IsButtonHeld(PSP_CTRL_LTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_RTRIGGER))) || ((Utils_IsButtonHeld(PSP_CTRL_RTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER))))
+		if (Utils_IsButtonHeld(PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER))
 			Screenshot_Capture();
 
 		if (Utils_IsButtonPressed(PSP_CTRL_START)) {
