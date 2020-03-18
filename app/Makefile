@@ -17,9 +17,11 @@ VERSION_MINOR :=  2
 VERSION_MICRO :=  0
 
 INCDIR   = ../libs/include ../libs/include/ogg ../libs/include/opus include include/menus
-CFLAGS   = -O3 -G0 -Wall -Werror -ffast-math -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
+CFLAGS   = -Os -G0 -Wall -Werror -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS  := $(CFLAGS)
+
+BUILD_PRX = 1
 
 LIBDIR  = ../libs/lib
 LDFLAGS =

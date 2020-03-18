@@ -12,9 +12,9 @@
 #include "textures.h"
 #include "utils.h"
 
-PSP_MODULE_INFO("CMFileManager", PSP_MODULE_USER, VERSION_MAJOR, VERSION_MINOR);
-PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
-PSP_HEAP_SIZE_MAX();
+PSP_MODULE_INFO("CMFileManager", 0x800, VERSION_MAJOR, VERSION_MINOR);
+PSP_HEAP_SIZE_KB(-2048);
+PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 
 static int cpu_clock = 0, bus_clock = 0;
 
@@ -59,13 +59,11 @@ static int Init_Services(void) {
 
 	// Get the initial working directory.
 	getcwd(initial_cwd, 128);
-
+	
+	Utils_InitKernelDrivers();
+	Log_OpenFileHande();
 	Utils_IsMemCardInserted(&is_ms_inserted);
 	is_psp_go = Utils_IsModelPSPGo();
-
-	Log_OpenFileHande();
-
-	Utils_InitKernelDrivers();
 	
 	if (R_FAILED(ret = Config_Load())) {
 		Log_Print("Config_Load failed: 0x%lx\n", ret);
