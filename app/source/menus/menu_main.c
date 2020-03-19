@@ -60,12 +60,12 @@ static void Menu_HandleMultiSelect(void) {
 	Utils_SetMin(&multi_select_index, 50, 0);
 }
 
-static void Menu_ControlMenubar(void) {
+static void Menu_ControlMenubar(int ctrl) {
 	char *buf = NULL;
 
-	if (Utils_IsButtonPressed(PSP_CTRL_UP))
+	if (ctrl & PSP_CTRL_UP)
 		menubar_selection--;
-	else if (Utils_IsButtonPressed(PSP_CTRL_DOWN))
+	else if (ctrl & PSP_CTRL_DOWN)
 		menubar_selection++;
 
 	if (is_psp_go) {
@@ -348,11 +348,11 @@ static void Menu_ControlMenubar(void) {
 	}
 }
 
-static void Menu_ControlHome(void) {
+static void Menu_ControlHome(int ctrl) {
 	if (file_count > 0) {
-		if (Utils_IsButtonPressed(PSP_CTRL_UP))
+		if (ctrl & PSP_CTRL_UP)
 			position--;
-		else if (Utils_IsButtonPressed(PSP_CTRL_DOWN))
+		else if (ctrl & PSP_CTRL_DOWN)
 			position++;
 
 		Utils_SetMax(&position, 0, file_count - 1);
@@ -484,34 +484,34 @@ void Menu_Main(void) {
 		StatusBar_DisplayTime();
 		Dirbrowse_DisplayFiles();
 
-		Utils_ReadControls();
+		int ctrl = Utils_ReadControls();
 
 		if (MENU_STATE == MENU_STATE_HOME)
-			Menu_ControlHome();
+			Menu_ControlHome(ctrl);
 		else if (MENU_STATE == MENU_STATE_FILEOPTIONS) {
 			Menu_DisplayFileOptions();
-			Menu_ControlFileOptions();
+			Menu_ControlFileOptions(ctrl);
 		}
 		else if (MENU_STATE == MENU_STATE_PROPERTIES) {
 			Menu_DisplayFileProperties();
-			Menu_ControlFileProperties();
+			Menu_ControlFileProperties(ctrl);
 		}
 		else if (MENU_STATE == MENU_STATE_DELETE) {
 			Menu_DisplayDeleteDialog();
-			Menu_ControlDeleteDialog();
+			Menu_ControlDeleteDialog(ctrl);
 		}
 		else if (MENU_STATE == MENU_STATE_MENUBAR) {
 			Menu_AnimateMenubar(delta_time);
-			Menu_ControlMenubar();
+			Menu_ControlMenubar(ctrl);
 			Menu_DisplayMenubar();
 		}
 		else if (MENU_STATE == MENU_STATE_SETTINGS)
 			Menu_DisplaySettings();
 
-		if (Utils_IsButtonHeld(PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER))
+		if (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER))
 			Screenshot_Capture();
 			
-		if (Utils_IsButtonHeld(PSP_CTRL_START | PSP_CTRL_SELECT))
+		if (Utils_IsButtonPressed(PSP_CTRL_START | PSP_CTRL_SELECT))
 			longjmp(exitJmp, 1);
 
 		Utils_HandleUSB();

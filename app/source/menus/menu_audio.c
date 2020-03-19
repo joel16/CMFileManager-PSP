@@ -109,7 +109,7 @@ void Menu_PlayAudio(const char *path) {
 		if (Utils_IsButtonPressed(PSP_CTRL_CANCEL))
 			Audio_Stop();
 
-		if (Utils_IsButtonHeld(PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER))
+		if (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER))
 			Screenshot_Capture();
 	}
 

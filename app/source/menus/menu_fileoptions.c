@@ -289,30 +289,6 @@ static void HandleDelete(void) {
 	MENU_STATE = MENU_STATE_HOME;
 }
 
-void Menu_ControlDeleteDialog(void) {
-	if (Utils_IsButtonPressed(PSP_CTRL_RIGHT))
-		delete_dialog_selection++;
-	else if (Utils_IsButtonPressed(PSP_CTRL_LEFT))
-		delete_dialog_selection--;
-
-	Utils_SetMax(&delete_dialog_selection, 0, 1);
-	Utils_SetMin(&delete_dialog_selection, 1, 0);
-
-	if (Utils_IsButtonPressed(PSP_CTRL_CANCEL)) {
-		delete_dialog_selection = 0;
-		MENU_STATE = MENU_STATE_FILEOPTIONS;
-	}
-
-	if (Utils_IsButtonPressed(PSP_CTRL_ENTER)) {
-		if (delete_dialog_selection == 1)
-			HandleDelete();
-		else
-			MENU_STATE = MENU_STATE_FILEOPTIONS;
-
-		delete_dialog_selection = 0;
-	}
-}
-
 static int sceIoMove(const char *src, const char *dest) {
 	int ret = 0;
 	size_t i = 0;
@@ -651,11 +627,35 @@ static void HandleCut(void) {
 	scePowerUnlock(0);
 }
 
+void Menu_ControlDeleteDialog(int ctrl) {
+	if (ctrl & PSP_CTRL_RIGHT)
+		delete_dialog_selection++;
+	else if (ctrl & PSP_CTRL_LEFT)
+		delete_dialog_selection--;
+
+	Utils_SetMax(&delete_dialog_selection, 0, 1);
+	Utils_SetMin(&delete_dialog_selection, 1, 0);
+
+	if (Utils_IsButtonPressed(PSP_CTRL_CANCEL)) {
+		delete_dialog_selection = 0;
+		MENU_STATE = MENU_STATE_FILEOPTIONS;
+	}
+
+	if (Utils_IsButtonPressed(PSP_CTRL_ENTER)) {
+		if (delete_dialog_selection == 1)
+			HandleDelete();
+		else
+			MENU_STATE = MENU_STATE_FILEOPTIONS;
+
+		delete_dialog_selection = 0;
+	}
+}
+
 void Menu_DisplayDeleteDialog(void) {
 	Dialog_DisplayPrompt("Confirm deletion", "Do you wish to continue?", NULL, &delete_dialog_selection, false);
 }
 
-void Menu_ControlFileProperties(void) {
+void Menu_ControlFileProperties(int ctrl) {
 	if ((Utils_IsButtonPressed(PSP_CTRL_ENTER)) || (Utils_IsButtonPressed(PSP_CTRL_CANCEL)))
 		MENU_STATE = MENU_STATE_FILEOPTIONS;
 }
@@ -697,15 +697,15 @@ void Menu_DisplayFileProperties(void) {
 	}
 }
 
-void Menu_ControlFileOptions(void) {
-	if (Utils_IsButtonPressed(PSP_CTRL_RIGHT))
+void Menu_ControlFileOptions(int ctrl) {
+	if (ctrl & PSP_CTRL_RIGHT)
 		row++;
-	else if (Utils_IsButtonPressed(PSP_CTRL_LEFT))
+	else if (ctrl & PSP_CTRL_LEFT)
 		row--;
 
-	if (Utils_IsButtonPressed(PSP_CTRL_DOWN))
+	if (ctrl & PSP_CTRL_DOWN)
 		column++;
-	else if (Utils_IsButtonPressed(PSP_CTRL_UP))
+	else if (ctrl & PSP_CTRL_UP)
 		column--;
 
 	if (!options_more) {

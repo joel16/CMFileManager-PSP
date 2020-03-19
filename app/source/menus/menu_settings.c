@@ -65,17 +65,17 @@ static void Menu_DisplaySortSettings(void) {
 		
 		g2dFlip(G2D_VSYNC);
 
-		Utils_ReadControls();
+		int ctrl = Utils_ReadControls();
 
 		if (Utils_IsButtonPressed(PSP_CTRL_CANCEL))
 			break;
 			
-		if (Utils_IsButtonPressed(PSP_CTRL_DOWN))
+		if (ctrl & PSP_CTRL_DOWN)
 			selection++;
-		else if (Utils_IsButtonPressed(PSP_CTRL_UP))
+		else if (ctrl & PSP_CTRL_UP)
 			selection--;
 
-		if (Utils_IsButtonHeld(PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER))
+		if (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER))
 			Screenshot_Capture();
 
 		Utils_SetMax(&selection, 0, max_items);
@@ -206,9 +206,9 @@ void Menu_DisplaySettings(void) {
 
 		g2dFlip(G2D_VSYNC);
 
-		Utils_ReadControls();
+		int ctrl = Utils_ReadControls();
 
-		if (((Utils_IsButtonHeld(PSP_CTRL_LTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_RTRIGGER))) || ((Utils_IsButtonHeld(PSP_CTRL_RTRIGGER)) && (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER))))
+		if (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER))
 			Screenshot_Capture();
 
 		if (display_about)
@@ -219,9 +219,9 @@ void Menu_DisplaySettings(void) {
 			if ((Utils_IsButtonPressed(PSP_CTRL_CANCEL)) || (Utils_IsButtonPressed(PSP_CTRL_START)))
 				break;
 			
-			if (Utils_IsButtonPressed(PSP_CTRL_DOWN))
+			if (ctrl & PSP_CTRL_DOWN)
 				selection++;
-			else if (Utils_IsButtonPressed(PSP_CTRL_UP))
+			else if (ctrl & PSP_CTRL_UP)
 				selection--;
 
 			Utils_SetMax(&selection, 0, max_items);

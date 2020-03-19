@@ -14,8 +14,11 @@
 #include "utils.h"
 
 #define NELEMS(a) (sizeof(a) / sizeof(a[0]))
+#define CTRL_DELAY 100000
+#define CTRL_DEADZONE_DELAY 500000
 
-static SceCtrlData current_pad, previous_pad;
+static SceCtrlData pad, prev_pad;
+static int last_button = 0, last_button_tick = 0, deadzone_tick = 0;
 static bool g_usb_module_loaded = false;
 static bool g_usb_actived = false;
 static SceUID audio_driver = 0, display_driver = 0, fs_driver = 0;
@@ -415,16 +418,31 @@ static int Utils_GetRegistryValue(const char *dir, const char *name, unsigned in
 }
 
 int Utils_ReadControls(void) {
-	previous_pad = current_pad;
-	return sceCtrlReadBufferPositive(&current_pad, 1);
+	prev_pad = pad;
+	sceCtrlReadBufferPositive(&pad, 1);
+	
+	if (pad.Buttons == last_button) {
+		if (pad.TimeStamp - deadzone_tick < CTRL_DEADZONE_DELAY)
+			return 0;
+			
+		if (pad.TimeStamp - last_button_tick < CTRL_DELAY)
+			return 0;
+			
+		last_button_tick = pad.TimeStamp;
+		return last_button;
+	}
+	
+	last_button = pad.Buttons;
+	deadzone_tick = last_button_tick = pad.TimeStamp;
+	return last_button;
 }
 
 int Utils_IsButtonPressed(enum PspCtrlButtons buttons) {
-	return ((current_pad.Buttons & buttons) == buttons) && ((previous_pad.Buttons & buttons) != buttons);
+	return ((pad.Buttons & buttons) == buttons) && ((prev_pad.Buttons & buttons) != buttons);
 }
 
 int Utils_IsButtonHeld(enum PspCtrlButtons buttons) {
-	return ((current_pad.Buttons & buttons) == buttons) && ((previous_pad.Buttons & buttons) != buttons);
+	return pad.Buttons & buttons;
 }
 
 int Utils_GetEnterButton(void) {
@@ -453,9 +471,9 @@ int Utils_GetCancelButton(void) {
 }
 
 float Utils_GetAnalogX(void) {
-	return (((float)current_pad.Lx - 122.5f) / 122.5f);
+	return (((float)pad.Lx - 122.5f) / 122.5f);
 }
 
 float Utils_GetAnalogY(void) {
-	return (((float)current_pad.Ly - 122.5f) / 122.5f);
+	return (((float)pad.Ly - 122.5f) / 122.5f);
 }

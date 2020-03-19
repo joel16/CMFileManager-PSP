@@ -19,7 +19,6 @@ void Menu_DisplayError(const char *msg, int ret) {
 	while (1) {
 		Dialog_DisplayMessage("Error", msg, result);
 		Utils_ReadControls();
-
 		if ((Utils_IsButtonPressed(PSP_CTRL_ENTER)) || (Utils_IsButtonPressed(PSP_CTRL_CANCEL)))
 			break;
 	}

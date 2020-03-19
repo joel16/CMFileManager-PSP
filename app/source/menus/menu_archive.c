@@ -156,11 +156,11 @@ int Archive_ExtractFile(const char *path) {
 	
 	while (1) {
 		Dialog_DisplayPrompt("Extract file", "This may take a few minutes.", "Do you want to continue?", &dialog_selection, true);
-		Utils_ReadControls();
+		int ctrl = Utils_ReadControls();
 
-		if (Utils_IsButtonPressed(PSP_CTRL_RIGHT))
+		if (ctrl & PSP_CTRL_RIGHT)
 			dialog_selection++;
-		else if (Utils_IsButtonPressed(PSP_CTRL_LEFT))
+		else if (ctrl & PSP_CTRL_LEFT)
 			dialog_selection--;
 
 		Utils_SetMax(&dialog_selection, 0, 1);

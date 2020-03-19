@@ -167,7 +167,7 @@ void Game_DisplayLauncher(const char *path) {
         
         Utils_ReadControls();
         
-        if (Utils_IsButtonHeld(PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER))
+        if (Utils_IsButtonPressed(PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER))
             Screenshot_Capture();
         
         if (Utils_IsButtonPressed(PSP_CTRL_ENTER))
