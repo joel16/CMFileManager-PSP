@@ -14,4 +14,3 @@ config_t config;
 
 int Config_Save(config_t config);
 int Config_Load(void);
-int Config_GetLastDirectory(void);

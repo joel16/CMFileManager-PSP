@@ -62,14 +62,6 @@ static int Init_Services(void) {
 	
 	Utils_InitKernelDrivers();
 	Log_OpenFileHande();
-	Utils_IsMemCardInserted(&is_ms_inserted);
-	is_psp_go = Utils_IsModelPSPGo();
-	
-	if (R_FAILED(ret = Config_Load())) {
-		Log_Print("Config_Load failed: 0x%lx\n", ret);
-		return ret;
-	}
-
 	Textures_Load();
 
 	if (R_FAILED(ret = intraFontInit())) {
@@ -87,6 +79,14 @@ static int Init_Services(void) {
 	intraFontSetAltFont(jpn_font, chn_font);
 	intraFontSetAltFont(chn_font, kor_font);
 	intraFontSetAltFont(kor_font, sym_font);
+
+	Utils_IsMemCardInserted(&is_ms_inserted);
+	is_psp_go = Utils_IsModelPSPGo();
+	
+	if (R_FAILED(ret = Config_Load())) {
+		Log_Print("Config_Load failed: 0x%lx\n", ret);
+		return ret;
+	}
 
 	PSP_CTRL_ENTER = Utils_GetEnterButton();
 	PSP_CTRL_CANCEL = Utils_GetCancelButton();

@@ -356,7 +356,7 @@ u64 Utils_GetTotalStorage(void) {
 	SystemDevCommand command;
 	command.pdevinf = &devctl;
 
-	if (R_FAILED(ret = sceIoDevctl("ms0:", 0x02425818, &command, sizeof(SystemDevCommand), NULL, 0)))
+	if (R_FAILED(ret = sceIoDevctl(BROWSE_STATE == BROWSE_STATE_INTERNAL? "ef0": "ms0:", 0x02425818, &command, sizeof(SystemDevCommand), NULL, 0)))
 		return 0;
 
 	u64 size = (devctl.maxclusters * devctl.sectorcount) * devctl.sectorsize;
@@ -370,7 +370,7 @@ static u64 Utils_GetFreeStorage(void) {
 	SystemDevCommand command;
 	command.pdevinf = &devctl;
 
-	if (R_FAILED(ret = sceIoDevctl("ms0:", 0x02425818, &command, sizeof(SystemDevCommand), NULL, 0)))
+	if (R_FAILED(ret = sceIoDevctl(BROWSE_STATE == BROWSE_STATE_INTERNAL? "ef0": "ms0:", 0x02425818, &command, sizeof(SystemDevCommand), NULL, 0)))
 		return 0;
 
 	u64 size = (devctl.freeclusters * devctl.sectorcount) * devctl.sectorsize; 

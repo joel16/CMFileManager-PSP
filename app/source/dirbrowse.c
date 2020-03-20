@@ -133,7 +133,7 @@ void Dirbrowse_DisplayFiles(void) {
 	intraFontSetStyle(font, 0.7f, WHITE, G2D_RGBA(0, 0, 0, 0), 0.f, INTRAFONT_ALIGN_LEFT);
 	intraFontPrint(font, 40, 20 + ((40 - (font->texYSize - 30)) / 2), cwd);
 
-	if (is_ms_inserted) {
+	if ((BROWSE_STATE == BROWSE_STATE_SD) || (BROWSE_STATE == BROWSE_STATE_INTERNAL)) {
 		G2D_DrawRect(40, 52, 400, 3, config.dark_theme? SELECTOR_COLOUR_DARK : G2D_RGBA(10, 73, 163, 255));
 		G2D_DrawRect(40, 52, (((double)used_storage/(double)total_storage) * 400.0), 3, config.dark_theme? TITLE_COLOUR_DARK : G2D_RGBA(49, 161, 224, 255));
 	}

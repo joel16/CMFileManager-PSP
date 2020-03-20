@@ -49,6 +49,11 @@ int Config_Load(void) {
 	strncpy(root_path, is_psp_go? "ef0:/" : "ms0:/", 6);
 	strncpy(cwd, is_psp_go? "ef0:/" : "ms0:/", 6);
 
+	if (is_psp_go)
+		BROWSE_STATE = BROWSE_STATE_INTERNAL;
+	else
+		BROWSE_STATE = BROWSE_STATE_SD;
+
 	if (!FS_FileExists("config.json")) {
 		config.sort = 0;
 		config.dark_theme = false;

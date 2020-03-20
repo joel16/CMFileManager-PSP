@@ -61,8 +61,6 @@ static void Menu_HandleMultiSelect(void) {
 }
 
 static void Menu_ControlMenubar(int ctrl) {
-	char *buf = NULL;
-
 	if (ctrl & PSP_CTRL_UP)
 		menubar_selection--;
 	else if (ctrl & PSP_CTRL_DOWN)
@@ -91,50 +89,12 @@ static void Menu_ControlMenubar(int ctrl) {
 			memset(root_path, 0, strlen(root_path));
 			if ((is_psp_go && is_ms_inserted) || (!is_psp_go)) {
 				strcpy(root_path, "ms0:/");
-
-				if (FS_FileExists("lastdir.txt")) {
-					buf = (char *)calloc(256, sizeof(char));
-					if (R_FAILED(FS_ReadFile("lastdir.txt", buf, 256))) {
-						free(buf);
-						strcpy(cwd, "ms0:/");
-					}
-
-					char temp_path[256], drive[6];
-					sscanf(buf, "%[^\n]s", temp_path);
-					sscanf(drive, "%5s", temp_path);
-
-					if (FS_DirExists(temp_path) && (!strcmp(drive, root_path))) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
-						strcpy(cwd, temp_path);
-					else
-						strcpy(cwd, "ms0:/");
-
-					free(buf);
-				}
-
+				strcpy(cwd, "ms0:/");
 				BROWSE_STATE = BROWSE_STATE_SD;
 			}
 			else if (is_psp_go && !is_ms_inserted) {
 				strcpy(root_path, "ef0:/");
-
-				if (FS_FileExists("lastdir.txt")) {
-					buf = (char *)calloc(256, sizeof(char));
-					if (R_FAILED(FS_ReadFile("lastdir.txt", buf, 256))) {
-						free(buf);
-						strcpy(cwd, "ef0:/");
-					}
-
-					char temp_path[256], drive[6];
-					sscanf(buf, "%[^\n]s", temp_path);
-					sscanf(drive, "%5s", temp_path);
-
-					if (FS_DirExists(temp_path) && (!strcmp(drive, root_path))) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
-						strcpy(cwd, temp_path);
-					else
-						strcpy(cwd, "ef0:/");
-
-					free(buf);
-				}
-
+				strcpy(cwd, "ef0:/");
 				BROWSE_STATE = BROWSE_STATE_INTERNAL;
 			}
 
@@ -142,6 +102,8 @@ static void Menu_ControlMenubar(int ctrl) {
 			menubar_x = -180;
 
 			Dirbrowse_PopulateFiles(true);
+			total_storage = Utils_GetTotalStorage();
+			used_storage = Utils_GetUsedStorage();
 			MENU_STATE = MENU_STATE_HOME;
 
 			old_menubar_selection = 0;
@@ -154,27 +116,7 @@ static void Menu_ControlMenubar(int ctrl) {
 			strcpy(root_path, (is_psp_go && is_ms_inserted)? "ef0:/" : "flash0:/");
 			strcpy(cwd, (is_psp_go && is_ms_inserted)? "ef0:/" : "flash0:/");
 
-			if (is_psp_go && is_ms_inserted) {
-				if (FS_FileExists("lastdir.txt")) {
-					buf = (char *)calloc(256, sizeof(char));
-					if (R_FAILED(FS_ReadFile("lastdir.txt", buf, 256))) {
-						free(buf);
-						strcpy(cwd, "ef0:/");
-					}
-
-					char temp_path[256], drive[7];
-					sscanf(buf, "%[^\n]s\n", temp_path);
-					snprintf(drive, 7, "%.5s", temp_path);
-
-					if (FS_DirExists(temp_path) && (!strcmp(drive, root_path))) // Incase a directory previously visited had been deleted, set start path to sdmc:/ to avoid errors.
-						strcpy(cwd, temp_path);
-					else
-						strcpy(cwd, "ef0:/");
-
-					free(buf);
-				}
-			}
-			else {
+			if (!(is_psp_go && is_ms_inserted)) {
 				int ret = 0;
 				if ((R_FAILED(ret = sceIoUnassign("flash0:"))) && (ret != 0x80020321))
 					Menu_DisplayError("sceIoUnassign(flash0) failed", ret);
@@ -189,6 +131,8 @@ static void Menu_ControlMenubar(int ctrl) {
 			menubar_x = -180;
 
 			Dirbrowse_PopulateFiles(true);
+			total_storage = Utils_GetTotalStorage();
+			used_storage = Utils_GetUsedStorage();
 			MENU_STATE = MENU_STATE_HOME;
 
 			old_menubar_selection = 1;
