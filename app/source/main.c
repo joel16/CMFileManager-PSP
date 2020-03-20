@@ -13,13 +13,13 @@
 #include "utils.h"
 
 PSP_MODULE_INFO("CMFileManager", 0x800, VERSION_MAJOR, VERSION_MINOR);
+PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
 PSP_HEAP_SIZE_KB(-2048);
-PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER);
 
 static int cpu_clock = 0, bus_clock = 0;
 
-extern const char Roboto_pgf_start[];
-extern unsigned int Roboto_pgf_size;
+extern const char NotoSans_pgf_start[];
+extern unsigned int NotoSans_pgf_size;
 
 static int Callbacks_Exit() {
 	sceKernelExitGame();
@@ -77,7 +77,16 @@ static int Init_Services(void) {
 		return ret;
 	}
 
-	font = intraFontLoadMem("ram:/Roboto.pgf", Roboto_pgf_start, Roboto_pgf_size, INTRAFONT_CACHE_ALL);
+	font = intraFontLoadMem("ram:/NotoSans.pgf", NotoSans_pgf_start, NotoSans_pgf_size, INTRAFONT_STRING_UTF8 | INTRAFONT_CACHE_LARGE);
+	jpn_font = intraFontLoadMem("ram:/NotoSans.pgf", NotoSans_pgf_start, NotoSans_pgf_size, INTRAFONT_STRING_UTF8 | INTRAFONT_CACHE_LARGE);
+	chn_font = intraFontLoadMem("ram:/NotoSans.pgf", NotoSans_pgf_start, NotoSans_pgf_size, INTRAFONT_STRING_UTF8 | INTRAFONT_CACHE_LARGE);
+	kor_font = intraFontLoadMem("ram:/NotoSans.pgf", NotoSans_pgf_start, NotoSans_pgf_size, INTRAFONT_STRING_UTF8 | INTRAFONT_CACHE_LARGE);
+	sym_font = intraFontLoadMem("ram:/NotoSans.pgf", NotoSans_pgf_start, NotoSans_pgf_size, INTRAFONT_STRING_UTF8 | INTRAFONT_CACHE_LARGE);
+
+	intraFontSetAltFont(font, jpn_font);
+	intraFontSetAltFont(jpn_font, chn_font);
+	intraFontSetAltFont(chn_font, kor_font);
+	intraFontSetAltFont(kor_font, sym_font);
 
 	PSP_CTRL_ENTER = Utils_GetEnterButton();
 	PSP_CTRL_CANCEL = Utils_GetCancelButton();
@@ -85,6 +94,10 @@ static int Init_Services(void) {
 }
 
 static void Term_Services(void) {
+	intraFontUnload(sym_font);
+	intraFontUnload(kor_font);
+	intraFontUnload(chn_font);
+	intraFontUnload(jpn_font);
 	intraFontUnload(font);
 	Textures_Free();
 	Utils_TermKernelDrivers();
