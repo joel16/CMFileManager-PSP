@@ -13,7 +13,7 @@ OBJS := $(addsuffix .o,$(BINFILES)) \
 PSP_LARGE_MEMORY = 1
 
 VERSION_MAJOR :=  3
-VERSION_MINOR :=  2
+VERSION_MINOR :=  3
 VERSION_MICRO :=  0
 
 INCDIR   = ../libs/include ../libs/include/ogg ../libs/include/opus include include/menus
