@@ -10,7 +10,13 @@
 
 #define CONFIG_VERSION 2
 
-const char *config_file = "{\"config_ver\": %d, \"sort\": %d, \"dark_theme\": %d, \"auto_usb\": %d, \"dev_options\": %d, \"large_icons\": %d}\n";
+const char *config_file = "{\n\
+	\t\"config_ver\": %d,\n\
+	\t\"sort\": %d,\n\
+	\t\"dark_theme\": %d,\n\
+	\t\"auto_usb\": %d,\n\
+	\t\"dev_options\": %d,\n\
+	\t\"large_icons\": %d\n}\n";
 static int config_version_holder = 0;
 
 static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
@@ -38,6 +44,10 @@ int Config_Save(config_t config) {
 
 int Config_Load(void) {
 	int ret = 0;
+
+	// Set root path and current working directory based on model.
+	strncpy(root_path, is_psp_go? "ef0:/" : "ms0:/", 6);
+	strncpy(cwd, is_psp_go? "ef0:/" : "ms0:/", 6);
 
 	if (!FS_FileExists("config.json")) {
 		config.sort = 0;
@@ -114,54 +124,6 @@ int Config_Load(void) {
 		config.dev_options = false;
 		config.large_icons = true;
 		return Config_Save(config);
-	}
-	
-	return 0;
-}
-
-int Config_GetLastDirectory(void) {
-	int ret = 0;
-	char *buf = (char *)calloc(256, sizeof(char));
-	
-	if (FS_FileExists("lastdir.txt")) {
-		if (R_FAILED(ret = FS_ReadFile("lastdir.txt", buf, 256))) {
-			Log_Print("FS_ReadFile lastdir failed 0x%lx\n", ret);
-			free(buf);
-			return ret;
-		}
-
-		char temp_path[256], drive[7];
-		sscanf(buf, "%[^\n]s\n", temp_path);
-		snprintf(drive, 7, "%.5s", temp_path);
-		snprintf(root_path, 7, "%.5s", drive);
-
-		if (!strcmp(root_path, "ef0:/"))
-			BROWSE_STATE = BROWSE_STATE_INTERNAL;
-		else
-			BROWSE_STATE = BROWSE_STATE_SD;
-		
-		if (FS_DirExists(temp_path) && (!strcmp(drive, root_path))) // Incase a directory previously visited had been deleted, set start path to ef0:/ or ms0:/ to avoid errors.
-			strcpy(cwd, temp_path);
-		else
-			strcpy(cwd, is_psp_go? "ef0:/" : "ms0:/");
-		
-		free(buf);
-	}
-	else {
-		strcpy(root_path, is_psp_go? "ef0:/" : "ms0:/");
-		int len = snprintf(buf, 256, is_psp_go? "ef0:/" : "ms0:/");
-
-		if (is_psp_go)
-			BROWSE_STATE = BROWSE_STATE_INTERNAL;
-
-		if (R_FAILED(ret = FS_WriteFile("lastdir.txt", buf, len))) {
-			Log_Print("FS_WriteFile lastdir failed 0x%lx\n", ret);
-			free(buf);
-			return ret;
-		}
-
-		strcpy(cwd, buf); // Set Start Path to "ms0:/" if lastDir.txt hasn't been created.
-		free(buf);
 	}
 
 	return 0;

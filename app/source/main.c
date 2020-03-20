@@ -70,11 +70,6 @@ static int Init_Services(void) {
 		return ret;
 	}
 
-	if (R_FAILED(ret = Config_GetLastDirectory())) {
-		Log_Print("Config_GetLastDirectory failed: 0x%lx\n", ret);
-		return ret;
-	}
-
 	Textures_Load();
 
 	if (R_FAILED(ret = intraFontInit())) {

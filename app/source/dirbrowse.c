@@ -214,15 +214,6 @@ void Dirbrowse_DisplayFiles(void) {
 	}
 }
 
-static void Dirbrowse_SaveLastDirectory(void) {
-	if ((BROWSE_STATE == BROWSE_STATE_INTERNAL) || (BROWSE_STATE == BROWSE_STATE_SD)) {
-		char *buf = (char *)calloc(256, sizeof(char));
-		int len = snprintf(buf, 256, "%s\n", cwd);
-		FS_WriteFile("lastdir.txt", buf, len);
-		free(buf);
-	}
-}
-
 File *Dirbrowse_GetFileIndex(int index) {
 	int i = 0;
 	File *file = files; // Find file Item
@@ -245,10 +236,8 @@ void Dirbrowse_OpenFile(void) {
 
 	if (file->isDir) {
 		// Attempt to navigate to target
-		if (R_SUCCEEDED(Dirbrowse_Navigate(false))) {
-			Dirbrowse_SaveLastDirectory();
+		if (R_SUCCEEDED(Dirbrowse_Navigate(false)))
 			Dirbrowse_PopulateFiles(true);
-		}
 	}
 	else if ((!strncasecmp(file->ext, "bmp", 3)) || (!strncasecmp(file->ext, "gif", 3)) || (!strncasecmp(file->ext, "jpg", 3))
 		|| (!strncasecmp(file->ext, "jpeg", 4)) || (!strncasecmp(file->ext, "pcx", 3)) || (!strncasecmp(file->ext, "png", 3))
@@ -306,8 +295,6 @@ int Dirbrowse_Navigate(bool parent) {
 			cwd[strlen(cwd)] = '/';
 		}
 	}
-
-	Dirbrowse_SaveLastDirectory();
-
+	
 	return 0; // Return success
 }
