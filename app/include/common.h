@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMFILEMANAGER_COMMON_H
+#define CMFILEMANAGER_COMMON_H
 
 #include <glib2d.h>
 #include <intraFont.h>
@@ -59,3 +60,5 @@ extern char initial_cwd[128];
 
 extern bool is_ms_inserted;
 extern bool is_psp_go;
+
+#endif

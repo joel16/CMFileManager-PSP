@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMFILEMANAGER_FS_H
+#define CMFILEMANAGER_FS_H
 
 #include <pspiofilemgr.h>
 #include <stdbool.h>
@@ -17,3 +18,5 @@ char *FS_GetFilePermission(char *path);
 int FS_StorageGetMaxSize(const char *dev, u64 *size);
 int FS_StorageGetFreeSize(const char *dev, u64 *size);
 int FS_CountFiles(const char *path);
+
+#endif

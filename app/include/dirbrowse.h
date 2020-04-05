@@ -1,6 +1,7 @@
-#pragma once
+#ifndef CMFILEMANAGER_DIRBROWSE_H
+#define CMFILEMANAGER_DIRBROWSE_H
 
-#include <pspkernel.h>
+#include <psptypes.h>
 
 typedef struct File {
 	struct File *next; // Next item
@@ -29,3 +30,5 @@ void Dirbrowse_DisplayFiles(void);
 File *Dirbrowse_GetFileIndex(int index);
 void Dirbrowse_OpenFile(void);
 int Dirbrowse_Navigate(bool parent);
+
+#endif

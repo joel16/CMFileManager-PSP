@@ -1,3 +1,6 @@
+#ifndef CMFILEMANAGER_TEXTURES_H
+#define CMFILEMANAGER_TEXTURES_H
+
 #include <glib2d.h>
 
 g2dTexture *icon_app, *icon_archive, *icon_audio, *icon_cd, *icon_dir, *icon_dir_dark, *icon_file, *icon_image, *icon_prx, *icon_text, \
@@ -14,3 +17,5 @@ g2dTexture *icon_app, *icon_archive, *icon_audio, *icon_cd, *icon_dir, *icon_dir
 
 void Textures_Load(void);
 void Textures_Free(void);
+
+#endif

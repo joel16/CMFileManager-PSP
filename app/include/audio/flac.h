@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMFILEMANAGER_FLAC_H
+#define CMFILEMANAGER_FLAC_H
 
 int FLAC_Init(const char *path);
 u32 FLAC_GetSampleRate(void);
@@ -8,3 +9,5 @@ u64 FLAC_GetPosition(void);
 u64 FLAC_GetLength(void);
 u64 FLAC_Seek(u64 index);
 void FLAC_Term(void);
+
+#endif

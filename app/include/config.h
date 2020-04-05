@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMFILEMANAGER_CONFIG_H
+#define CMFILEMANAGER_CONFIG_H
 
 #include <stdbool.h>
 
@@ -14,3 +15,5 @@ config_t config;
 
 int Config_Save(config_t config);
 int Config_Load(void);
+
+#endif

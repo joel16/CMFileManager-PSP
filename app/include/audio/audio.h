@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMFILEMANAGER_AUDIO_H
+#define CMFILEMANAGER_AUDIO_H
 
 #include <glib2d.h>
 #include <psptypes.h>
@@ -28,3 +29,5 @@ u64 Audio_GetLength(void);
 u64 Audio_GetPositionSeconds(void);
 u64 Audio_GetLengthSeconds(void);
 void Audio_Term(void);
+
+#endif

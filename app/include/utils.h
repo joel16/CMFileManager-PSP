@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMFILEMANAGER_UTILS_H
+#define CMFILEMANAGER_UTILS_H
 
 #include <pspctrl.h>
 #include <stdbool.h>
@@ -35,3 +36,5 @@ int Utils_GetEnterButton(void);
 int Utils_GetCancelButton(void);
 float Utils_GetAnalogX(void);
 float Utils_GetAnalogY(void);
+
+#endif

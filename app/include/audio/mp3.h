@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMFILEMANAGER_MP3_H
+#define CMFILEMANAGER_MP3_H
 
 int MP3_Init(const char *path);
 u32 MP3_GetSampleRate(void);
@@ -8,3 +9,5 @@ u64 MP3_GetPosition(void);
 u64 MP3_GetLength(void);
 u64 MP3_Seek(u64 index);
 void MP3_Term(void);
+
+#endif

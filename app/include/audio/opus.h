@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMFILEMANAGER_OPUS_H
+#define CMFILEMANAGER_OPUS_H
 
 int OPUS_Init(const char *path);
 u32 OPUS_GetSampleRate(void);
@@ -8,3 +9,5 @@ u64 OPUS_GetPosition(void);
 u64 OPUS_GetLength(void);
 u64 OPUS_Seek(u64 index);
 void OPUS_Term(void);
+
+#endif

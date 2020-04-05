@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMFILEMANAGER_WAV_H
+#define CMFILEMANAGER_WAV_H
 
 int WAV_Init(const char *path);
 u32 WAV_GetSampleRate(void);
@@ -8,3 +9,5 @@ u64 WAV_GetPosition(void);
 u64 WAV_GetLength(void);
 u64 WAV_Seek(u64 index);
 void WAV_Term(void);
+
+#endif

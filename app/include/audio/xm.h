@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CMFILEMANAGER_XM_H
+#define CMFILEMANAGER_XM_H
 
 int XM_Init(const char *path);
 u32 XM_GetSampleRate(void);
@@ -8,3 +9,5 @@ u64 XM_GetPosition(void);
 u64 XM_GetLength(void);
 u64 XM_Seek(u64 index);
 void XM_Term(void);
+
+#endif

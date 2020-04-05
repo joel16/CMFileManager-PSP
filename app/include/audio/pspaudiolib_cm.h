@@ -12,8 +12,8 @@
  *
  * $Id: pspaudiolib.h 1874 2006-04-18 13:20:58Z tyranid $
  */
-#ifndef __AUDIOLIB_H__
-#define __AUDIOLIB_H__
+#ifndef CMFILEMANAGER_PSPAUDIOLIB_CM_H
+#define CMFILEMANAGER_PSPAUDIOLIB_CM_H
 
 #ifdef __cplusplus
 extern "C" {
