@@ -3,11 +3,6 @@
 #include <pspiofilemgr.h>
 #include <stdbool.h>
 
-// PRX function prototypes
-extern int pspOpenDir(const char *dirname);
-extern int pspReadDir(SceUID dir, SceIoDirent *dirent);
-extern int pspCloseDir(SceUID dir);
-
 bool FS_FileExists(const char *path);
 bool FS_DirExists(const char *path);
 int FS_MakeDir(const char *path);

@@ -6,6 +6,7 @@
 
 #include "common.h"
 #include "config.h"
+#include "kernel_functions.h"
 #include "kubridge.h"
 #include "log.h"
 #include "pspusbdevice.h"
@@ -21,7 +22,15 @@ static SceCtrlData pad, prev_pad;
 static int last_button = 0, last_button_tick = 0, deadzone_tick = 0;
 static bool g_usb_module_loaded = false;
 static bool g_usb_actived = false;
-static SceUID audio_driver = 0, display_driver = 0, fs_driver = 0;
+
+static SceUID kernel_driver[5];
+const char *kernel_driver_path[] = {
+	"audio_driver.prx",
+	"display_driver.prx",
+	"fs_driver.prx",
+	"impose_driver.prx",
+	"input_driver.prx"
+};
 
 struct UsbModule {
 	const char *path;
@@ -127,48 +136,6 @@ static void Utils_StopUnloadModules(SceUID modID) {
 	sceKernelUnloadModule(modID);
 }
 
-static int Utils_InitAudioDriver(void) {
-	int ret = 0;
-
-	if (R_FAILED(ret = audio_driver = Utils_LoadStartModule("audio_driver.prx")))
-		return ret;
-
-	return 0;
-}
-
-static void Utils_ExitAudioDriver(void) {
-	if (audio_driver)
-		Utils_StopUnloadModules(audio_driver);
-}
-
-static int Utils_InitDisplayDriver(void) {
-	int ret = 0;
-
-	if (R_FAILED(ret = display_driver = Utils_LoadStartModule("display_driver.prx")))
-		return ret;
-
-	return 0;
-}
-
-static void Utils_ExitDisplayDriver(void) {
-	if (display_driver)
-		Utils_StopUnloadModules(display_driver);
-}
-
-static int Utils_InitFSDriver(void) {
-	int ret = 0;
-
-	if (R_FAILED(ret = fs_driver = Utils_LoadStartModule("fs_driver.prx")))
-		return ret;
-
-	return 0;
-}
-
-static void Utils_ExitFSDriver(void) {
-	if (fs_driver)
-		Utils_StopUnloadModules(fs_driver);
-}
-
 static int Utils_InitUSB(void) {
 	int i = 0, ret = 0;
 
@@ -272,16 +239,21 @@ static void Utils_ExitUSB(void) {
 }
 
 void Utils_InitKernelDrivers(void) {
+	int i = 0;
+	for (i = 0; i < 5; i++) {
+		kernel_driver[i] = Utils_LoadStartModule(kernel_driver_path[i]);
+	}
+	
 	Utils_InitUSB();
-	Utils_InitAudioDriver();
-	Utils_InitDisplayDriver();
-	Utils_InitFSDriver();
 }
 
 void Utils_TermKernelDrivers(void) {
-	Utils_ExitFSDriver();
-	Utils_ExitDisplayDriver();
-	Utils_ExitAudioDriver();
+	int i = 0;
+	for (i = 0; i < 5; i++) {
+		if (kernel_driver[i])
+			Utils_StopUnloadModules(kernel_driver[i]);
+	}
+
 	Utils_ExitUSB();
 }
 
@@ -419,7 +391,8 @@ static int Utils_GetRegistryValue(const char *dir, const char *name, unsigned in
 
 int Utils_ReadControls(void) {
 	prev_pad = pad;
-	sceCtrlReadBufferPositive(&pad, 1);
+	pad = pspGetButtons();
+	//sceCtrlReadBufferPositive(&pad, 1);
 	
 	if (pad.Buttons == last_button) {
 		if (pad.TimeStamp - deadzone_tick < CTRL_DEADZONE_DELAY)

@@ -301,7 +301,7 @@ static void Menu_ControlHome(int ctrl) {
 
 		Utils_SetMax(&position, 0, file_count - 1);
 		Utils_SetMin(&position, file_count - 1, 0);
-
+		
 		if (Utils_IsButtonPressed(PSP_CTRL_LEFT))
 			position = 0;
 		else if (Utils_IsButtonPressed(PSP_CTRL_RIGHT))

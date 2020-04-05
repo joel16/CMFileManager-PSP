@@ -15,6 +15,7 @@
 #include "dirbrowse.h"
 #include "ftppsp.h"
 #include "glib2d_helper.h"
+#include "kernel_functions.h"
 #include "menu_error.h"
 #include "screenshot.h"
 #include "status_bar.h"

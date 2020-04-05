@@ -10,6 +10,7 @@
 #include "dirbrowse.h"
 #include "fs.h"
 #include "glib2d_helper.h"
+#include "kernel_functions.h"
 #include "menu_error.h"
 #include "textures.h"
 #include "utils.h"

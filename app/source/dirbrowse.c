@@ -7,6 +7,7 @@
 #include "dirbrowse.h"
 #include "fs.h"
 #include "glib2d_helper.h"
+#include "kernel_functions.h"
 #include "log.h"
 #include "menu_archive.h"
 #include "menu_audio.h"

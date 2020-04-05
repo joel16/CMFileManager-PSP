@@ -5,6 +5,7 @@
 #include "common.h"
 #include "config.h"
 #include "glib2d_helper.h"
+#include "kernel_functions.h"
 #include "screenshot.h"
 #include "status_bar.h"
 #include "textures.h"

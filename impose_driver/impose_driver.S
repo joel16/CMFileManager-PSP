@@ -1,0 +1,13 @@
+	.set noreorder
+
+#include "pspstub.s"
+
+	STUB_START	"impose_driver",0x40010000,0x00070005
+	STUB_FUNC	0x6AFB7691,impose_driver_6AFB7691
+	STUB_FUNC	0x57DE82E8,impose_driver_57DE82E8
+	STUB_FUNC	0x60390DAF,impose_driver_60390DAF
+	STUB_FUNC	0x5A376E5A,impose_driver_5A376E5A
+	STUB_FUNC	0xBA4995BF,impose_driver_BA4995BF
+	STUB_FUNC	0x55BF8829,impose_driver_55BF8829
+	STUB_FUNC	0x45F32DD0,impose_driver_45F32DD0
+	STUB_END

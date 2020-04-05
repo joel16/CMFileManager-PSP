@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "fs.h"
+#include "kernel_functions.h"
 #include "audio/audio.h"
 #include "audio/pspaudiolib_cm.h"
 
@@ -39,9 +40,6 @@ Audio_Metadata metadata = {0};
 static Audio_Metadata empty_metadata = {0};
 static Audio_Decoder decoder = {0}, empty_decoder = {0};
 bool playing = true, paused = false;
-
-// audio driver function prototype
-int pspAudioSetFrequency(int frequency);
 
 static void Audio_Decode(void *buf, unsigned int length, void *userdata) {
 	if (playing == false || paused == true) {

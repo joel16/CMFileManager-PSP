@@ -3,12 +3,8 @@
 #include <string.h>
 
 #include "fs.h"
+#include "kernel_functions.h"
 #include "utils.h"
-
-// PRX function prototypes
-int pspOpenDir(const char *dirname);
-int pspReadDir(SceUID dir, SceIoDirent *dirent);
-int pspCloseDir(SceUID dir);
 
 bool FS_FileExists(const char *path) {
 	SceUID file = 0;

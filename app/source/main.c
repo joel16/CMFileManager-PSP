@@ -5,9 +5,10 @@
 
 #include "common.h"
 #include "config.h"
+#include "kernel_functions.h"
+#include "kubridge.h"
 #include "log.h"
 #include "menus/menu_main.h"
-#include "kubridge.h"
 #include "systemctrl.h"
 #include "textures.h"
 #include "utils.h"
@@ -90,10 +91,12 @@ static int Init_Services(void) {
 
 	PSP_CTRL_ENTER = Utils_GetEnterButton();
 	PSP_CTRL_CANCEL = Utils_GetCancelButton();
+	pspSetHomePopup(0);
 	return 0;
 }
 
 static void Term_Services(void) {
+	pspSetHomePopup(1);
 	intraFontUnload(sym_font);
 	intraFontUnload(kor_font);
 	intraFontUnload(chn_font);
