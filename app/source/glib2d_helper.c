@@ -4,8 +4,7 @@
 #include <string.h>
 #include <psputility.h>
 
-#include <glib2d.h>
-
+#include "glib2d_helper.h"
 #include "utils.h"
 
 void G2D_DrawRect(float x, float y, float width, float height, g2dColor color) {

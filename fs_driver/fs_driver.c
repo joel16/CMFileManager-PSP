@@ -3,7 +3,7 @@
 
 #include "systemctrl.h"
 
-PSP_MODULE_INFO("fs_driver", PSP_MODULE_KERNEL, 1, 0);
+PSP_MODULE_INFO("fs_driver", PSP_MODULE_KERNEL, 1, 1);
 PSP_NO_CREATE_MAIN_THREAD();
 
 int pspOpenDir(const char *dirname) {

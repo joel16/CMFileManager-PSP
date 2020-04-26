@@ -9,7 +9,7 @@ USE_KERNEL_LIBC = 1
 USE_KERNEL_LIBS = 1
 
 INCDIR = 
-CFLAGS = -O2 -G0 -Wall -fno-builtin-printf
+CFLAGS = -Os -G0 -Wall -fno-builtin-printf
 CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
 ASFLAGS = $(CFLAGS)
 
@@ -20,3 +20,7 @@ LIBS =
 
 PSPSDK=$(shell psp-config --pspsdk-path)
 include $(PSPSDK)/lib/build_prx.mak
+
+all:
+	psp-build-exports -s $(PRX_EXPORTS)
+	mv input_driver.S "../app/drivers/"
