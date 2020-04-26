@@ -53,9 +53,9 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-# CMFileManager PSP Specific
-app/audio_driver.S
-app/display_driver.S
-app/fs_driver.S
-app/impose_driver.S
-app/input_driver.S
+# CMFileManager PSP Specific objects
+ app/drivers/audio_driver.S
+ app/drivers/display_driver.S
+ app/drivers/fs_driver.S
+ app/drivers/impose_driver.S
+ app/drivers/input_driver.S
