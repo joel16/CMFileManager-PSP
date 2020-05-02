@@ -32,6 +32,8 @@ u64 Utils_GetUsedStorage(void);
 int Utils_ReadControls(void);
 int Utils_IsButtonPressed(enum PspCtrlButtons buttons);
 int Utils_IsButtonHeld(enum PspCtrlButtons buttons);
+int Utils_IsKButtonPressed(enum PspCtrlButtons buttons);
+int Utils_IsKButtonHeld(enum PspCtrlButtons buttons);
 int Utils_GetEnterButton(void);
 int Utils_GetCancelButton(void);
 float Utils_GetAnalogX(void);

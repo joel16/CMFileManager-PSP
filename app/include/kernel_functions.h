@@ -30,6 +30,6 @@ extern int pspSetEqualizerMode(int mode);
 extern int pspSetHomePopup(int popup);
 
 // input_driver functions
-extern SceCtrlData pspGetButtons(void);
+extern unsigned int pspGetButtons(void);
 
 #endif

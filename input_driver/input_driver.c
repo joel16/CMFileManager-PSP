@@ -4,12 +4,12 @@
 PSP_MODULE_INFO("input_driver", PSP_MODULE_KERNEL, 1, 1);
 PSP_NO_CREATE_MAIN_THREAD();
 
-SceCtrlData pspGetButtons(void) {
+unsigned int pspGetButtons(void) {
 	u32 k1 = pspSdkSetK1(0);
 	SceCtrlData pad;
 	sceCtrlPeekBufferPositive(&pad, 1);
 	pspSdkSetK1(k1);
-	return pad;
+	return pad.Buttons;
 }
 
 int module_start(SceSize args, void *argp) {

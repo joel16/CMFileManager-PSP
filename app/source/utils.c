@@ -18,7 +18,7 @@
 #define CTRL_DELAY 100000
 #define CTRL_DEADZONE_DELAY 500000
 
-static SceCtrlData pad, prev_pad;
+static SceCtrlData pad, kernel_pad, prev_pad;
 static int last_button = 0, last_button_tick = 0, deadzone_tick = 0;
 static bool g_usb_module_loaded = false;
 static bool g_usb_actived = false;
@@ -391,8 +391,8 @@ static int Utils_GetRegistryValue(const char *dir, const char *name, unsigned in
 
 int Utils_ReadControls(void) {
 	prev_pad = pad;
-	pad = pspGetButtons();
-	//sceCtrlReadBufferPositive(&pad, 1);
+	kernel_pad.Buttons = pspGetButtons();
+	sceCtrlReadBufferPositive(&pad, 1);
 	
 	if (pad.Buttons == last_button) {
 		if (pad.TimeStamp - deadzone_tick < CTRL_DEADZONE_DELAY)
@@ -416,6 +416,14 @@ int Utils_IsButtonPressed(enum PspCtrlButtons buttons) {
 
 int Utils_IsButtonHeld(enum PspCtrlButtons buttons) {
 	return pad.Buttons & buttons;
+}
+
+int Utils_IsKButtonPressed(enum PspCtrlButtons buttons) {
+	return ((kernel_pad.Buttons & buttons) == buttons) && ((prev_pad.Buttons & buttons) != buttons);
+}
+
+int Utils_IsKButtonHeld(enum PspCtrlButtons buttons) {
+	return kernel_pad.Buttons & buttons;
 }
 
 int Utils_GetEnterButton(void) {

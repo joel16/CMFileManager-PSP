@@ -24,4 +24,4 @@ int pspSetEqualizerMode(int mode);
 int pspSetHomePopup(int popup);
 
 // input_driver functions
-SceCtrlData pspGetButtons(void);
+unsigned int pspGetButtons(void);
