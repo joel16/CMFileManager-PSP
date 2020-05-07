@@ -25,10 +25,10 @@ BUILD_PRX = 1
 
 LIBDIR  = ../libs/lib
 LDFLAGS =
-LIBS    = -lpsputility -lintrafont -lglib2d -lpspgum -lpspgu -lpsprtc -lpspvram \
+LIBS    = -lpsputility -lintrafont -lglib2d -lpspgu -lpsprtc -lpspvram \
           -lxmp-lite -lmpg123 -lvorbisfile -lvorbis -lopusfile -lopus -lFLAC -logg -lpspaudio \
           -larchive -lbz2 -llzma -lz \
-          -lpspsdk -lpspctrl -lpsppower \
+          -lpspctrl -lpsppower \
           -lpspreg -lpspusb -lpspusbstor -lpspusbdevice -lpspumd -lpspkubridge -lpspsystemctrl_user -lm
 
 EXTRA_TARGETS    = EBOOT.PBP
