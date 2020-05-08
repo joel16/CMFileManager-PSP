@@ -60,6 +60,7 @@ typedef struct {
 } SystemDevCommand;
 
 bool psp_usb_cable_connection = false;
+enum PspCtrlButtons PSP_CTRL_ENTER, PSP_CTRL_CANCEL;
 
 void Utils_SetMax(int *set, int value, int max) {
 	if (*set > max)

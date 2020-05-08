@@ -11,7 +11,7 @@ typedef struct {
 	bool large_icons;
 } config_t;
 
-config_t config;
+extern config_t config;
 
 int Config_Save(config_t config);
 int Config_Load(void);

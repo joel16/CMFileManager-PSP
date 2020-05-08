@@ -12,7 +12,7 @@
 #define PSP_GO 4
 
 extern bool psp_usb_cable_connection;
-enum PspCtrlButtons PSP_CTRL_ENTER, PSP_CTRL_CANCEL;
+extern enum PspCtrlButtons PSP_CTRL_ENTER, PSP_CTRL_CANCEL;
 
 void Utils_SetMax(int *set, int value, int max);
 void Utils_SetMin(int *set, int value, int min);

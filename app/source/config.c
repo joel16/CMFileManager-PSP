@@ -8,21 +8,22 @@
 #include "log.h"
 #include "utils.h"
 
-#define CONFIG_VERSION 2
+#define CONFIG_VERSION 3
 
-const char *config_file = "{\n\
-	\t\"config_ver\": %d,\n\
-	\t\"sort\": %d,\n\
-	\t\"dark_theme\": %d,\n\
-	\t\"auto_usb\": %d,\n\
-	\t\"dev_options\": %d,\n\
-	\t\"large_icons\": %d\n}\n";
+static const char *config_file = "{\n\
+\t\"config_ver\": %d,\n\
+\t\"sort\": %d,\n\
+\t\"dark_theme\": %d,\n\
+\t\"auto_usb\": %d,\n\
+\t\"dev_options\": %d,\n\
+\t\"large_icons\": %d\n}\n";
+
 static int config_version_holder = 0;
+config_t config;
 
 static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
-	if (tok->type == JSMN_STRING && (int)strlen(s) == tok->end - tok->start && strncmp(json + tok->start, s, tok->end - tok->start) == 0) {
+	if (tok->type == JSMN_STRING && (int)strlen(s) == tok->end - tok->start && strncmp(json + tok->start, s, tok->end - tok->start) == 0)
 		return 0;
-	}
 	
 	return -1;
 }
