@@ -81,11 +81,13 @@ int Config_Load(void) {
 	jsmn_init(&parser);
 	if (R_FAILED(ret = jsmn_parse(&parser, buf, strlen(buf), token, 128))) {
 		Log_Print("jsmn_parse failed in Config_Load %d\n", ret);
+		free(buf);
 		return ret;
 	}
 	
 	if (ret < 1 || token[0].type != JSMN_OBJECT) {
 		Log_Print("jsmn_parse failed: object expected\n");
+		free(buf);
 		return ret;
 	}
 

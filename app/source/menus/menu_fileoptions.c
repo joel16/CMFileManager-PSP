@@ -50,8 +50,10 @@ static int FileOptions_CreateFolder(void) {
 	char *buf = malloc(256);
 	strcpy(buf, G2D_KeyboardGetText("Enter name", "New folder"));
 
-	if (strncmp(buf, "", 1) == 0)
+	if (strncmp(buf, "", 1) == 0) {
+		free(buf);
 		return -1;
+	}
 
 	char path[512];
 	strcpy(path, cwd);
@@ -70,8 +72,10 @@ static int FileOptions_CreateFile(void) {
 	char *buf = malloc(256);
 	strcpy(buf, G2D_KeyboardGetText("Enter name", "New file"));
 
-	if (strncmp(buf, "", 1) == 0)
+	if (strncmp(buf, "", 1) == 0) {
+		free(buf);
 		return -1;
+	}
 
 	char path[512];
 	strcpy(path, cwd);
