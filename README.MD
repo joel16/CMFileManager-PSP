@@ -38,7 +38,7 @@ CMFileManager PSP is a PSP application built using the unofficial PSPSDK and [gl
 - Press *Start* to open settings.
 - Press *Select* to open menubar.
 - Press *Triangle* to bring up file options.
-- Press *enter button (depending on your region)* to enter diretory/open file.
+- Press *enter button (depending on your region)* to enter directory/open file.
 - Press *cancel button (depending on your region)* to go back to previous directory/menu.
 - Press *L + R* to caputre screenshot.
 - Press *Select + Start* to exit.
