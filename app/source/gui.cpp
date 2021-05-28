@@ -90,6 +90,11 @@ namespace GUI {
                     GUI::ControlFileOptions(&item, &ctrl);
                     break;
 
+                case MENU_STATE_PROPERTIES:
+                    GUI::DisplayFileProperties(&item);
+                    GUI::ControlFileProperties(&item);
+                    break;
+
                 case MENU_STATE_DELETE:
                     GUI::DisplayDeleteOptions(&item);
                     GUI::ControlDeleteOptions(&item, &ctrl);

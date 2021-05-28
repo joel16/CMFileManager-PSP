@@ -97,6 +97,40 @@ namespace FS {
         return stat.st_size;
     }
     
+    char *GetFileTimestamp(SceIoStat *stat, FileTimestamp time) {
+        static char timestamp[30];
+
+        switch(time) {
+            case FileCreatedTime:
+                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat->st_ctime.year, stat->st_ctime.month, stat->st_ctime.day, stat->st_ctime.hour,
+                    stat->st_ctime.minute);
+                break;
+                
+            case FileAccessedTime:
+                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat->st_atime.year, stat->st_atime.month, stat->st_atime.day, stat->st_atime.hour,
+                    stat->st_atime.minute);
+                break;
+            
+            case FileModifiedTime:
+                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat->st_mtime.year, stat->st_mtime.month, stat->st_mtime.day, stat->st_mtime.hour,
+                    stat->st_mtime.minute);
+                break;
+        }
+        
+        return timestamp;
+    }
+
+    char *GetFilePermission(SceIoStat *stat) {
+        static char perms[11];
+
+        snprintf(perms, 11, "%s%s%s%s%s%s%s%s%s%s", (FIO_S_ISDIR(stat->st_mode)) ? "d" : "-", (stat->st_mode & FIO_S_IRUSR) ? "r" : "-",
+            (stat->st_mode & FIO_S_IWUSR) ? "w" : "-", (stat->st_mode & FIO_S_IXUSR) ? "x" : "-", (stat->st_mode & FIO_S_IRGRP) ? "r" : "-",
+            (stat->st_mode & FIO_S_IWGRP) ? "w" : "-", (stat->st_mode & FIO_S_IXGRP) ? "x" : "-", (stat->st_mode & FIO_S_IROTH) ? "r" : "-",
+            (stat->st_mode & FIO_S_IWOTH) ? "w" : "-", (stat->st_mode & FIO_S_IXOTH) ? "x" : "-");
+            
+        return perms;
+    }
+    
     int ReadFile(const std::string &path, void *buf, int size) {
         SceUID file = 0;
         

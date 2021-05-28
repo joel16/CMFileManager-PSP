@@ -21,7 +21,7 @@ namespace GUI {
     void DisplayFileBrowser(MenuItem *item) {
         G2D::FontSetStyle(font, 1.0f, WHITE, INTRAFONT_ALIGN_LEFT);
         float height = G2D::GetTextHeight(font);
-        intraFontPrint(font, 40, 36, cfg.cwd.c_str());
+        intraFontPrintf(font, 40, 36, cfg.cwd.length() > 42? "%.42s..." : "%s", cfg.cwd.c_str());
         G2D::DrawRect(40, 43, 400, 3, SELECTOR_COLOUR);
         float fill = (static_cast<double>(item->used_storage)/static_cast<double>(item->total_storage)) * 400.f;
         G2D::DrawRect(40, 43, fill, 3, TITLE_COLOUR);
@@ -44,7 +44,7 @@ namespace GUI {
                 G2D::DrawImageScale(file_icons[file_type], 20, start_y + (sel_dist * (i - start)), 18.f, 18.f);
 
             G2D::FontSetStyle(font, 1.0f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
-            intraFontPrintf(font, 45, start_y + 10 + ((sel_dist - height) / 2) + (i - start) * sel_dist, filename.length() > 52? "%.52s..." : "%s", filename.c_str());
+            intraFontPrintf(font, 45, start_y + 10 + ((sel_dist - height) / 2) + (i - start) * sel_dist, filename.length() > 42? "%.42s..." : "%s", filename.c_str());
         }
     }
 

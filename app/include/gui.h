@@ -38,14 +38,17 @@ namespace GUI {
     void DisplayFileBrowser(MenuItem *item);
     void ControlFileBrowser(MenuItem *item, int *ctrl);
 
-    void DisplaySettings(MenuItem *item);
-    void ControlSettings(MenuItem *item, int *ctrl);
-
     void DisplayFileOptions(MenuItem *item);
     void ControlFileOptions(MenuItem *item, int *ctrl);
 
+    void DisplayFileProperties(MenuItem *item);
+    void ControlFileProperties(MenuItem *item);
+
     void DisplayDeleteOptions(MenuItem *item);
     void ControlDeleteOptions(MenuItem *item, int *ctrl);
+
+    void DisplaySettings(MenuItem *item);
+    void ControlSettings(MenuItem *item, int *ctrl);
 
     void DisplayImageViewer(MenuItem *item);
     void ControlImageViewer(MenuItem *item, float *delta_time);

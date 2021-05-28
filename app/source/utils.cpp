@@ -258,7 +258,7 @@ namespace Utils {
         return 0;
     }
 
-    bool IsEF0(void) {
+    bool IsInternalStorage(void) {
         if (is_psp_go) {
             if (!is_ms_inserted)
                 return true;
@@ -279,8 +279,8 @@ namespace Utils {
         param.argp = (void *)path;
         param.key = "game";
         
-        if (R_FAILED(ret = sctrlKernelLoadExecVSHWithApitype(IsEF0()? 0x152 : 0x141, path, &param))) {
-            Log::Error("sctrlKernelLoadExecVSHWithApitype(%x, %s) failed: 0x%lx\n", IsEF0()? 0x152 : 0x141, path, ret);
+        if (R_FAILED(ret = sctrlKernelLoadExecVSHWithApitype(Utils::IsInternalStorage()? 0x152 : 0x141, path, &param))) {
+            Log::Error("sctrlKernelLoadExecVSHWithApitype(%x, %s) failed: 0x%lx\n", Utils::IsInternalStorage()? 0x152 : 0x141, path, ret);
             return ret;
         }
         
