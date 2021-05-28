@@ -49,10 +49,6 @@ namespace GUI {
         G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
         intraFontPrint(font, ((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, "Delete");
 
-        int prompt_width = intraFontMeasureText(font, prompt.c_str());
-        G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
-        intraFontPrint(font, ((480 - (prompt_width)) / 2), ((272 - (dialog->h)) / 2) + 60, prompt.c_str());
-        
         int confirm_width = intraFontMeasureText(font, "YES");
         int cancel_width = intraFontMeasureText(font, "NO");
         
@@ -60,10 +56,13 @@ namespace GUI {
             G2D::DrawRect((364 - cancel_width) - 5, (180 - (font->texYSize - 15)) - 5, cancel_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
         else
             G2D::DrawRect((409 - (confirm_width)) - 5, (180 - (font->texYSize - 15)) - 5, confirm_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
-
-        G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
+        
         intraFontPrint(font, 409 - (confirm_width), (192 - (font->texYSize - 15)) - 3, "YES");
         intraFontPrint(font, 364 - cancel_width, (192 - (font->texYSize - 15)) - 3, "NO");
+
+        int prompt_width = intraFontMeasureText(font, prompt.c_str());
+        G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
+        intraFontPrint(font, ((480 - (prompt_width)) / 2), ((272 - (dialog->h)) / 2) + 60, prompt.c_str());
     }
 
     void ControlDeleteOptions(MenuItem *item, int *ctrl) {
