@@ -1,10 +1,211 @@
+#include <cstring>
+#include <pspdisplay.h>
+#include <pspgu.h>
+#include <pspkernel.h>
+#include <pspnet.h>
+#include <pspnet_apctl.h>
+#include <pspnet_inet.h>
+#include <psppower.h>
+#include <psputility.h>
+
 #include "config.h"
 #include "colours.h"
 #include "fs.h"
+#include "ftppsp.h"
 #include "g2d.h"
+#include "log.h"
 #include "gui.h"
 #include "textures.h"
 #include "utils.h"
+
+namespace FTP {
+    static bool running = 1;
+    
+    static int DisplayNetDialog(void) {
+        running = 1;
+        bool done = 0;
+        
+        pspUtilityNetconfData data;
+        std::memset(&data, 0, sizeof(data));
+        
+        data.base.size = sizeof(data);
+        data.base.language = PSP_SYSTEMPARAM_LANGUAGE_ENGLISH;
+        data.base.buttonSwap = PSP_UTILITY_ACCEPT_CROSS;
+        data.base.graphicsThread = 17;
+        data.base.accessThread = 19;
+        data.base.fontThread = 18;
+        data.base.soundThread = 16;
+        data.action = PSP_NETCONF_ACTION_CONNECTAP;
+        
+        struct pspUtilityNetconfAdhoc adhocparam;
+        std::memset(&adhocparam, 0, sizeof(adhocparam));
+        
+        data.adhocparam = &adhocparam;
+        sceUtilityNetconfInitStart(&data);
+        
+        while(running) {
+            g2dClear(BLACK_BG);
+            g2dFlip(G2D_VSYNC);
+            
+            switch(sceUtilityNetconfGetStatus()) {
+                case PSP_UTILITY_DIALOG_NONE:
+                    running = 1;
+                    break;
+                    
+                case PSP_UTILITY_DIALOG_VISIBLE:
+                    sceUtilityNetconfUpdate(1);
+                    running = 1;
+                    break;
+                
+                case PSP_UTILITY_DIALOG_QUIT:
+                    sceUtilityNetconfShutdownStart();
+                    //running = 0;
+                    break;
+                    
+                case PSP_UTILITY_DIALOG_FINISHED:
+                    done = 1;
+                    break;
+                    
+                default:
+                    break;
+            }
+            
+            if (done) {
+                running = true;
+                break;
+            }
+        }
+        
+        return 1;
+    }
+    
+    static int InitNet(void) {
+        int ret = 0;
+        
+        if (R_FAILED(ret = sceNetInit(128 * 1024, 42, 4 * 1024, 42, 4 * 1024)))
+            return ret;
+            
+        if (R_FAILED(ret = sceNetInetInit()))
+            return ret;
+            
+        if (R_FAILED(ret = sceNetApctlInit(0x8000, 48)))
+            return ret;
+            
+        return 0;
+    }
+    
+    static void ExitNet(void) {
+        sceNetApctlTerm();
+        sceNetInetTerm();
+        sceNetTerm();
+    }
+    
+    static void InitFlash(void) {
+        unsigned int ret = 0;
+        
+        if ((R_FAILED(ret = sceIoUnassign("flash0:"))) && (ret != 0x80020321))
+            Log::Error("sceIoUnassign(flash0) failed: 0x%x\n", ret);
+            
+        if (R_FAILED(ret = sceIoAssign("flash0:", "lflash0:0,0", "flashfat0:", IOASSIGN_RDWR, nullptr, 0)))
+            Log::Error("sceIoAssign(flash0) failed: 0x%x\n", ret);
+            
+        if ((R_FAILED(ret = sceIoUnassign("flash1:"))) && (ret != 0x80020321))
+            Log::Error("sceIoUnassign(flash1) failed: 0x%x\n", ret);
+            
+        if (R_FAILED(ret = sceIoAssign("flash1:", "lflash0:0,1", "flashfat1:", IOASSIGN_RDWR, nullptr, 0)))
+            Log::Error("sceIoAssign(flash1) failed: 0x%x\n", ret);
+            
+        if ((R_FAILED(ret = sceIoUnassign("flash2:"))) && (ret != 0x80020321))
+            Log::Error("sceIoUnassign(flash2) failed: 0x%x\n", ret);
+            
+        if (R_FAILED(ret = sceIoAssign("flash2:", "lflash0:0,2", "flashfat2:", IOASSIGN_RDWR, nullptr, 0)))
+            Log::Error("sceIoAssign(flash2) failed: 0x%x\n", ret);
+            
+        if ((R_FAILED(ret = sceIoUnassign("flash3:"))) && (ret != 0x80020321))
+            Log::Error("sceIoUnassign(flash3) failed: 0x%x\n", ret);
+        
+        if (R_FAILED(ret = sceIoAssign("flash3:", "lflash0:0,3", "flashfat3:", IOASSIGN_RDWR, nullptr, 0)))
+            Log::Error("sceIoAssign(flash3) failed: 0x%x\n", ret);
+    }
+    
+    static void ExitFlash(void) {
+        unsigned int ret = 0;
+        
+        if ((R_FAILED(ret = sceIoUnassign("flash0:"))) && (ret != 0x80020321))
+            Log::Error("sceIoUnassign(flash0) failed: 0x%x\n", ret);
+        
+        if (R_FAILED(ret = sceIoAssign("flash0:", "lflash0:0,0", "flashfat0:", IOASSIGN_RDONLY, nullptr, 0)))
+            Log::Error("sceIoAssign(flash0) failed: 0x%x\n", ret);
+            
+        if ((R_FAILED(ret = sceIoUnassign("flash1:"))) && (ret != 0x80020321))
+            Log::Error("sceIoUnassign(flash1) failed: 0x%x\n", ret);
+            
+        if (R_FAILED(ret = sceIoAssign("flash1:", "lflash0:0,1", "flashfat1:", IOASSIGN_RDONLY, nullptr, 0)))
+            Log::Error("sceIoAssign(flash1) failed: 0x%x\n", ret);
+            
+        if ((R_FAILED(ret = sceIoUnassign("flash2:"))) && (ret != 0x80020321))
+            Log::Error("sceIoUnassign(flash2) failed: 0x%x\n", ret);
+            
+        if (R_FAILED(ret = sceIoAssign("flash2:", "lflash0:0,2", "flashfat2:", IOASSIGN_RDONLY, nullptr, 0)))
+            Log::Error("sceIoAssign(flash2) failed: 0x%x\n", ret);
+            
+        if ((R_FAILED(ret = sceIoUnassign("flash3:"))) && (ret != 0x80020321))
+            Log::Error("sceIoUnassign(flash3) failed: 0x%x\n", ret);
+            
+        if (R_FAILED(ret = sceIoAssign("flash3:", "lflash0:0,3", "flashfat3:", IOASSIGN_RDONLY, nullptr, 0)))
+            Log::Error("sceIoAssign(flash3) failed: 0x%x\n", ret);
+    }
+
+    bool Init(char *string) {
+        int ret = 0;
+        char psp_ip[16];
+        unsigned short int psp_port = 0;
+
+        scePowerLock(0);
+        sceUtilityLoadNetModule(PSP_NET_MODULE_COMMON);
+        sceUtilityLoadNetModule(PSP_NET_MODULE_INET);
+
+        if (R_FAILED(ret = FTP::InitNet()))
+            return false;
+        
+        FTP::DisplayNetDialog();
+
+        if (cfg.dev_options)
+            FTP::InitFlash();
+
+        ret = ftppsp_init(psp_ip, &psp_port);
+        if (is_psp_go) {
+            if (is_ms_inserted) {
+                ftppsp_add_device("ms0:");
+                ftppsp_add_device("ef0:");
+            }
+            else
+                ftppsp_add_device("ef0:");
+        }
+        else
+            ftppsp_add_device("ms0:");
+            
+        if (ret < 0)
+            std::sprintf(string, "Connection Failed. Please enable Wi-Fi");
+        else
+            std::sprintf(string, "FTP Connected %s:%i", psp_ip, psp_port);
+
+        return true;
+    }
+
+    void Exit(void) {
+        ftppsp_fini();
+        
+        if (cfg.dev_options)
+            FTP::ExitFlash();
+        
+        FTP::ExitNet();
+        
+        sceUtilityUnloadNetModule(PSP_NET_MODULE_INET);
+        sceUtilityUnloadNetModule(PSP_NET_MODULE_COMMON);
+        scePowerUnlock(0);
+    }
+}
 
 namespace GUI {
     enum SETTINGS_STATE {
@@ -17,6 +218,31 @@ namespace GUI {
     static SETTINGS_STATE settings_state = GENERAL_SETTINGS;
     static int selection = 0;
     static const int sel_dist = 44;
+    static char ftp_text[64];
+
+    static void DisplayFTPSettings(void) {
+        G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
+        G2D::DrawImage(cfg.dark_theme? dialog_dark : dialog, ((480 - (dialog->w)) / 2), ((272 - (dialog->h)) / 2));
+        G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
+        intraFontPrint(font, ((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, "FTP");
+
+        int ok_width = intraFontMeasureText(font, "OK");
+        G2D::DrawRect((409 - (ok_width)) - 5, (180 - (font->texYSize - 15)) - 5, ok_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
+        intraFontPrint(font, 409 - (ok_width), (192 - (font->texYSize - 15)) - 3, "OK");
+        
+        int text_width = intraFontMeasureText(font, ftp_text);
+        G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
+        intraFontPrint(font, ((480 - (text_width)) / 2), ((272 - (dialog->h)) / 2) + 60, ftp_text);
+    }
+
+    static void ControlFTPSettings(void) {
+        if (Utils::IsButtonPressed(PSP_CTRL_CANCEL)) {
+            FTP::Exit();
+            settings_state = GENERAL_SETTINGS;
+        }
+
+        Utils::SetBounds(&selection, 0, 0);
+    }
 
     static void DisplaySortSettings(void) {
         intraFontPrint(font, 40, 40, "Sorting Options");
@@ -40,7 +266,7 @@ namespace GUI {
         G2D::DrawImage(cfg.sort == 3? (cfg.dark_theme? icon_radio_dark_on : icon_radio_on) : (cfg.dark_theme? icon_radio_dark_off : icon_radio_off), 425, 192);
     }
 
-    static void ControlSortSettings(MenuItem *item, int *ctrl) {
+    static void ControlSortSettings(MenuItem *item) {
         if (Utils::IsButtonPressed(PSP_CTRL_ENTER)) {
             cfg.sort = selection;
             Config::Save(cfg);
@@ -84,6 +310,11 @@ namespace GUI {
     static void ControlGeneralSettings(MenuItem *item, int *ctrl) {
         if (Utils::IsButtonPressed(PSP_CTRL_ENTER)) {
             switch(selection) {
+                case 0:
+                    FTP::Init(ftp_text);
+                    settings_state = FTP_SETTINGS;
+                    break;
+                
                 case 1:
                     settings_state = SORT_SETTINGS;
                     selection = 0;
@@ -122,11 +353,16 @@ namespace GUI {
 
         switch(settings_state) {
             case GENERAL_SETTINGS:
-                DisplayGeneralSettings();
+                GUI::DisplayGeneralSettings();
+                break;
+
+            case FTP_SETTINGS:
+                GUI::DisplayGeneralSettings();
+                GUI::DisplayFTPSettings();
                 break;
             
             case SORT_SETTINGS:
-                DisplaySortSettings();
+                GUI::DisplaySortSettings();
                 break;
 
             default:
@@ -142,11 +378,15 @@ namespace GUI {
         
         switch(settings_state) {
             case GENERAL_SETTINGS:
-                ControlGeneralSettings(item, ctrl);
+                GUI::ControlGeneralSettings(item, ctrl);
+                break;
+
+            case FTP_SETTINGS:
+                GUI::ControlFTPSettings();
                 break;
             
             case SORT_SETTINGS:
-                ControlSortSettings(item, ctrl);
+                GUI::ControlSortSettings(item);
                 break;
 
             default:
