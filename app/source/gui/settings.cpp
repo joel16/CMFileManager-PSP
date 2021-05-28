@@ -165,8 +165,10 @@ namespace FTP {
         sceUtilityLoadNetModule(PSP_NET_MODULE_COMMON);
         sceUtilityLoadNetModule(PSP_NET_MODULE_INET);
 
-        if (R_FAILED(ret = FTP::InitNet()))
+        if (R_FAILED(ret = FTP::InitNet())) {
+            std::sprintf(string, "Net initialization Failed.");
             return false;
+        }
         
         FTP::DisplayNetDialog();
 
@@ -186,7 +188,7 @@ namespace FTP {
             ftppsp_add_device("ms0:");
             
         if (ret < 0)
-            std::sprintf(string, "Connection Failed. Please enable Wi-Fi");
+            std::sprintf(string, "Connection Failed.");
         else
             std::sprintf(string, "FTP Connected %s:%i", psp_ip, psp_port);
 
@@ -218,7 +220,7 @@ namespace GUI {
     static SETTINGS_STATE settings_state = GENERAL_SETTINGS;
     static int selection = 0;
     static const int sel_dist = 44;
-    static char ftp_text[64];
+    static char ftp_text[48];
 
     static void DisplayFTPSettings(void) {
         G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
@@ -280,6 +282,32 @@ namespace GUI {
         Utils::SetBounds(&selection, 0, 3);
     }
 
+    static void DisplayAboutSettings(void) {
+        G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
+        G2D::DrawImage(cfg.dark_theme? dialog_dark : dialog, ((480 - (dialog->w)) / 2), ((272 - (dialog->h)) / 2));
+        G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
+        intraFontPrint(font, ((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, "About");
+
+        int ok_width = intraFontMeasureText(font, "OK");
+        G2D::DrawRect((409 - (ok_width)) - 5, (180 - (font->texYSize - 15)) - 5, ok_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
+        intraFontPrint(font, 409 - (ok_width), (192 - (font->texYSize - 15)) - 3, "OK");
+        
+        G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
+        int version_width = intraFontMeasureText(font, "CMFileManager-PSP version: v4.0.0");
+        intraFontPrintf(font, ((480 - (version_width)) / 2), ((272 - (dialog->h)) / 2) + 50, "CMFileManager-PSP version: v%d.%d.%d", 
+            VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO);
+
+        int author_width = intraFontMeasureText(font, "Author: Joel16");
+        intraFontPrint(font, ((480 - (author_width)) / 2), ((272 - (dialog->h)) / 2) + 68, "Author: Joel16");
+    }
+
+    static void ControlAboutSettings(void) {
+        if ((Utils::IsButtonPressed(PSP_CTRL_ENTER)) || (Utils::IsButtonPressed(PSP_CTRL_CANCEL)))
+            settings_state = GENERAL_SETTINGS;
+        
+        Utils::SetBounds(&selection, 4, 4);
+    }
+
     static void DisplayGeneralSettings(void) {
         intraFontPrint(font, 40, 40, "Settings");
 
@@ -331,7 +359,8 @@ namespace GUI {
                     Config::Save(cfg);
                     break;
                     
-                default:
+                case 4:
+                    settings_state = ABOUT_SETTINGS;
                     break;
             }
         }
@@ -364,8 +393,10 @@ namespace GUI {
             case SORT_SETTINGS:
                 GUI::DisplaySortSettings();
                 break;
-
-            default:
+                
+            case ABOUT_SETTINGS:
+                GUI::DisplayGeneralSettings();
+                GUI::DisplayAboutSettings();
                 break;
         }
     }
@@ -388,8 +419,9 @@ namespace GUI {
             case SORT_SETTINGS:
                 GUI::ControlSortSettings(item);
                 break;
-
-            default:
+                
+            case ABOUT_SETTINGS:
+                GUI::ControlAboutSettings();
                 break;
         }
     }
