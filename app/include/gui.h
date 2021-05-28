@@ -1,7 +1,9 @@
 #ifndef _CMFILEMANAGER_GUI_HELPER_H_
 #define _CMFILEMANAGER_GUI_HELPER_H_
 
+#include <glib2d.h>
 #include <pspiofilemgr.h>
+#include <string>
 #include <vector>
 
 enum MENU_STATES {
@@ -32,7 +34,7 @@ typedef struct {
 namespace GUI {
     void ResetCheckbox(MenuItem *item);
     void GetStorageSize(MenuItem *item);
-    void DisplayStatusBar(void);
+    void ProgressBar(const std::string &title, std::string message, u64 offset, u64 size);
     int RenderLoop(void);
 
     void DisplayFileBrowser(MenuItem *item);

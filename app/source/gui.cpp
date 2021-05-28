@@ -11,6 +11,8 @@
 #include "utils.h"
 
 namespace GUI {
+    static MenuItem item;
+
     void ResetCheckbox(MenuItem *item) {
         item->checked.clear();
         item->checked_copy.clear();
@@ -25,7 +27,7 @@ namespace GUI {
         item->used_storage = Utils::GetUsedStorage();
     }
 
-    void DisplayStatusBar(void) {
+    static void DisplayStatusBar(void) {
         pspTime time;
         static char time_string[30];
 
@@ -47,9 +49,37 @@ namespace GUI {
         G2D::DrawImage(state != 0? battery_charging[battery_val] : battery[battery_val], 475 - percent_width - battery[battery_val]->w, 2);
     }
 
+    void ProgressBar(const std::string &title, std::string message, u64 offset, u64 size) {
+        if (message.length() > 35) {
+            message.resize(35);
+            message.append("...");
+        }
+        
+        g2dClear(BG_COLOUR);
+        G2D::DrawRect(0, 0, 480, 18, STATUS_BAR_COLOUR);
+        G2D::DrawRect(0, 18, 480, 34, MENU_BAR_COLOUR);
+        G2D::DrawImageScale(icon_nav_drawer, 5, 24, 26.f, 26.f);
+        GUI::DisplayStatusBar();
+        GUI::DisplayFileBrowser(&item);
+        
+        G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
+        G2D::DrawImage(cfg.dark_theme? dialog_dark : dialog, ((480 - (dialog->w)) / 2), ((272 - (dialog->h)) / 2));
+        G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
+        intraFontPrint(font, ((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, title.c_str());
+
+        int text_width = intraFontMeasureText(font, message.c_str());
+        G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
+        intraFontPrint(font, ((480 - (text_width)) / 2), ((272 - (dialog->h)) / 2) + 60, message.c_str());
+        
+        G2D::DrawRect(((480 - dialog->w) / 2) + 20, ((272 - dialog->h) / 2) + 70, 318, 4, SELECTOR_COLOUR);
+        G2D::DrawRect(((480 - dialog->w) / 2) + 20, ((272 - dialog->h) / 2) + 70,
+            static_cast<int>((static_cast<float>(offset) / static_cast<float>(size)) * 318.f), 4, TITLE_COLOUR);
+        
+        g2dFlip(G2D_VSYNC);
+    }
+
     int RenderLoop(void) {
         bool done = false;
-        MenuItem item;
 
         int ret = 0;
         if (R_FAILED(ret = FS::GetDirList(cfg.cwd, item.entries)))

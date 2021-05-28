@@ -5,6 +5,7 @@
 
 #include "config.h"
 #include "fs.h"
+#include "gui.h"
 #include "kernel_functions.h"
 #include "log.h"
 #include "utils.h"
@@ -330,7 +331,7 @@ namespace FS {
             }
             
             offset += bytes_read;
-            //GUI::ProgressBar("Copying", filename.c_str(), offset, size);
+            GUI::ProgressBar("Copying", filename.c_str(), offset, size);
         } while(offset < size);
         
         delete[] buf;
