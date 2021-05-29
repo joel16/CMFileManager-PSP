@@ -1,53 +1,19 @@
 #include "config.h"
-#include "fs.h"
 #include "colours.h"
 #include "g2d.h"
 #include "gui.h"
-#include "log.h"
 #include "textures.h"
 #include "utils.h"
 
-namespace Options {
-    void Delete(MenuItem *item, int *selection) {
-        int ret = 0;
-        Log::CloseHandle();
-        
-        if ((item->checked_count > 1) && (!item->checked_cwd.compare(cfg.cwd))) {
-            for (u32 i = 0; i < item->checked.size(); i++) {
-                if (item->checked.at(i)) {
-                    if (R_FAILED(ret = FS::Delete(&item->entries[i]))) {
-                        FS::GetDirList(cfg.cwd, item->entries);
-                        GUI::ResetCheckbox(item);
-                        break;
-                    }
-                }
-            }
-        }
-        else
-            ret = FS::Delete(&item->entries[item->selected]);
-        
-        if (R_SUCCEEDED(ret)) {
-            FS::GetDirList(cfg.cwd, item->entries);
-            GUI::ResetCheckbox(item);
-        }
-        
-        GUI::GetStorageSize(item);
-        Log::OpenHande();
-        *selection = 0;
-        item->selected = 0;
-        item->state = MENU_STATE_FILEBROWSER;
-    }
-}
-
 namespace GUI {
     static int selection = 0;
-    static const std::string prompt = "Do you wish to continue?";
+    static const std::string prompt = "Do you wish to exit this application?";
 
-    void DisplayDeleteOptions(void) {
+    void DisplayHomeMenu(void) {
         G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
         G2D::DrawImage(cfg.dark_theme? dialog_dark : dialog, ((480 - (dialog->w)) / 2), ((272 - (dialog->h)) / 2));
         G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
-        intraFontPrint(font, ((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, "Delete");
+        intraFontPrint(font, ((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, "Exit");
 
         int confirm_width = intraFontMeasureText(font, "YES");
         int cancel_width = intraFontMeasureText(font, "NO");
@@ -65,7 +31,7 @@ namespace GUI {
         intraFontPrint(font, ((480 - (prompt_width)) / 2), ((272 - (dialog->h)) / 2) + 60, prompt.c_str());
     }
 
-    void ControlDeleteOptions(MenuItem *item, int *ctrl) {
+    bool ControlHomeMenu(MenuItem *item, int *ctrl) {
         if (*ctrl & PSP_CTRL_RIGHT)
             selection++;
         else if (*ctrl & PSP_CTRL_LEFT)
@@ -73,14 +39,15 @@ namespace GUI {
 
         if (Utils::IsButtonPressed(PSP_CTRL_ENTER)) {
             if (selection == 1)
-                Options::Delete(item, &selection);
+                return true;
             else
-                item->state = MENU_STATE_OPTIONS;
+                item->state = MENU_STATE_FILEBROWSER;
 
         }
         else if (Utils::IsButtonPressed(PSP_CTRL_CANCEL))
-            item->state = MENU_STATE_OPTIONS;
+            item->state = MENU_STATE_FILEBROWSER;
         
         Utils::SetBounds(&selection, 0, 1);
+        return false;
     }
 }

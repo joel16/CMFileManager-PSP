@@ -79,7 +79,7 @@ namespace GUI {
     }
 
     int RenderLoop(void) {
-        bool done = false;
+        bool exit_flag = false;
 
         int ret = 0;
         if (R_FAILED(ret = FS::GetDirList(cfg.cwd, item.entries)))
@@ -94,7 +94,7 @@ namespace GUI {
 
         Colours::Get();
 
-        while(!done) {
+        while(true) {
             u64 current = 0;
             sceRtcGetCurrentTick(&current);
             
@@ -111,6 +111,11 @@ namespace GUI {
             GUI::DisplayFileBrowser(&item);
 
             switch(item.state) {
+                case MENU_STATE_HOME:
+                    GUI::DisplayHomeMenu();
+                    exit_flag = GUI::ControlHomeMenu(&item, &ctrl);
+                    break;
+                
                 case MENU_STATE_FILEBROWSER:
                     GUI::ControlFileBrowser(&item, &ctrl);
                     break;
@@ -126,7 +131,7 @@ namespace GUI {
                     break;
 
                 case MENU_STATE_DELETE:
-                    GUI::DisplayDeleteOptions(&item);
+                    GUI::DisplayDeleteOptions();
                     GUI::ControlDeleteOptions(&item, &ctrl);
                     break;
 
@@ -149,6 +154,9 @@ namespace GUI {
             if (Utils::IsButtonPressed(PSP_CTRL_START))
                 item.state = MENU_STATE_SETTINGS;
             else if (Utils::IsKButtonPressed(PSP_CTRL_HOME))
+                item.state = MENU_STATE_HOME;
+
+            if (exit_flag)
                 break;
         }
 

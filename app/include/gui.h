@@ -7,6 +7,7 @@
 #include <vector>
 
 enum MENU_STATES {
+    MENU_STATE_HOME,
     MENU_STATE_FILEBROWSER,
     MENU_STATE_OPTIONS,
     MENU_STATE_DELETE,
@@ -36,6 +37,9 @@ namespace GUI {
     void ProgressBar(const std::string &title, std::string message, u64 offset, u64 size);
     int RenderLoop(void);
 
+    void DisplayHomeMenu(void);
+    bool ControlHomeMenu(MenuItem *item, int *ctrl);
+
     void DisplayFileBrowser(MenuItem *item);
     void ControlFileBrowser(MenuItem *item, int *ctrl);
 
@@ -45,7 +49,7 @@ namespace GUI {
     void DisplayFileProperties(MenuItem *item);
     void ControlFileProperties(MenuItem *item);
 
-    void DisplayDeleteOptions(MenuItem *item);
+    void DisplayDeleteOptions(void);
     void ControlDeleteOptions(MenuItem *item, int *ctrl);
 
     void DisplaySettings(MenuItem *item);
