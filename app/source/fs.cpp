@@ -197,7 +197,7 @@ namespace FS {
         entries.clear();
 
         if (R_FAILED(ret = dir = sceIoDopen(path.c_str()))) {
-            Log::Error("sceIoDopen(%s) failed: 0x%lx\n", path.c_str(), ret);
+            Log::Error("sceIoDopen(%s) failed: %08x\n", path.c_str(), ret);
             return ret;
         }
 
@@ -345,7 +345,7 @@ namespace FS {
         SceUID dir;
 
         if (R_FAILED(dir = sceIoDopen(src_path.c_str()))) {
-            Log::Error("sceIoDopen(%s) failed: 0x%lx\n", src_path.c_str(), ret);
+            Log::Error("sceIoDopen(%s) failed: %08x\n", src_path.c_str(), ret);
             return dir;
         }
         
@@ -476,7 +476,7 @@ namespace FS {
 
         if (R_FAILED(ret = dir = sceIoDopen(path.c_str()))) {
             if (R_FAILED(ret = sceIoRemove(path.c_str()))) {
-                Log::Error("sceIoRemove(%s) failed: 0x%lx\n", path.c_str(), ret);
+                Log::Error("sceIoRemove(%s) failed: %08x\n", path.c_str(), ret);
                 return ret;
             }
         }
@@ -497,7 +497,7 @@ namespace FS {
                 if (FIO_S_ISDIR(entry.d_stat.st_mode)) {
                     int result = FS::DeleteDirectoryRecursive(new_path);
                     if (result <= 0) {
-                        Log::Error("FS::DeleteDirectoryRecursive(%s) failed: 0x%lx\n", path.c_str(), ret);
+                        Log::Error("FS::DeleteDirectoryRecursive(%s) failed: %08x\n", path.c_str(), ret);
                         sceIoDclose(dir);
                         return ret;
                     }
@@ -505,7 +505,7 @@ namespace FS {
                 else {
                     int result = sceIoRemove(new_path.c_str());
                     if (R_FAILED(result)) {
-                        Log::Error("sceIoRemove(%s) failed: 0x%lx\n", path.c_str(), ret);
+                        Log::Error("sceIoRemove(%s) failed: %08x\n", path.c_str(), ret);
                         sceIoDclose(dir);
                         return ret;
                     }
@@ -516,7 +516,7 @@ namespace FS {
         sceIoDclose(dir);
 
         if (R_FAILED(ret = sceIoRmdir(path.c_str()))) {
-            Log::Error("sceIoRmdir(%s) failed: 0x%lx\n", path.c_str(), ret);
+            Log::Error("sceIoRmdir(%s) failed: %08x\n", path.c_str(), ret);
             return ret;
         }
 

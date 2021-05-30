@@ -3,14 +3,12 @@
 #include "colours.h"
 #include "g2d.h"
 #include "gui.h"
-#include "log.h"
 #include "textures.h"
 #include "utils.h"
 
 namespace Options {
     void Delete(MenuItem *item, int *selection) {
         int ret = 0;
-        Log::CloseHandle();
         
         if ((item->checked_count > 1) && (!item->checked_cwd.compare(cfg.cwd))) {
             for (u32 i = 0; i < item->checked.size(); i++) {
@@ -32,7 +30,6 @@ namespace Options {
         }
         
         GUI::GetStorageSize(item);
-        Log::OpenHande();
         *selection = 0;
         item->selected = 0;
         item->state = MENU_STATE_FILEBROWSER;

@@ -16,18 +16,17 @@ namespace Services {
     int Init(void) {
         sceCtrlSetSamplingCycle(0);
         sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
-        Log::OpenHande();
         Utils::InitKernelDrivers();
         Textures::Load();
 
         int ret = 0;
         if (R_FAILED(ret = Config::Load())) {
-			Log::Error("Config::Load failed: 0x%lx\n", ret);
+			Log::Error("Config::Load failed: %08x\n", ret);
 			return ret;
 		}
 
 		if (R_FAILED(ret = intraFontInit())) {
-			Log::Error("intraFontInit failed: 0x%lx\n", ret);
+			Log::Error("intraFontInit failed: %08x\n", ret);
 			return ret;
 		}
 
@@ -51,7 +50,6 @@ namespace Services {
         intraFontUnload(jpn0);
         intraFontUnload(font);
         Textures::Free();
-        Log::CloseHandle();
         Utils::TermKernelDrivers();
         sceKernelExitGame();
     }

@@ -16,7 +16,7 @@ namespace Config {
         int len = snprintf(buf, 128, config_file, config_version, cfg.sort, cfg.dark_theme, cfg.dev_options);
         
         if (R_FAILED(ret = FS::WriteFile("config.json", buf, len))) {
-            Log::Error("Read config failed in Config_Save 0x%lx\n", ret);
+            Log::Error("Read config failed in Config_Save %08x\n", ret);
             delete[] buf;
             return ret;
         }
@@ -52,7 +52,7 @@ namespace Config {
         char *buf = new char[size];
         
         if (R_FAILED(ret = FS::ReadFile("config.json", buf, size))) {
-            Log::Error("Read config failed in Config_Load 0x%lx\n", ret);
+            Log::Error("Read config failed in Config_Load %08x\n", ret);
             delete[] buf;
             return ret;
         }

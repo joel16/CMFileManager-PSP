@@ -98,12 +98,12 @@ namespace Utils {
         SceUID modID = 0;
         
         if (R_FAILED(ret = modID = kuKernelLoadModule(path, 0, nullptr))) {
-            Log::Error("kuKernelLoadModule(%s) failed: 0x%lx\n", path, ret);
+            Log::Error("kuKernelLoadModule(%s) failed: %08x\n", path, ret);
             return ret;
         }
         
         if (R_FAILED(ret = sceKernelStartModule(modID, 0, nullptr, &status, nullptr))) {
-            Log::Error("sceKernelStartModule(%s) failed: 0x%lx\n", path, ret);
+            Log::Error("sceKernelStartModule(%s) failed: %08x\n", path, ret);
             return ret;
         }
         
@@ -126,17 +126,17 @@ namespace Utils {
         }
         
         if (R_FAILED(ret = sceUsbStart(PSP_USBBUS_DRIVERNAME, 0, 0))) {
-            Log::Error("sceUsbStart(PSP_USBBUS_DRIVERNAME) failed: 0x%lx\n", ret);
+            Log::Error("sceUsbStart(PSP_USBBUS_DRIVERNAME) failed: %08x\n", ret);
             return ret;
         }
         
         if (R_FAILED(ret = sceUsbStart(PSP_USBSTOR_DRIVERNAME, 0, 0))) {
-            Log::Error("sceUsbStart(PSP_USBSTOR_DRIVERNAME) failed: 0x%lx\n", ret);
+            Log::Error("sceUsbStart(PSP_USBSTOR_DRIVERNAME) failed: %08x\n", ret);
             return ret;
         }
         
         if (R_FAILED(ret = sceUsbstorBootSetCapacity(0x800000))) {
-            Log::Error("sceUsbstorBootSetCapacity(0x800000) failed: 0x%lx\n", ret);
+            Log::Error("sceUsbstorBootSetCapacity(0x800000) failed: %08x\n", ret);
             return ret;
         }
         
@@ -148,7 +148,7 @@ namespace Utils {
         int ret = 0;
         
         if (R_FAILED(ret = sceUsbActivate(0x1c8))) {
-            Log::Error("sceUsbActivate(0x1c8) failed: 0x%lx\n", ret);
+            Log::Error("sceUsbActivate(0x1c8) failed: %08x\n", ret);
             return ret;
         }
         
@@ -160,12 +160,12 @@ namespace Utils {
         int ret = 0;
         
         if (R_FAILED(ret = sceUsbDeactivate(0x1c8))) {
-            Log::Error("sceUsbActivate(0x1c8) failed: 0x%lx\n", ret);
+            Log::Error("sceUsbActivate(0x1c8) failed: %08x\n", ret);
             return ret;
         }
         
         if (R_FAILED(ret = sceIoDevctl("fatms0:", 0x0240D81E, nullptr, 0, nullptr, 0))) { // Avoid corrupted files
-            Log::Error("sceIoDevctl(\"fatms0:\", 0x0240D81E, nullptr, 0, nullptr, 0) failed: 0x%lx\n", ret);
+            Log::Error("sceIoDevctl(\"fatms0:\", 0x0240D81E, nullptr, 0, nullptr, 0) failed: %08x\n", ret);
             return ret;
         }
         
@@ -183,17 +183,17 @@ namespace Utils {
             return ret;
             
         if (R_FAILED(ret = sceUsbStop(PSP_USBSTOR_DRIVERNAME, 0, 0))) {
-            Log::Error("sceUsbStop(PSP_USBSTOR_DRIVERNAME) failed: 0x%lx\n", ret);
+            Log::Error("sceUsbStop(PSP_USBSTOR_DRIVERNAME) failed: %08x\n", ret);
             return ret;
         }
         
         if (R_FAILED(ret = sceUsbStop(PSP_USBBUS_DRIVERNAME, 0, 0))) {
-            Log::Error("sceUsbStop(PSP_USBBUS_DRIVERNAME) failed: 0x%lx\n", ret);
+            Log::Error("sceUsbStop(PSP_USBBUS_DRIVERNAME) failed: %08x\n", ret);
             return ret;
         }
         
         if (R_FAILED(ret = pspUsbDeviceFinishDevice())) {
-            Log::Error("pspUsbDeviceFinishDevice() failed: 0x%lx\n", ret);
+            Log::Error("pspUsbDeviceFinishDevice() failed: %08x\n", ret);
             return ret;
         }
         
@@ -280,7 +280,7 @@ namespace Utils {
         param.key = "game";
         
         if (R_FAILED(ret = sctrlKernelLoadExecVSHWithApitype(Utils::IsInternalStorage()? 0x152 : 0x141, path, &param))) {
-            Log::Error("sctrlKernelLoadExecVSHWithApitype(%x, %s) failed: 0x%lx\n", Utils::IsInternalStorage()? 0x152 : 0x141, path, ret);
+            Log::Error("sctrlKernelLoadExecVSHWithApitype(%x, %s) failed: %08x\n", Utils::IsInternalStorage()? 0x152 : 0x141, path, ret);
             return ret;
         }
         
