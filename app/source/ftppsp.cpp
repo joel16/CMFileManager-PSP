@@ -71,6 +71,7 @@ static void log_func(ftppsp_log_cb_t log_cb, const char *s, ...) {
 #define DEBUG(...) log_func(debug_log_cb, __VA_ARGS__)
 
 static int client_send_ctrl_msg(ftppsp_client_info_t *cl, const char *str) {
+    printf(str);
     return sceNetInetSend(cl->ctrl_sockfd, str, std::strlen(str), 0);
 }
 
@@ -308,11 +309,8 @@ static void send_LIST(ftppsp_client_info_t *client, const char *path) {
         for (int i = 0; i < MAX_DEVICES; i++) {
             if (device_list[i].valid) {
                 devname = device_list[i].name;
-                
-                if (sceIoGetstat(devname, &stat) >= 0) {
-                    gen_list_format(buffer, sizeof(buffer),	1, &stat, devname);
-                    client_send_data_msg(client, buffer);
-                }
+                gen_list_format(buffer, sizeof(buffer), 1, &stat, devname);
+                client_send_data_msg(client, buffer);
             }
         }
     }

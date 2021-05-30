@@ -172,9 +172,6 @@ namespace FTP {
         
         FTP::DisplayNetDialog();
 
-        if (cfg.dev_options)
-            FTP::InitFlash();
-
         ret = ftppsp_init(psp_ip, &psp_port);
         if (is_psp_go) {
             if (is_ms_inserted) {
@@ -186,6 +183,14 @@ namespace FTP {
         }
         else
             ftppsp_add_device("ms0:");
+
+        if (cfg.dev_options) {
+            FTP::InitFlash();
+            ftppsp_add_device("flash0:");
+            ftppsp_add_device("flash1:");
+            ftppsp_add_device("flash2:");
+            ftppsp_add_device("flash3:");
+        }
             
         if (ret < 0)
             std::sprintf(string, "Connection Failed.");
