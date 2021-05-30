@@ -26,7 +26,7 @@ CMFileManager PSP is a PSP application built using the unofficial PSPSDK and [gl
 1. Press *START* to open settings menu and select `FTP connection`.
 3. Select a network connection when the Network dialog pops up.
 4. After it is connected successfully, a message will appear saying `FTP Connection established IP:Port`. Use an FTP client like WinSCP and enter the IP and port (1337) and make sure to use anonymous login.
-6. Once an FTP connection is established from your server, you won't see any folders or files. You have to manually search for the path `/ms0:` or `/ef0:`. You can also search for other devices like `/flash0:` or UMD - `/disc0:` (**Please use caution when browsing any flash0-flash3**)
+6. Once an FTP connection is established from your server, you *may* not see any folders or files. If this is the case, you can manually enter the path of the device like `ip:port/ms0:` (A real example would look something like: `127.0.0.1:1337/ms0:`)
 
 
 **Buttons:**
@@ -41,7 +41,7 @@ CMFileManager PSP is a PSP application built using the unofficial PSPSDK and [gl
 - Press *enter button (depending on your region)* to enter directory/open file.
 - Press *cancel button (depending on your region)* to go back to previous directory/menu.
 - Press *L + R* to caputre screenshot.
-- Press *Select + Start* to exit.
+- Press *Home* to display exit dialog.
 - Press *Start* on FTP mode or Audio player to disable/enable screen to save battery.
 
 
