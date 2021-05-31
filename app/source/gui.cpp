@@ -115,6 +115,12 @@ namespace GUI {
                     GUI::DisplayHomeMenu();
                     exit_flag = GUI::ControlHomeMenu(&item, &ctrl);
                     break;
+
+                case MENU_STATE_MENUBAR:
+                    GUI::HandleMenubarAnim(&delta_time);
+                    GUI::DisplayMenubar();
+                    GUI::ControlMenubar(&item, &ctrl);
+                    break;
                 
                 case MENU_STATE_FILEBROWSER:
                     GUI::ControlFileBrowser(&item, &ctrl);
@@ -150,7 +156,7 @@ namespace GUI {
             }
 
             g2dFlip(G2D_VSYNC);
-
+            
             if (Utils::IsButtonPressed(PSP_CTRL_START))
                 item.state = MENU_STATE_SETTINGS;
             else if (Utils::IsKButtonPressed(PSP_CTRL_HOME))

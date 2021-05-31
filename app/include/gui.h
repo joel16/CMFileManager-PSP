@@ -8,6 +8,7 @@
 
 enum MENU_STATES {
     MENU_STATE_HOME,
+    MENU_STATE_MENUBAR,
     MENU_STATE_FILEBROWSER,
     MENU_STATE_OPTIONS,
     MENU_STATE_DELETE,
@@ -28,7 +29,7 @@ typedef struct {
     int checked_count = 0;
     u64 used_storage = 0;
     u64 total_storage = 0;
-    g2dTexture *texture;
+    g2dTexture *texture = nullptr;
 } MenuItem;
 
 namespace GUI {
@@ -39,6 +40,10 @@ namespace GUI {
 
     void DisplayHomeMenu(void);
     bool ControlHomeMenu(MenuItem *item, int *ctrl);
+
+    void HandleMenubarAnim(float *delta_time);
+    void DisplayMenubar(void);
+    void ControlMenubar(MenuItem *item, int *ctrl);
 
     void DisplayFileBrowser(MenuItem *item);
     void ControlFileBrowser(MenuItem *item, int *ctrl);

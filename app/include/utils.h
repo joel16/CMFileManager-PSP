@@ -11,7 +11,12 @@
 
 enum BROWSE_STATE {
     BROWSE_STATE_INTERNAL,
-    BROWSE_STATE_EXTERNAL
+    BROWSE_STATE_EXTERNAL,
+    BROWSE_STATE_FLASH0,
+    BROWSE_STATE_FLASH1,
+    BROWSE_STATE_FLASH2,
+    BROWSE_STATE_FLASH3,
+    BROWSE_STATE_UMD
 };
 
 extern bool psp_usb_cable_connection, is_ms_inserted, is_psp_go;

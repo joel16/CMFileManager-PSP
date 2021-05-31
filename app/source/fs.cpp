@@ -32,9 +32,13 @@ namespace FS {
     
     bool DirExists(const std::string &path) {	
         SceUID dir = 0;
-        
+#ifdef FS_DEBUG
         if (R_SUCCEEDED(dir = sceIoDopen(path.c_str()))) {
             sceIoDclose(dir);
+#else
+        if (R_SUCCEEDED(dir = pspOpenDir(path.c_str()))) {
+            pspCloseDir(dir);
+#endif
             return true;
         }
         
@@ -196,16 +200,26 @@ namespace FS {
         SceUID dir = 0;
         entries.clear();
 
+#ifdef FS_DEBUG
         if (R_FAILED(ret = dir = sceIoDopen(path.c_str()))) {
             Log::Error("sceIoDopen(%s) failed: %08x\n", path.c_str(), ret);
             return ret;
         }
-
+#else
+        if (R_FAILED(ret = dir = pspOpenDir(path.c_str()))) {
+            Log::Error("pspOpenDir(%s) failed: %08x\n", path.c_str(), ret);
+            return ret;
+        }
+#endif
         do {
             SceIoDirent entry;
             std::memset(&entry, 0, sizeof(entry));
 
+#ifdef FS_DEBUG
             ret = sceIoDread(dir, &entry);
+#else
+            ret = pspReadDir(dir, &entry);
+#endif
             if (ret > 0) {
                 if ((std::strcmp(entry.d_name, ".") == 0) || (std::strcmp(entry.d_name, "..") == 0))
                     continue;
@@ -215,7 +229,12 @@ namespace FS {
         } while (ret > 0);
 
         std::sort(entries.begin(), entries.end(), FS::Sort);
+
+#ifdef FS_DEBUG
         sceIoDclose(dir);
+#else
+        pspCloseDir(dir);
+#endif
         return 0;
     }
 
@@ -234,43 +253,19 @@ namespace FS {
         return 0;
     }
 
-    static int ChangeDirUp(char path[256]) {
-        if (cfg.cwd.back() == ':')
-            return -1;
-            
-        // Remove upmost directory
-        bool copy = false;
-        int len = 0;
-        for (ssize_t i = cfg.cwd.length(); i >= 0; i--) {
-            if (cfg.cwd.c_str()[i] == '/')
-                copy = true;
-            if (copy) {
-                path[i] = cfg.cwd.c_str()[i];
-                len++;
-            }
-        }
-        
-        // remove trailing slash
-        if (len > 1 && path[len - 1] == '/')
-            len--;
-        
-        path[len] = '\0';
-        return 0;
-    }
-    
     int ChangeDirNext(const std::string &path, std::vector<SceIoDirent> &entries) {
-        std::string new_path = cfg.cwd;
-        new_path.append("/");
-        new_path.append(path);
+        std::string new_path = FS::BuildPath(cfg.cwd, path);
         return FS::ChangeDir(new_path, entries);
     }
     
     int ChangeDirPrev(std::vector<SceIoDirent> &entries) {
-        char new_path[256];
-        if (FS::ChangeDirUp(new_path) < 0)
-            return -1;
+        std::filesystem::path path = cfg.cwd;
+        std::string parent_path = path.parent_path();
         
-        return FS::ChangeDir(std::string(new_path), entries);
+        if (parent_path.back() == ':')
+            parent_path.append("/");
+        
+        return FS::ChangeDir(parent_path.empty()? cfg.cwd : parent_path, entries);
     }
 
     static int CopyFile(const std::string &src_path, const std::string &dest_path) {
@@ -344,10 +339,17 @@ namespace FS {
         int ret = 0;
         SceUID dir;
 
-        if (R_FAILED(dir = sceIoDopen(src_path.c_str()))) {
+#ifdef FS_DEBUG
+        if (R_FAILED(ret = dir = sceIoDopen(src_path.c_str()))) {
             Log::Error("sceIoDopen(%s) failed: %08x\n", src_path.c_str(), ret);
+            return ret;
+        }
+#else
+        if (R_FAILED(ret = dir = pspOpenDir(src_path.c_str()))) {
+            Log::Error("pspOpenDir(%s) failed: %08x\n", src_path.c_str(), ret);
             return dir;
         }
+#endif
         
         // This may fail or not, but we don't care -> make the dir if it doesn't exist, otherwise continue.
         sceIoMkdir(dest_path.c_str(), 0777);
@@ -356,18 +358,17 @@ namespace FS {
             SceIoDirent entry;
             std::memset(&entry, 0, sizeof(entry));
 
+#ifdef FS_DEBUG
             ret = sceIoDread(dir, &entry);
+#else
+            ret = pspReadDir(dir, &entry);
+#endif
             if (ret > 0) {
                 if ((std::strcmp(entry.d_name, ".") == 0) || (std::strcmp(entry.d_name, "..") == 0))
                     continue;
                     
-                std::string src = src_path;
-                src.append("/");
-                src.append(entry.d_name);
-                
-                std::string dest = dest_path;
-                dest.append("/");
-                dest.append(entry.d_name);
+                std::string src = FS::BuildPath(src_path, entry.d_name);
+                std::string dest = FS::BuildPath(dest_path, entry.d_name);
                 
                 if (FIO_S_ISDIR(entry.d_stat.st_mode))
                     FS::CopyDir(src, dest); // Copy Folder (via recursion)
@@ -376,7 +377,11 @@ namespace FS {
             }
         } while (ret > 0);
         
+#ifdef FS_DEBUG
         sceIoDclose(dir);
+#else
+        pspCloseDir(dir);
+#endif
         return 0;
     }
 
@@ -388,9 +393,7 @@ namespace FS {
     
     void Copy(SceIoDirent *entry, const std::string &path) {
         FS::ClearCopyData();
-        fs_copy_entry.copy_path = path;
-        fs_copy_entry.copy_path.append("/");
-        fs_copy_entry.copy_path.append(entry->d_name);
+        fs_copy_entry.copy_path = FS::BuildPath(path, entry->d_name);
         fs_copy_entry.copy_filename.append(entry->d_name);
         
         if (FIO_S_ISDIR(entry->d_stat.st_mode))
@@ -399,9 +402,7 @@ namespace FS {
     
     int Paste(void) {
         int ret = 0;
-        std::string path = cfg.cwd;
-        path.append("/");
-        path.append(fs_copy_entry.copy_filename);
+        std::string path = FS::BuildPath(cfg.cwd, fs_copy_entry.copy_filename);
         
         if (fs_copy_entry.is_dir) // Copy folder recursively
             ret = FS::CopyDir(fs_copy_entry.copy_path, path);
@@ -456,9 +457,7 @@ namespace FS {
 
     int Move(void) {
         int ret = 0;
-        std::string path = cfg.cwd;
-        path.append("/");
-        path.append(fs_copy_entry.copy_filename);
+        std::string path = FS::BuildPath(cfg.cwd, fs_copy_entry.copy_filename);
 
         if (R_FAILED(ret = sceIoMove(fs_copy_entry.copy_path.c_str(), path.c_str()))) {
             Log::Error("sceIoMove(%s, %s) failed: 0x%x\n", fs_copy_entry.copy_filename.c_str(), path.c_str(), ret);
@@ -474,31 +473,44 @@ namespace FS {
         int ret = 0;
         SceUID dir = 0;
 
+#ifdef FS_DEBUG
         if (R_FAILED(ret = dir = sceIoDopen(path.c_str()))) {
+            Log::Error("sceIoDopen(%s) failed: %08x\n", path.c_str(), ret);
+            return ret;
+        }
+#else
+        if (R_FAILED(ret = dir = pspOpenDir(path.c_str()))) {
             if (R_FAILED(ret = sceIoRemove(path.c_str()))) {
                 Log::Error("sceIoRemove(%s) failed: %08x\n", path.c_str(), ret);
                 return ret;
             }
         }
+#endif
 
         do {
             SceIoDirent entry;
             std::memset(&entry, 0, sizeof(entry));
 
+#ifdef FS_DEBUG
             ret = sceIoDread(dir, &entry);
+#else
+            ret = pspReadDir(dir, &entry);
+#endif
             if (ret > 0) {
                 if ((std::strcmp(entry.d_name, ".") == 0) || (std::strcmp(entry.d_name, "..") == 0))
                     continue;
 
-                std::string new_path = path;
-                new_path.append("/");
-                new_path.append(entry.d_name);
+                std::string new_path = FS::BuildPath(path, entry.d_name);
                 
                 if (FIO_S_ISDIR(entry.d_stat.st_mode)) {
                     int result = FS::DeleteDirectoryRecursive(new_path);
                     if (result <= 0) {
                         Log::Error("FS::DeleteDirectoryRecursive(%s) failed: %08x\n", path.c_str(), ret);
+#ifdef FS_DEBUG
                         sceIoDclose(dir);
+#else
+                        pspCloseDir(dir);
+#endif
                         return ret;
                     }
                 }
@@ -506,14 +518,22 @@ namespace FS {
                     int result = sceIoRemove(new_path.c_str());
                     if (R_FAILED(result)) {
                         Log::Error("sceIoRemove(%s) failed: %08x\n", path.c_str(), ret);
+#ifdef FS_DEBUG
                         sceIoDclose(dir);
+#else
+                        pspCloseDir(dir);
+#endif
                         return ret;
                     }
                 }
             }
         } while (ret > 0);
         
+#ifdef FS_DEBUG
         sceIoDclose(dir);
+#else
+        pspCloseDir(dir);
+#endif
 
         if (R_FAILED(ret = sceIoRmdir(path.c_str()))) {
             Log::Error("sceIoRmdir(%s) failed: %08x\n", path.c_str(), ret);
@@ -525,9 +545,7 @@ namespace FS {
 
     int Delete(SceIoDirent *entry) {
         int ret = 0;
-        std::string path = cfg.cwd;
-        path.append("/");
-        path.append(entry->d_name);
+        std::string path = FS::BuildPath(cfg.cwd, entry->d_name);
 
         if (FIO_S_ISDIR(entry->d_stat.st_mode)) {
             if (R_FAILED(ret = FS::DeleteDirectoryRecursive(path))) {
@@ -543,5 +561,15 @@ namespace FS {
         }
 
         return 0;
+    }
+
+    std::string BuildPath(const std::string &path, const std::string &filename) {
+        std::string new_path = path;
+
+        if (new_path.back() != '/')
+            new_path.append("/");
+        
+        new_path.append(filename);
+        return new_path;
     }
 }

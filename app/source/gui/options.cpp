@@ -41,10 +41,8 @@ namespace Options {
     }
 
     static void CreateFolder(MenuItem *item) {
-        std::string path = cfg.cwd;
-        path.append("/");
         std::string name = G2D::KeyboardGetText("Enter folder name", "New folder");
-        path.append(name);
+        std::string path = FS::BuildPath(cfg.cwd, name);
         
         if (R_SUCCEEDED(FS::MakeDir(path.c_str()))) {
             FS::GetDirList(cfg.cwd, item->entries);
@@ -53,10 +51,8 @@ namespace Options {
     }
 
     static void CreateFile(MenuItem *item) {
-        std::string path = cfg.cwd;
-        path.append("/");
         std::string name = G2D::KeyboardGetText("Enter file name", "New File");
-        path.append(name);
+        std::string path = FS::BuildPath(cfg.cwd, name);
         
         if (R_SUCCEEDED(FS::CreateFile(path.c_str()))) {
             FS::GetDirList(cfg.cwd, item->entries);
@@ -65,14 +61,9 @@ namespace Options {
     }
 
     static void Rename(MenuItem *item, const std::string &filename) {
-        std::string src_path = cfg.cwd;
-        src_path.append("/");
-        src_path.append(item->entries[item->selected].d_name);
-
-        std::string dest_path = cfg.cwd;
-        dest_path.append("/");
+        std::string src_path = FS::BuildPath(cfg.cwd, item->entries[item->selected].d_name);
         std::string name = G2D::KeyboardGetText("Enter new name", filename);
-        dest_path.append(name);
+        std::string dest_path = FS::BuildPath(cfg.cwd, name);
 
         if (R_SUCCEEDED(sceIoRename(src_path.c_str(), dest_path.c_str()))) {
             FS::GetDirList(cfg.cwd, item->entries);

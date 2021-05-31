@@ -144,5 +144,8 @@ namespace GUI {
         }
         else if (Utils::IsButtonPressed(PSP_CTRL_TRIANGLE))
             item->state = MENU_STATE_OPTIONS;
+
+        if (Utils::IsButtonPressed(PSP_CTRL_SELECT))
+            item->state = MENU_STATE_MENUBAR;
     }
 }

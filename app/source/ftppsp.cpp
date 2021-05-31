@@ -71,7 +71,7 @@ static void log_func(ftppsp_log_cb_t log_cb, const char *s, ...) {
 #define DEBUG(...) log_func(debug_log_cb, __VA_ARGS__)
 
 static int client_send_ctrl_msg(ftppsp_client_info_t *cl, const char *str) {
-    printf(str);
+    std::printf(str);
     return sceNetInetSend(cl->ctrl_sockfd, str, std::strlen(str), 0);
 }
 

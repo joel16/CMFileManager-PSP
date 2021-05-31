@@ -39,6 +39,7 @@ namespace FS {
     int Paste(void);
     int Move(void);
     int Delete(SceIoDirent *entry);
+    std::string BuildPath(const std::string &path, const std::string &filename);
 }
 
 #endif
