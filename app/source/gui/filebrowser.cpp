@@ -15,8 +15,7 @@ namespace GUI {
     static const u32 max_entries = 11;
     static int start = 0;
     
-    // static std::string empty_dir = "This is an empty directory";
-    // static float empty_dir_width = 0.f, empty_dir_height = 0.f;
+    static const std::string empty_dir = "This is an empty directory";
     
     void DisplayFileBrowser(MenuItem *item) {
         G2D::FontSetStyle(font, 1.0f, WHITE, INTRAFONT_ALIGN_LEFT);
@@ -25,6 +24,11 @@ namespace GUI {
         G2D::DrawRect(40, 43, 400, 3, SELECTOR_COLOUR);
         float fill = (static_cast<double>(item->used_storage)/static_cast<double>(item->total_storage)) * 400.f;
         G2D::DrawRect(40, 43, fill, 3, TITLE_COLOUR);
+
+        if (item->entries.empty()) {
+            G2D::FontSetStyle(font, 1.0f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_CENTER);
+            G2D::DrawText(240, 136, empty_dir.c_str());
+        }
 
         for (u32 i = start; i < item->entries.size(); i++) {
             std::string filename = item->entries[i].d_name;
