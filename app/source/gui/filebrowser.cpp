@@ -100,8 +100,7 @@ namespace GUI {
                 }
             }
             else {
-                std::string path = cfg.cwd;
-                path.append(item->entries[item->selected].d_name);
+                std::string path = FS::BuildPath(cfg.cwd, item->entries[item->selected].d_name);
                 FileType file_type = FS::GetFileType(item->entries[item->selected].d_name);
                 
                 switch(file_type) {
