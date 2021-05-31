@@ -35,16 +35,16 @@ namespace GUI {
             snprintf(time_string, 30, "%2i:%02i %s", ((time.hour % 12) == 0)? 12 : time.hour % 12, time.minutes, (time.hour / 12)? "PM" : "AM");
 
         G2D::FontSetStyle(font, 1.0f, WHITE, INTRAFONT_ALIGN_LEFT);
-        intraFontPrint(font, 5, 14, time_string);
+        G2D::DrawText(5, 14, time_string);
 
         int state = scePowerIsBatteryCharging();
         int percent = scePowerGetBatteryLifePercent();
         int battery_val = (percent / 20);
         
-        static char percent_string[13];
-        snprintf(percent_string, 13, "%d%%", percent);
+        static char percent_string[10];
+        snprintf(percent_string, 10, "%d%%", percent);
         int percent_width = intraFontMeasureText(font, percent_string); 
-        intraFontPrint(font, 475 - percent_width, 14, percent_string);
+        G2D::DrawText(475 - percent_width, 14, percent_string);
 
         G2D::DrawImage(state != 0? battery_charging[battery_val] : battery[battery_val], 475 - percent_width - battery[battery_val]->w, 2);
     }
@@ -65,11 +65,11 @@ namespace GUI {
         G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
         G2D::DrawImage(cfg.dark_theme? dialog_dark : dialog, ((480 - (dialog->w)) / 2), ((272 - (dialog->h)) / 2));
         G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
-        intraFontPrint(font, ((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, title.c_str());
+        G2D::DrawText(((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, title.c_str());
 
         int text_width = intraFontMeasureText(font, message.c_str());
         G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
-        intraFontPrint(font, ((480 - (text_width)) / 2), ((272 - (dialog->h)) / 2) + 60, message.c_str());
+        G2D::DrawText(((480 - (text_width)) / 2), ((272 - (dialog->h)) / 2) + 60, message.c_str());
         
         G2D::DrawRect(((480 - dialog->w) / 2) + 20, ((272 - dialog->h) / 2) + 70, 318, 4, SELECTOR_COLOUR);
         G2D::DrawRect(((480 - dialog->w) / 2) + 20, ((272 - dialog->h) / 2) + 70,

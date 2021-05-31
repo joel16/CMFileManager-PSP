@@ -231,15 +231,15 @@ namespace GUI {
         G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
         G2D::DrawImage(cfg.dark_theme? dialog_dark : dialog, ((480 - (dialog->w)) / 2), ((272 - (dialog->h)) / 2));
         G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
-        intraFontPrint(font, ((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, "FTP");
+        G2D::DrawText(((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, "FTP");
 
         int ok_width = intraFontMeasureText(font, "OK");
         G2D::DrawRect((409 - (ok_width)) - 5, (180 - (font->texYSize - 15)) - 5, ok_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
-        intraFontPrint(font, 409 - (ok_width), (192 - (font->texYSize - 15)) - 3, "OK");
+        G2D::DrawText(409 - (ok_width), (192 - (font->texYSize - 15)) - 3, "OK");
         
         int text_width = intraFontMeasureText(font, ftp_text);
         G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
-        intraFontPrint(font, ((480 - (text_width)) / 2), ((272 - (dialog->h)) / 2) + 60, ftp_text);
+        G2D::DrawText(((480 - (text_width)) / 2), ((272 - (dialog->h)) / 2) + 60, ftp_text);
     }
 
     static void ControlFTPSettings(void) {
@@ -252,20 +252,20 @@ namespace GUI {
     }
 
     static void DisplaySortSettings(void) {
-        intraFontPrint(font, 40, 40, "Sorting Options");
+        G2D::DrawText(40, 40, "Sorting Options");
 
         G2D::FontSetStyle(font, 1.0f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
-        intraFontPrint(font, 40, 72, "Alphabetical");
-        intraFontPrint(font, 40, 86, "Sort alphabetically in ascending order.");
+        G2D::DrawText(40, 72, "Alphabetical");
+        G2D::DrawText(40, 86, "Sort alphabetically in ascending order.");
 
-        intraFontPrint(font, 40, 116, "Alphabetical");
-        intraFontPrint(font, 40, 130, "Sort alphabetically in descending order.");
+        G2D::DrawText(40, 116, "Alphabetical");
+        G2D::DrawText(40, 130, "Sort alphabetically in descending order.");
 
-        intraFontPrint(font, 40, 160, "Size");
-        intraFontPrint(font, 40, 174, "Sort by size (largest first).");
+        G2D::DrawText(40, 160, "Size");
+        G2D::DrawText(40, 174, "Sort by size (largest first).");
 
-        intraFontPrint(font, 40, 204, "Size");
-        intraFontPrint(font, 40, 218, "Sort by size (smallest first).");
+        G2D::DrawText(40, 204, "Size");
+        G2D::DrawText(40, 218, "Sort by size (smallest first).");
 
         G2D::DrawImage(cfg.sort == 0? (cfg.dark_theme? icon_radio_dark_on : icon_radio_on) : (cfg.dark_theme? icon_radio_dark_off : icon_radio_off), 425, 60);
         G2D::DrawImage(cfg.sort == 1? (cfg.dark_theme? icon_radio_dark_on : icon_radio_on) : (cfg.dark_theme? icon_radio_dark_off : icon_radio_off), 425, 104);
@@ -291,11 +291,11 @@ namespace GUI {
         G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
         G2D::DrawImage(cfg.dark_theme? dialog_dark : dialog, ((480 - (dialog->w)) / 2), ((272 - (dialog->h)) / 2));
         G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
-        intraFontPrint(font, ((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, "About");
+        G2D::DrawText(((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, "About");
 
         int ok_width = intraFontMeasureText(font, "OK");
         G2D::DrawRect((409 - (ok_width)) - 5, (180 - (font->texYSize - 15)) - 5, ok_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
-        intraFontPrint(font, 409 - (ok_width), (192 - (font->texYSize - 15)) - 3, "OK");
+        G2D::DrawText(409 - (ok_width), (192 - (font->texYSize - 15)) - 3, "OK");
         
         G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
         int version_width = intraFontMeasureText(font, "CMFileManager-PSP version: v4.0.0");
@@ -303,7 +303,7 @@ namespace GUI {
             VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO);
 
         int author_width = intraFontMeasureText(font, "Author: Joel16");
-        intraFontPrint(font, ((480 - (author_width)) / 2), ((272 - (dialog->h)) / 2) + 68, "Author: Joel16");
+        G2D::DrawText(((480 - (author_width)) / 2), ((272 - (dialog->h)) / 2) + 68, "Author: Joel16");
     }
 
     static void ControlAboutSettings(void) {
@@ -314,23 +314,23 @@ namespace GUI {
     }
 
     static void DisplayGeneralSettings(void) {
-        intraFontPrint(font, 40, 40, "Settings");
+        G2D::DrawText(40, 40, "Settings");
 
         G2D::FontSetStyle(font, 1.0f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
-        intraFontPrint(font, 40, 72, "FTP connection");
-        intraFontPrint(font, 40, 86, "Wireless connection");
+        G2D::DrawText(40, 72, "FTP connection");
+        G2D::DrawText(40, 86, "Wireless connection");
 
-        intraFontPrint(font, 40, 116, "Sorting options");
-        intraFontPrint(font, 40, 130, "Select between various sorting options.");
+        G2D::DrawText(40, 116, "Sorting options");
+        G2D::DrawText(40, 130, "Select between various sorting options.");
 
-        intraFontPrint(font, 40, 160, "Dark theme");
-        intraFontPrint(font, 40, 174, "Enables dark theme mode.");
+        G2D::DrawText(40, 160, "Dark theme");
+        G2D::DrawText(40, 174, "Enables dark theme mode.");
 
-        intraFontPrint(font, 40, 204, "Developer options");
-        intraFontPrint(font, 40, 218, "Enable logging and fs access to NAND.");
+        G2D::DrawText(40, 204, "Developer options");
+        G2D::DrawText(40, 218, "Enable logging and fs access to NAND.");
 
-        intraFontPrint(font, 40, 248, "About");
-        intraFontPrint(font, 40, 262, "Application and device info");
+        G2D::DrawText(40, 248, "About");
+        G2D::DrawText(40, 262, "Application and device info");
 
         if (cfg.dark_theme)
             G2D::DrawImage(cfg.dark_theme? icon_toggle_dark_on : icon_toggle_on, 415, 143);

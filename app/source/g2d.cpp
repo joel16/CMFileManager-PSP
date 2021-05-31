@@ -144,4 +144,8 @@ namespace G2D {
     float GetTextHeight(intraFont *font) {
         return font->advancey * font->size / 4.f + 2.f;
     }
+
+    float DrawText(float x, float y, const char *text) {
+        return intraFontPrintf(font, x, y, text);
+    }
 }

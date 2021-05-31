@@ -14,6 +14,7 @@ namespace G2D {
     char *KeyboardGetText(const std::string &desc_msg, const std::string &initial_msg);
     void FontSetStyle(intraFont *font, float size, unsigned int colour, unsigned int options);
     float GetTextHeight(intraFont *font);
+    float DrawText(float x, float y, const char *text);
 }
 
 #endif

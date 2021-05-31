@@ -126,7 +126,7 @@ namespace GUI {
         G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
         G2D::DrawImage(cfg.dark_theme? options_dialog_dark : options_dialog, (480 - options_dialog->w) / 2, (272 - options_dialog->h) / 2);
         G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
-        intraFontPrint(font, 140, 52, "Actions");
+        G2D::DrawText(140, 52, "Actions");
         
         if (row == 0 && column == 0)
             G2D::DrawRect(132, 71, 107, 38, SELECTOR_COLOUR);
@@ -147,21 +147,21 @@ namespace GUI {
             G2D::DrawRect((340 - intraFontMeasureText(font, "CANCEL")) - 5, (230 - (font->texYSize - 6)) - 5, intraFontMeasureText(font, "CANCEL") + 10, 
                 (font->texYSize - 6) + 10, SELECTOR_COLOUR);
                 
-        intraFontPrint(font, 340 - intraFontMeasureText(font, "CANCEL"), 230 - (font->texYSize - 15), "CANCEL");
+        G2D::DrawText(340 - intraFontMeasureText(font, "CANCEL"), 230 - (font->texYSize - 15), "CANCEL");
         G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
         
         if (!options_more) {
-            intraFontPrint(font, 143, 95, "Properties");
-            intraFontPrint(font, 143, 133, copy? "Paste" : "Copy");
-            intraFontPrint(font, 143, 171, "Delete");
-            intraFontPrint(font, 247, 95, "Refresh");
-            intraFontPrint(font, 247, 133, move? "Paste" : "Move");
-            intraFontPrint(font, 247, 171, "More...");
+            G2D::DrawText(143, 95, "Properties");
+            G2D::DrawText(143, 133, copy? "Paste" : "Copy");
+            G2D::DrawText(143, 171, "Delete");
+            G2D::DrawText(247, 95, "Refresh");
+            G2D::DrawText(247, 133, move? "Paste" : "Move");
+            G2D::DrawText(247, 171, "More...");
         }
         else {
-            intraFontPrint(font, 143, 95, "New folder");
-            intraFontPrint(font, 143, 133, "Rename");
-            intraFontPrint(font, 247, 95, "New file");
+            G2D::DrawText(143, 95, "New folder");
+            G2D::DrawText(143, 133, "Rename");
+            G2D::DrawText(247, 95, "New file");
         }
     }
 
