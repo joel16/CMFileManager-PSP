@@ -7,7 +7,9 @@
 
 #include "config.h"
 #include "colours.h"
+#include "fs.h"
 #include "g2d.h"
+#include "gui.h"
 #include "log.h"
 #include "textures.h"
 #include "utils.h"
@@ -221,7 +223,7 @@ namespace TextViewer {
         CopyEntry *entry = &state->copy_buffer[state->n_copied_lines];
         
         // Copy line into copy_buffer
-        memcpy(entry->line, &state->buffer[line_start], length);
+        std::memcpy(entry->line, &state->buffer[line_start], length);
         
         // Make sure line end with a newline
         if (entry->line[length - 1] != '\n') {
@@ -379,16 +381,6 @@ namespace TextViewer {
         state->search_running = 0;
         return sceKernelExitDeleteThread(0);
     }
-    
-    int ReadFile(const std::string &path, void *buf, int size) {
-        SceUID fd = sceIoOpen(path.c_str(), PSP_O_RDONLY, 0);
-        if (fd < 0)
-            return fd;
-            
-        int read = sceIoRead(fd, buf, size);
-        sceIoClose(fd);
-        return read;
-    }
 
     int Edit(const std::string &path) {
         TextEditorState *s = static_cast<TextEditorState *>(std::malloc(sizeof(TextEditorState)));
@@ -410,7 +402,7 @@ namespace TextViewer {
         s->search_running = 0;
         s->edit_line = -1;
 
-        s->size = TextViewer::ReadFile(path, buffer_base, BIG_BUFFER_SIZE);
+        s->size = FS::ReadFile(path, buffer_base, BIG_BUFFER_SIZE);
         
         if (s->size < 0) {
             std::free(buffer_base);
@@ -455,8 +447,8 @@ namespace TextViewer {
         CountParams count_params;
         count_params.state = s;
         
-        s->count_lines_thid = sceKernelCreateThread("TextViewer::CountLinesThread", TextViewer::CountLinesThread, 0x12, 0x2000, PSP_THREAD_ATTR_USER, nullptr);
-        if (s->count_lines_thid >= 0)
+        s->count_lines_thid = sceKernelCreateThread("CountLinesThread", reinterpret_cast<SceKernelThreadEntry>(TextViewer::CountLinesThread), 0x12, 0x2000, PSP_THREAD_ATTR_USER, nullptr);
+        if (R_SUCCEEDED(s->count_lines_thid))
             sceKernelStartThread(s->count_lines_thid, sizeof(CountParams), &count_params);
             
         s->edit_line = -1;
@@ -485,11 +477,7 @@ namespace TextViewer {
 
                 if (Utils::IsButtonPressed(PSP_CTRL_ENTER)) {
                     if (selection == 1) {
-                        SceUID fd = 0;
-                        if (R_SUCCEEDED(fd = sceIoOpen(path.c_str(), PSP_O_WRONLY | PSP_O_TRUNC, 0777))) {
-                            sceIoWrite(fd, buffer_base, has_utf8_bom ? s->size + sizeof(utf8_bom) : s->size);
-                            sceIoClose(fd);
-                        }
+                        FS::WriteFile(path, buffer_base, has_utf8_bom ? s->size + sizeof(utf8_bom) : s->size);
                         break;
                     }
                     else
@@ -719,8 +707,10 @@ namespace TextViewer {
             }
 
             // Start drawing
+            g2dClear(BG_COLOUR);
+            G2D::DrawRect(0, 0, 480, 18, STATUS_BAR_COLOUR);
             G2D::DrawRect(0, 18, 480, 34, MENU_BAR_COLOUR);
-            G2D::DrawRect(0, 52, 480, 220, BG_COLOUR);
+            GUI::DisplayStatusBar();
             G2D::DrawImage(icon_back, 5, 20);
             G2D::FontSetStyle(font, 1.0f, WHITE, INTRAFONT_ALIGN_LEFT);
             G2D::DrawText(40, 40, filename.c_str());

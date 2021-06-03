@@ -27,7 +27,7 @@ namespace GUI {
         item->used_storage = Utils::GetUsedStorage();
     }
 
-    static void DisplayStatusBar(void) {
+    void DisplayStatusBar(void) {
         pspTime time;
         static char time_string[30];
 
@@ -106,8 +106,8 @@ namespace GUI {
             g2dClear(BG_COLOUR);
             G2D::DrawRect(0, 0, 480, 18, STATUS_BAR_COLOUR);
             G2D::DrawRect(0, 18, 480, 34, MENU_BAR_COLOUR);
-            G2D::DrawImageScale(icon_nav_drawer, 5, 24, 26.f, 26.f);
             GUI::DisplayStatusBar();
+            G2D::DrawImageScale(icon_nav_drawer, 5, 24, 26.f, 26.f);
             GUI::DisplayFileBrowser(&item);
 
             switch(item.state) {
