@@ -28,8 +28,6 @@ namespace TextViewer {
     constexpr int MAX_COPY_BUFFER_SIZE = 1024;
     constexpr int MAX_SELECTION = 1024;
     constexpr float TEXT_START_X = 55.f;
-    constexpr int MAX_SEARCH_RESULTS = 1024 * 1024;
-    constexpr int MIN_SEARCH_TERM_LENGTH = 1;
     constexpr int TAB_SIZE = 4;
     constexpr int SCREEN_WIDTH = 480;
     constexpr int SCREEN_HEIGHT =  272;
@@ -76,22 +74,11 @@ namespace TextViewer {
         TextList list;
         int changed;
         int edit_line;
-        char search_term[MAX_LINE_CHARACTERS];
-        int search_result_offsets[MAX_SEARCH_RESULTS];
-        int search_term_input;
-        int n_search_results;
-        int search_thid;
         int count_lines_thid;
         int hex_viewer;
         int count_lines_running;
         int n_lines;
-        int search_running;
     } TextEditorState;
-    
-    typedef struct SearchParams {
-        TextEditorState *state;
-        char search_term[MAX_LINE_CHARACTERS];
-    } SearchParams;
     
     typedef struct CountParams {
         TextEditorState *state;
@@ -209,34 +196,6 @@ namespace TextViewer {
         }
     }
 
-    static CopyEntry *CopyLine(TextEditorState *state, int line_number) {
-        if (state->copy_reset) {
-            state->copy_reset = 0;
-            state->n_copied_lines = 0;
-        }
-        
-        // Get current line
-        int line_start = state->offset_list[line_number];
-        char line[MAX_LINE_CHARACTERS];
-        int length = TextViewer::ReadLine(state->buffer, line_start, state->size, line);
-        
-        CopyEntry *entry = &state->copy_buffer[state->n_copied_lines];
-        
-        // Copy line into copy_buffer
-        std::memcpy(entry->line, &state->buffer[line_start], length);
-        
-        // Make sure line end with a newline
-        if (entry->line[length - 1] != '\n') {
-            entry->line[length] = '\n';
-            length++;
-        }
-        
-        // Terminate line
-        state->copy_buffer[state->n_copied_lines].line[length] = '\0';
-        state->n_copied_lines++;
-        return entry;
-    }
-
     static void DeleteLine(TextEditorState *state, int line_number) {
         // Get current line
         int line_start = state->offset_list[line_number];
@@ -296,43 +255,6 @@ namespace TextViewer {
         TextViewer::UpdateTextEntries(state);
     }
     
-    static void CutLine(TextEditorState *state, int line_number) {
-        TextViewer::CopyLine(state, line_number);
-        TextViewer::DeleteLine(state, line_number);
-    }
-
-    static void PasteLines(TextEditorState *state, int pos) {
-        int line_start = state->offset_list[pos];
-        
-        // calculated size of pasted content
-        int length = 0;
-        for (int i = 0; i < state->n_copied_lines; i++)
-            length += std::strlen(state->copy_buffer[i].line);
-            
-        // Make space for pasted lines
-        std::memmove(&state->buffer[line_start + length], &state->buffer[line_start], state->size - line_start);
-        state->size += length;
-        
-        // Paste the lines
-        for (int i = 0; i < state->n_copied_lines; i++) {
-            int line_length = std::strlen(state->copy_buffer[i].line);
-            std::memcpy(&state->buffer[line_start], state->copy_buffer[i].line, line_length);
-            line_start += line_length;
-        }
-        
-        state->n_lines += state->n_copied_lines;
-        state->changed = 1;
-        state->copy_reset = 1;
-        state->n_selections = 0;
-        
-        // Update entries
-        TextViewer::UpdateTextEntries(state);
-    }
-    
-    static int cmp(const void * a, const void * b) {
-        return ( *(int*)a - *(int*)b );
-    }
-    
     static int CountLinesThread(SceSize args, CountParams *params) {
         TextEditorState *state = params->state;
         state->count_lines_running = 1;
@@ -346,39 +268,6 @@ namespace TextViewer {
             sceKernelDelayThread(1000);
         }
         
-        return sceKernelExitDeleteThread(0);
-    }
-
-    static int SearchThread(SceSize args, SearchParams *argp) {
-        TextEditorState *state = argp->state;
-        char *search_term = argp->search_term;
-        int search_term_length = std::strlen(search_term);
-        int *search_result_offsets = state->search_result_offsets; 
-        
-        state->search_running = 1;
-        state->n_search_results = 0;
-        
-        int offset = 0;
-        // make sure buffer is null-terminated
-        state->buffer[state->size] = '\0';
-        
-        char *r;
-        while (state->search_running && offset < state->size && state->n_search_results < MAX_SEARCH_RESULTS) {
-            r = strcasestr(state->buffer+offset, search_term);
-            
-            if (r == nullptr) {
-                state->search_running = 0;
-                continue;
-            }
-            
-            int index = r - state->buffer;
-            search_result_offsets[state->n_search_results++] = index;
-            offset = index + 1;
-            
-            sceKernelDelayThread(1000);
-        }
-        
-        state->search_running = 0;
         return sceKernelExitDeleteThread(0);
     }
 
@@ -399,7 +288,6 @@ namespace TextViewer {
         s->offset_list[0] = 0;
         s->count_lines_running = 0;
         s->n_lines = 0;
-        s->search_running = 0;
         s->edit_line = -1;
 
         s->size = FS::ReadFile(path, buffer_base, BIG_BUFFER_SIZE);
@@ -453,13 +341,8 @@ namespace TextViewer {
             
         s->edit_line = -1;
         s->changed = 0;
-        
-        s->search_term_input = 0;
-        s->search_thid = 0;
-        s->n_search_results = 0;
 
         std::string new_line = std::string();
-
         TEXT_VIEWER_STATE state = STATE_EDIT;
         std::string filename = std::filesystem::path(path.data()).filename();
         
@@ -555,62 +438,6 @@ namespace TextViewer {
                     
                     s->copy_reset = 1;
                 }
-                
-                if (s->n_search_results > 0) {
-                    TextListEntry *entry = s->list.head;
-                    
-                    int i;
-                    for (i = 0; i < s->rel_pos; i++)
-                        entry = entry->next;
-                        
-                    int entry_start_offset = s->offset_list[entry->line_number];
-                    int entry_end_offset = s->offset_list[entry->line_number + 1];
-                    int target_offset = 0;
-                    
-                    // Skip to next search result
-                    if (Utils::IsButtonPressed(PSP_CTRL_RTRIGGER)) {
-                        for (i = 0; i < s->n_search_results; i++) {
-                            if (s->search_result_offsets[i] > entry_end_offset) {
-                                target_offset = s->search_result_offsets[i] - entry_start_offset;
-                                break;
-                            }
-                        }
-                    } // Skip to next last result
-                    else if (Utils::IsButtonPressed(PSP_CTRL_LTRIGGER)) {
-                        for (i = s->n_search_results - 1; i >= 0; i--) {
-                            if (s->search_result_offsets[i] < entry_start_offset) {
-                                target_offset = s->search_result_offsets[i] - entry_start_offset;
-                                break;
-                            }
-                        }
-                    }
-                    
-                    if (target_offset != 0) {
-                        int dir = target_offset > 0 ? 1 : -1;
-                        int line = s->base_pos + s->rel_pos;
-                        int offset = s->offset_list[line];
-                        
-                        while (offset < s->size && offset >= 0 && target_offset != 0) {
-                            offset += dir;
-                            target_offset -= dir;
-                            
-                            if (s->buffer[offset] == '\n') {
-                                line += dir;
-                                
-                                if (dir > 0)
-                                    s->offset_list[line] = offset + 1;
-                                else
-                                    s->offset_list[line + 1] = offset + 1;
-                            }
-                        }
-                        
-                        if (target_offset == 0) {
-                            s->base_pos = line;
-                            s->rel_pos = 0;
-                            TextViewer::UpdateTextEntries(s);
-                        }
-                    }
-                }
                 else {
                     if ((ctrl & PSP_CTRL_LTRIGGER) || (ctrl & PSP_CTRL_RTRIGGER)) {
                         if (ctrl & PSP_CTRL_LTRIGGER) { // Skip page up
@@ -635,7 +462,7 @@ namespace TextViewer {
                 }
                 
                 // buffer modifying actions
-                if (s->modify_allowed && !s->search_running) {
+                if (s->modify_allowed) {
                     if (s->edit_line <= 0 && Utils::IsButtonPressed(PSP_CTRL_ENTER)) {
                         int line_start = s->offset_list[s->base_pos + s->rel_pos];
                         
@@ -655,15 +482,11 @@ namespace TextViewer {
                         TextViewer::InsertLine(s, "\n", s->base_pos + s->rel_pos + 1);
                         
                     if (Utils::IsButtonPressed(PSP_CTRL_CANCEL)) {
-                        if (s->n_search_results)
-                            s->n_search_results = 0;
+                        if (s->changed)
+                            state = STATE_DIALOG;
                         else {
-                            if (s->changed)
-                                state = STATE_DIALOG;
-                            else {
-                                s->hex_viewer = 0;
-                                break;
-                            }
+                            s->hex_viewer = 0;
+                            break;
                         }
                     }
                 }
@@ -720,21 +543,6 @@ namespace TextViewer {
             int i;
             for (i = 0; i < s->list.length; i++) {
                 char *line = entry->line;
-                int line_lenght = std::strlen(line);
-                
-                int search_result_on_line = 0;
-                
-                int entry_start_offset = s->offset_list[entry->line_number];
-                int entry_end_offset = entry_start_offset + line_lenght;
-                
-                if (s->n_search_results > 0) {
-                    int j;
-                    for (j = 0; j < s->n_search_results; j++) {
-                        int search_offset = s->search_result_offsets[j];
-                        if (entry_start_offset <= search_offset && entry_end_offset >= search_offset)
-                            search_result_on_line = 1;
-                    }
-                }
                 
                 if (entry->line_number < s->n_lines) {
                     char line_str[5];
@@ -755,17 +563,6 @@ namespace TextViewer {
                     
                     if (p)
                         *p = '\0';
-                        
-                    char *search_highlight = nullptr;
-                    
-                    if (search_result_on_line)
-                        search_highlight = strcasestr(line, s->search_term);
-                        
-                    char tmp = '\0';
-                    if (search_highlight) {
-                        tmp = *search_highlight;
-                        *search_highlight = '\0';
-                    }
                     
                     G2D::FontSetStyle(font, 1.f, (s->rel_pos == i)? TITLE_COLOUR : TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
                     int width = G2D::DrawText(x, START_Y + (i * FONT_Y_SPACE), line);
@@ -775,21 +572,6 @@ namespace TextViewer {
                         *p = '\t';
                         x += width + TAB_SIZE * font_size_cache[' '];
                         line++;
-                    }
-                    
-                    if (search_highlight) {
-                        *search_highlight = tmp;
-                        
-                        int search_term_length = std::strlen(s->search_term);
-                        tmp = search_highlight[search_term_length];
-                        search_highlight[search_term_length] = '\0';
-                        
-                        x += width;
-                        G2D::FontSetStyle(font, 1.f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
-                        x += G2D::DrawText(x, START_Y + (i * FONT_Y_SPACE), line);
-                        
-                        search_highlight[search_term_length] = tmp;
-                        line += std::strlen(s->search_term); 
                     }
                 }
                 
@@ -823,12 +605,6 @@ namespace TextViewer {
         
         s->count_lines_running = 0;
         sceKernelWaitThreadEnd(s->count_lines_thid, nullptr);
-        
-        if (s->search_running) {
-            s->search_running = 0;
-            sceKernelWaitThreadEnd(s->search_thid, nullptr);
-        }
-        
         TextViewer::EmptyList(&s->list);
         std::free(s);
         std::free(buffer_base); 
