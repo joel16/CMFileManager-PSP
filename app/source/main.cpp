@@ -37,6 +37,14 @@ namespace Services {
         intraFontSetAltFont(jpn0, chn);
         intraFontSetEncoding(font, INTRAFONT_STRING_UTF8);
 
+        // Font size cache
+        for (int i = 0; i < 256; i++) {
+            char character[2];
+            character[0] = i;
+            character[1] = '\0';
+            font_size_cache[i] = intraFontMeasureText(font, character);
+        }
+
         Utils::IsMemCardInserted(&is_ms_inserted);
 		is_psp_go = Utils::IsModelPSPGo();
 		

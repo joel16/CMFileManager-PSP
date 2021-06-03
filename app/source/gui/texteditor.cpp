@@ -1,0 +1,847 @@
+#include <cstdlib>
+#include <cstring>
+#include <filesystem>
+#include <malloc.h>
+#include <pspiofilemgr.h>
+#include <pspthreadman.h>
+
+#include "config.h"
+#include "colours.h"
+#include "g2d.h"
+#include "log.h"
+#include "textures.h"
+#include "utils.h"
+
+char font_size_cache[256];
+
+/*
+    This is a back-port of VITAShell's text editor by TheOfficialFloW.
+    Original source can be found here: https://github.com/TheOfficialFloW/VitaShell/blob/master/text.c
+    This only has very minor c++ code stlyle changes along with the PSP required changes.
+*/
+
+namespace TextViewer {
+    constexpr int MAX_LINES = 0x10000;
+    constexpr int MAX_LINE_CHARACTERS = 1024;
+    constexpr int MAX_COPY_BUFFER_SIZE = 1024;
+    constexpr int MAX_SELECTION = 1024;
+    constexpr float TEXT_START_X = 55.f;
+    constexpr int MAX_SEARCH_RESULTS = 1024 * 1024;
+    constexpr int MIN_SEARCH_TERM_LENGTH = 1;
+    constexpr int TAB_SIZE = 4;
+    constexpr int SCREEN_WIDTH = 480;
+    constexpr int SCREEN_HEIGHT =  272;
+    constexpr float SHELL_MARGIN_X = 5.f;
+    constexpr float SHELL_MARGIN_Y = 28.f;
+    constexpr float MAX_WIDTH = (SCREEN_WIDTH - 5.f * SHELL_MARGIN_X);
+    constexpr int MAX_POSITION = 17;
+    constexpr int MAX_ENTRIES = 18;
+    constexpr u64 BIG_BUFFER_SIZE = 16 * 1024 * 1024;
+    constexpr float FONT_Y_SPACE = 12.f;
+    constexpr float START_Y = (SHELL_MARGIN_Y + 3.f * FONT_Y_SPACE);
+
+    typedef struct TextListEntry {
+        struct TextListEntry *next;
+        struct TextListEntry *previous;
+        int line_number;
+        int selected;
+        char line[MAX_LINE_CHARACTERS];
+    } TextListEntry;
+    
+    typedef struct {
+        TextListEntry *head;
+        TextListEntry *tail;
+        int length;
+    } TextList;
+    
+    typedef struct CopyEntry {
+        char line[MAX_LINE_CHARACTERS];
+    } CopyEntry;
+    
+    typedef struct TextEditorState {
+        int running;
+        char *buffer;
+        int size;
+        int base_pos;
+        int rel_pos;
+        int offset_list[MAX_LINES];
+        int selection_list[MAX_SELECTION];
+        int n_selections;
+        int n_copied_lines;
+        int copy_reset;
+        int modify_allowed;
+        CopyEntry copy_buffer[MAX_COPY_BUFFER_SIZE];
+        TextList list;
+        int changed;
+        int edit_line;
+        char search_term[MAX_LINE_CHARACTERS];
+        int search_result_offsets[MAX_SEARCH_RESULTS];
+        int search_term_input;
+        int n_search_results;
+        int search_thid;
+        int count_lines_thid;
+        int hex_viewer;
+        int count_lines_running;
+        int n_lines;
+        int search_running;
+    } TextEditorState;
+    
+    typedef struct SearchParams {
+        TextEditorState *state;
+        char search_term[MAX_LINE_CHARACTERS];
+    } SearchParams;
+    
+    typedef struct CountParams {
+        TextEditorState *state;
+    } CountParams;
+
+    enum TEXT_VIEWER_STATE {
+        STATE_EDIT,
+        STATE_DIALOG,
+    };
+    
+    static void AddEntry(TextList *list, TextListEntry *entry) {
+        entry->next = nullptr;
+        entry->previous = nullptr;
+        
+        if (list->head == nullptr) {
+            list->head = entry;
+            list->tail = entry;
+        }
+        else {
+            TextListEntry *tail = list->tail;
+            tail->next = entry;
+            entry->previous = tail;
+            list->tail = entry;
+        }
+        
+        list->length++;
+    }
+    
+    static void EmptyList(TextList *list) {
+        TextListEntry *entry = list->head;
+        
+        while (entry) {
+            TextListEntry *next = entry->next;
+            std::free(entry);
+            entry = next;
+        }
+        
+        list->head = nullptr;
+        list->tail = nullptr;
+        list->length = 0;
+    }
+
+    static int ReadLine(char *buffer, int offset, int size, char *line) {
+        // Get line
+        int line_width = 0;
+        int count = 0;
+
+        int i = 0;
+        for (i = 0; i < std::min(size, std::min(size - offset, MAX_LINE_CHARACTERS - 1)); i++) {
+            char ch = buffer[offset + i];
+            char ch_width = 0;
+            
+            // Line break
+            if (ch == '\n') {
+                i++; // Skip it
+                break;
+            }
+            
+            // Tab
+            if (ch == '\t')
+                ch_width = TAB_SIZE * font_size_cache[' '];
+            else {
+                ch_width = font_size_cache[(int)ch];
+                if (ch_width == 0) {
+                    ch = ' '; // Change invalid characters to space
+                    ch_width = font_size_cache[(int)ch];
+                }
+            }
+            
+            // Too long
+            if ((line_width + ch_width) >= (MAX_WIDTH - TEXT_START_X + SHELL_MARGIN_X))
+                break;
+                
+            // Increase line width
+            line_width += ch_width;
+            
+            // Add to line string
+            if (line)
+                line[count++] = ch;
+        }
+        
+        // End of line
+        if (line)
+            line[count] = '\0';
+            
+        return i;
+    }
+    
+    static void UpdateEntry(TextEditorState *state, TextListEntry* entry, int rel_pos) {
+        entry->line_number = state->base_pos + rel_pos;
+        
+        // Mark entry as selected
+        entry->selected = 0;
+
+        for (int j = 0; j < state->n_selections; j++) {
+            if (entry->line_number == state->selection_list[j]) {
+                entry->selected = 1;
+                break;
+            }
+        }
+        
+        int length = TextViewer::ReadLine(state->buffer, state->offset_list[state->base_pos + rel_pos], state->size, entry->line);
+        state->offset_list[state->base_pos + rel_pos + 1] = state->offset_list[state->base_pos + rel_pos] + length;
+    }
+
+    static void UpdateTextEntries(TextEditorState *state) {
+        TextListEntry *entry = state->list.head;
+        
+        for (int i = 0; i < MAX_ENTRIES; i++) {
+            if (!entry)
+                break;
+                
+            TextViewer::UpdateEntry(state, entry, i);
+            entry = entry->next;
+        }
+    }
+
+    static CopyEntry *CopyLine(TextEditorState *state, int line_number) {
+        if (state->copy_reset) {
+            state->copy_reset = 0;
+            state->n_copied_lines = 0;
+        }
+        
+        // Get current line
+        int line_start = state->offset_list[line_number];
+        char line[MAX_LINE_CHARACTERS];
+        int length = TextViewer::ReadLine(state->buffer, line_start, state->size, line);
+        
+        CopyEntry *entry = &state->copy_buffer[state->n_copied_lines];
+        
+        // Copy line into copy_buffer
+        memcpy(entry->line, &state->buffer[line_start], length);
+        
+        // Make sure line end with a newline
+        if (entry->line[length - 1] != '\n') {
+            entry->line[length] = '\n';
+            length++;
+        }
+        
+        // Terminate line
+        state->copy_buffer[state->n_copied_lines].line[length] = '\0';
+        state->n_copied_lines++;
+        return entry;
+    }
+
+    static void DeleteLine(TextEditorState *state, int line_number) {
+        // Get current line
+        int line_start = state->offset_list[line_number];
+        char line[MAX_LINE_CHARACTERS];
+        int length = TextViewer::ReadLine(state->buffer, line_start, state->size, line);
+        
+        // Remove line
+        std::memmove(&state->buffer[line_start], &state->buffer[line_start + length], state->size - line_start);  
+        state->size -= length;
+        state->n_lines -= 1;
+        
+        // Add empty line if resulting buffer is empty
+        if (state->size == 0) {
+            state->size = 1;
+            state->n_lines = 1;
+            state->buffer[0] = '\n';
+        }
+        
+        if (state->base_pos + state->rel_pos >= state->n_lines)
+            state->rel_pos = state->n_lines - state->base_pos - 1;
+            
+        if (state->rel_pos < 0) {
+            state->base_pos += state->rel_pos;
+            state->rel_pos = 0;
+        }
+        
+        state->changed = 1;
+        state->n_selections = 0;
+        
+        // Update entries
+        TextViewer::UpdateTextEntries(state);
+    }
+
+    static void InsertLine(TextEditorState *state, const char *line, int pos) {
+        int offset = state->offset_list[pos];
+        
+        // calculated size of inserted line
+        int length = std::strlen(line);
+        
+        // Make space for inserted line
+        std::memmove(&state->buffer[offset + length], &state->buffer[offset], state->size - offset);
+        state->size += length;
+        
+        // Insert the lines
+        std::memcpy(&state->buffer[offset], line, length);
+        
+        for (int i = 0; i < length; i++) {
+            if (line[i] == '\n')
+                state->n_lines++;
+        }
+        
+        state->n_selections = 0;
+        state->changed = 1;
+        state->copy_reset = 1;
+        
+        // Update entries
+        TextViewer::UpdateTextEntries(state);
+    }
+    
+    static void CutLine(TextEditorState *state, int line_number) {
+        TextViewer::CopyLine(state, line_number);
+        TextViewer::DeleteLine(state, line_number);
+    }
+
+    static void PasteLines(TextEditorState *state, int pos) {
+        int line_start = state->offset_list[pos];
+        
+        // calculated size of pasted content
+        int length = 0;
+        for (int i = 0; i < state->n_copied_lines; i++)
+            length += std::strlen(state->copy_buffer[i].line);
+            
+        // Make space for pasted lines
+        std::memmove(&state->buffer[line_start + length], &state->buffer[line_start], state->size - line_start);
+        state->size += length;
+        
+        // Paste the lines
+        for (int i = 0; i < state->n_copied_lines; i++) {
+            int line_length = std::strlen(state->copy_buffer[i].line);
+            std::memcpy(&state->buffer[line_start], state->copy_buffer[i].line, line_length);
+            line_start += line_length;
+        }
+        
+        state->n_lines += state->n_copied_lines;
+        state->changed = 1;
+        state->copy_reset = 1;
+        state->n_selections = 0;
+        
+        // Update entries
+        TextViewer::UpdateTextEntries(state);
+    }
+    
+    static int cmp(const void * a, const void * b) {
+        return ( *(int*)a - *(int*)b );
+    }
+    
+    static int CountLinesThread(SceSize args, CountParams *params) {
+        TextEditorState *state = params->state;
+        state->count_lines_running = 1;
+        state->n_lines = 0;
+        
+        int offset = 0;
+        
+        while (state->count_lines_running && offset < state->size && state->n_lines < MAX_LINES) {
+            offset += TextViewer::ReadLine(state->buffer, offset, state->size, nullptr);
+            state->n_lines++;
+            sceKernelDelayThread(1000);
+        }
+        
+        return sceKernelExitDeleteThread(0);
+    }
+
+    static int SearchThread(SceSize args, SearchParams *argp) {
+        TextEditorState *state = argp->state;
+        char *search_term = argp->search_term;
+        int search_term_length = std::strlen(search_term);
+        int *search_result_offsets = state->search_result_offsets; 
+        
+        state->search_running = 1;
+        state->n_search_results = 0;
+        
+        int offset = 0;
+        // make sure buffer is null-terminated
+        state->buffer[state->size] = '\0';
+        
+        char *r;
+        while (state->search_running && offset < state->size && state->n_search_results < MAX_SEARCH_RESULTS) {
+            r = strcasestr(state->buffer+offset, search_term);
+            
+            if (r == nullptr) {
+                state->search_running = 0;
+                continue;
+            }
+            
+            int index = r - state->buffer;
+            search_result_offsets[state->n_search_results++] = index;
+            offset = index + 1;
+            
+            sceKernelDelayThread(1000);
+        }
+        
+        state->search_running = 0;
+        return sceKernelExitDeleteThread(0);
+    }
+    
+    int ReadFile(const std::string &path, void *buf, int size) {
+        SceUID fd = sceIoOpen(path.c_str(), PSP_O_RDONLY, 0);
+        if (fd < 0)
+            return fd;
+            
+        int read = sceIoRead(fd, buf, size);
+        sceIoClose(fd);
+        return read;
+    }
+
+    int Edit(const std::string &path) {
+        TextEditorState *s = static_cast<TextEditorState *>(std::malloc(sizeof(TextEditorState)));
+        if (!s)
+            Log::Error("Text::Editor std::malloc: No memory!\n", path.c_str());
+
+        char *buffer_base = static_cast<char *>(memalign(4096, BIG_BUFFER_SIZE));
+        if (!buffer_base)
+            Log::Error("Text::Editor std::memalign: No memory!\n", path.c_str());
+
+        s->running = 1;
+        s->hex_viewer = 0; 
+        s->n_copied_lines = 0;
+        s->copy_reset = 0;
+        s->modify_allowed = 1;
+        s->offset_list[0] = 0;
+        s->count_lines_running = 0;
+        s->n_lines = 0;
+        s->search_running = 0;
+        s->edit_line = -1;
+
+        s->size = TextViewer::ReadFile(path, buffer_base, BIG_BUFFER_SIZE);
+        
+        if (s->size < 0) {
+            std::free(buffer_base);
+            return s->size;
+        }
+        
+        s->buffer = buffer_base;
+        
+        int has_utf8_bom = 0;
+        char utf8_bom[3] = {0xEF, 0xBB, 0xBF};
+        if (s->size >= 3 && std::memcmp(buffer_base, utf8_bom, 3) == 0) {
+            s->buffer += 3;
+            has_utf8_bom = 1;
+            s->size -= 3;
+        }
+        
+        if (s->size == 0) {
+            s->size = 1;
+            s->buffer[0] = '\n';
+        }
+        
+        if (s->buffer[s->size - 1] != '\n')
+            s->buffer[s->size++] = '\n';
+            
+        s->base_pos = 0;
+        s->rel_pos = 0;
+        s->n_selections = 0;
+        std::memset(&s->list, 0, sizeof(TextList));
+        
+        int i;
+        for (i = 0; i < MAX_ENTRIES; i++) {
+            TextListEntry *entry = static_cast<TextListEntry *>(std::malloc(sizeof(TextListEntry)));
+            entry->line_number = i;
+            entry->selected = 0;
+            
+            int length = TextViewer::ReadLine(s->buffer, s->offset_list[i], s->size, entry->line);
+            s->offset_list[i + 1] = s->offset_list[i] + length;
+            
+            TextViewer::AddEntry(&s->list, entry);
+        }
+        
+        CountParams count_params;
+        count_params.state = s;
+        
+        s->count_lines_thid = sceKernelCreateThread("TextViewer::CountLinesThread", TextViewer::CountLinesThread, 0x12, 0x2000, PSP_THREAD_ATTR_USER, nullptr);
+        if (s->count_lines_thid >= 0)
+            sceKernelStartThread(s->count_lines_thid, sizeof(CountParams), &count_params);
+            
+        s->edit_line = -1;
+        s->changed = 0;
+        
+        s->search_term_input = 0;
+        s->search_thid = 0;
+        s->n_search_results = 0;
+
+        std::string new_line = std::string();
+
+        TEXT_VIEWER_STATE state = STATE_EDIT;
+        std::string filename = std::filesystem::path(path.data()).filename();
+        
+        static int selection = 0;
+        static const std::string prompt = "Do you wish to save your changes?";
+
+        while (s->running) {
+            int ctrl = Utils::ReadControls();
+
+            if (state == STATE_DIALOG) {
+                if (ctrl & PSP_CTRL_RIGHT)
+                    selection++;
+                else if (ctrl & PSP_CTRL_LEFT)
+                    selection--;
+
+                if (Utils::IsButtonPressed(PSP_CTRL_ENTER)) {
+                    if (selection == 1) {
+                        SceUID fd = 0;
+                        if (R_SUCCEEDED(fd = sceIoOpen(path.c_str(), PSP_O_WRONLY | PSP_O_TRUNC, 0777))) {
+                            sceIoWrite(fd, buffer_base, has_utf8_bom ? s->size + sizeof(utf8_bom) : s->size);
+                            sceIoClose(fd);
+                        }
+                        break;
+                    }
+                    else
+                        break;
+                }
+                
+                Utils::SetBounds(&selection, 0, 1);
+            }
+            else {
+                if (ctrl & PSP_CTRL_UP) {
+                    if (s->rel_pos > 0)
+                        s->rel_pos--;
+                    else {
+                        if (s->base_pos > 0) {
+                            s->base_pos--;
+                            
+                            // Tail to head
+                            s->list.tail->next = s->list.head;
+                            s->list.head->previous = s->list.tail;
+                            s->list.head = s->list.tail;
+                            
+                            // Second last to tail
+                            s->list.tail = s->list.tail->previous;
+                            s->list.tail->next = nullptr;
+                            
+                            // No previous
+                            s->list.head->previous = nullptr;
+                            // Update line_number
+                            s->list.head->line_number = s->base_pos;
+                            
+                            // Read
+                            TextViewer::ReadLine(s->buffer, s->offset_list[s->base_pos], s->size, s->list.head->line);
+                            
+                            // Update the entry
+                            TextViewer::UpdateEntry(s, s->list.head, 0);
+                        }
+                    }
+                    
+                    s->copy_reset = 1;
+                }
+                else if (ctrl & PSP_CTRL_DOWN) {
+                    if (s->offset_list[s->rel_pos + 1] < s->size) {
+                        if ((s->rel_pos + 1) < MAX_POSITION) {
+                            if (s->base_pos + s->rel_pos < s->n_lines - 1) 
+                                s->rel_pos++;
+                        }
+                        else {
+                            if (s->offset_list[s->base_pos + s->rel_pos + 1] < s->size) {
+                                s->base_pos++;
+                                
+                                // Head to tail
+                                s->list.head->previous = s->list.tail;
+                                s->list.tail->next = s->list.head;
+                                s->list.tail = s->list.head;
+                                
+                                // Second first to head
+                                s->list.head = s->list.head->next;
+                                s->list.head->previous = nullptr;
+                                
+                                // No next
+                                s->list.tail->next = nullptr;
+                                
+                                // Update line_number
+                                s->list.tail->line_number = s->base_pos + MAX_ENTRIES - 1;
+                                
+                                // Read
+                                int length = TextViewer::ReadLine(s->buffer, s->offset_list[s->base_pos + MAX_ENTRIES - 1], s->size, s->list.tail->line);
+                                s->offset_list[s->base_pos + MAX_ENTRIES] = s->offset_list[s->base_pos + MAX_ENTRIES - 1] + length;
+                                
+                                // Update the entry
+                                TextViewer::UpdateEntry(s, s->list.tail, MAX_ENTRIES - 1);
+                            }
+                        }
+                    }
+                    
+                    s->copy_reset = 1;
+                }
+                
+                if (s->n_search_results > 0) {
+                    TextListEntry *entry = s->list.head;
+                    
+                    int i;
+                    for (i = 0; i < s->rel_pos; i++)
+                        entry = entry->next;
+                        
+                    int entry_start_offset = s->offset_list[entry->line_number];
+                    int entry_end_offset = s->offset_list[entry->line_number + 1];
+                    int target_offset = 0;
+                    
+                    // Skip to next search result
+                    if (Utils::IsButtonPressed(PSP_CTRL_RTRIGGER)) {
+                        for (i = 0; i < s->n_search_results; i++) {
+                            if (s->search_result_offsets[i] > entry_end_offset) {
+                                target_offset = s->search_result_offsets[i] - entry_start_offset;
+                                break;
+                            }
+                        }
+                    } // Skip to next last result
+                    else if (Utils::IsButtonPressed(PSP_CTRL_LTRIGGER)) {
+                        for (i = s->n_search_results - 1; i >= 0; i--) {
+                            if (s->search_result_offsets[i] < entry_start_offset) {
+                                target_offset = s->search_result_offsets[i] - entry_start_offset;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (target_offset != 0) {
+                        int dir = target_offset > 0 ? 1 : -1;
+                        int line = s->base_pos + s->rel_pos;
+                        int offset = s->offset_list[line];
+                        
+                        while (offset < s->size && offset >= 0 && target_offset != 0) {
+                            offset += dir;
+                            target_offset -= dir;
+                            
+                            if (s->buffer[offset] == '\n') {
+                                line += dir;
+                                
+                                if (dir > 0)
+                                    s->offset_list[line] = offset + 1;
+                                else
+                                    s->offset_list[line + 1] = offset + 1;
+                            }
+                        }
+                        
+                        if (target_offset == 0) {
+                            s->base_pos = line;
+                            s->rel_pos = 0;
+                            TextViewer::UpdateTextEntries(s);
+                        }
+                    }
+                }
+                else {
+                    if ((ctrl & PSP_CTRL_LTRIGGER) || (ctrl & PSP_CTRL_RTRIGGER)) {
+                        if (ctrl & PSP_CTRL_LTRIGGER) { // Skip page up
+                            s->base_pos = s->base_pos - MAX_ENTRIES;
+                            
+                            if (s->base_pos < 0) {
+                                s->base_pos = 0;
+                                s->rel_pos = 0;
+                            }
+                        }
+                        else { // Skip page down
+                            s->base_pos = s->base_pos + MAX_ENTRIES;
+                            if (s->base_pos >= s->n_lines - MAX_POSITION) {
+                                s->base_pos = std::max(s->n_lines - MAX_POSITION, 0);
+                                s->rel_pos = std::min(MAX_POSITION - 1, s->n_lines - 1);
+                            }
+                        }
+                        
+                        // Update entries
+                        TextViewer::UpdateTextEntries(s);
+                    }
+                }
+                
+                // buffer modifying actions
+                if (s->modify_allowed && !s->search_running) {
+                    if (s->edit_line <= 0 && Utils::IsButtonPressed(PSP_CTRL_ENTER)) {
+                        int line_start = s->offset_list[s->base_pos + s->rel_pos];
+                        
+                        char line[MAX_LINE_CHARACTERS];
+                        TextViewer::ReadLine(s->buffer, line_start, s->size, line);
+                        
+                        new_line = G2D::KeyboardGetText("Text editor", line);
+                        s->edit_line = s->base_pos + s->rel_pos;
+                    }
+                    
+                    // Delete line
+                    if (Utils::IsButtonPressed(PSP_CTRL_LEFT) && s->n_copied_lines < MAX_COPY_BUFFER_SIZE)
+                        TextViewer::DeleteLine(s, s->base_pos + s->rel_pos);
+                        
+                    // Insert new line
+                    if (Utils::IsButtonPressed(PSP_CTRL_RIGHT))
+                        TextViewer::InsertLine(s, "\n", s->base_pos + s->rel_pos + 1);
+                        
+                    if (Utils::IsButtonPressed(PSP_CTRL_CANCEL)) {
+                        if (s->n_search_results)
+                            s->n_search_results = 0;
+                        else {
+                            if (s->changed)
+                                state = STATE_DIALOG;
+                            else {
+                                s->hex_viewer = 0;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (s->edit_line >= 0) {
+                if (!new_line.empty()) {
+                    int line_start = s->offset_list[s->edit_line];
+                    
+                    char line[MAX_LINE_CHARACTERS];
+                    int length = TextViewer::ReadLine(s->buffer, line_start, s->size, line);
+                    
+                    // Don't count newline
+                    if (s->buffer[line_start + length - 1] == '\n')
+                        length--;
+                    
+                    int new_length = new_line.size();
+                    
+                    // Move data if size has changed
+                    if (new_length != length) {
+                        std::memmove(&s->buffer[line_start + new_length], &s->buffer[line_start + length], s->size - line_start - length);
+                        s->size += (new_length-length);
+                    }
+                    
+                    // Copy new line into buffer
+                    std::memcpy(&s->buffer[line_start], new_line.c_str(), new_length);
+                    
+                    // Add new lines to n_lines
+                    for (int i = 0; i < new_length; i++) {
+                        if (new_line.c_str()[i] == '\n')
+                            s->n_lines++;
+                    }
+                    
+                    // Update entries
+                    TextViewer::UpdateTextEntries(s);
+                    s->edit_line = -1;
+                    s->changed = 1;
+                }
+                else
+                    s->edit_line = -1;
+            }
+
+            // Start drawing
+            G2D::DrawRect(0, 18, 480, 34, MENU_BAR_COLOUR);
+            G2D::DrawRect(0, 52, 480, 220, BG_COLOUR);
+            G2D::DrawImage(icon_back, 5, 20);
+            G2D::FontSetStyle(font, 1.0f, WHITE, INTRAFONT_ALIGN_LEFT);
+            G2D::DrawText(40, 40, filename.c_str());
+
+            TextListEntry *entry = s->list.head;
+            
+            int i;
+            for (i = 0; i < s->list.length; i++) {
+                char *line = entry->line;
+                int line_lenght = std::strlen(line);
+                
+                int search_result_on_line = 0;
+                
+                int entry_start_offset = s->offset_list[entry->line_number];
+                int entry_end_offset = entry_start_offset + line_lenght;
+                
+                if (s->n_search_results > 0) {
+                    int j;
+                    for (j = 0; j < s->n_search_results; j++) {
+                        int search_offset = s->search_result_offsets[j];
+                        if (entry_start_offset <= search_offset && entry_end_offset >= search_offset)
+                            search_result_on_line = 1;
+                    }
+                }
+                
+                if (entry->line_number < s->n_lines) {
+                    char line_str[5];
+                    snprintf(line_str, 5, "%04i", entry->line_number);
+                    G2D::FontSetStyle(font, 1.f, (s->rel_pos == i)? TITLE_COLOUR : TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
+                    G2D::DrawText(SHELL_MARGIN_X, START_Y + (i * FONT_Y_SPACE), line_str);
+                }
+                
+                float x = TEXT_START_X;
+                
+                if (entry->selected)
+                    G2D::DrawRect(x, START_Y + (i * FONT_Y_SPACE) + 3.f, MAX_WIDTH - TEXT_START_X + SHELL_MARGIN_X, FONT_Y_SPACE, SELECTOR_COLOUR);
+
+                G2D::DrawRect(47, 52, 1, 220, TITLE_COLOUR);
+                    
+                while (*line) {
+                    char *p = std::strchr(line, '\t');
+                    
+                    if (p)
+                        *p = '\0';
+                        
+                    char *search_highlight = nullptr;
+                    
+                    if (search_result_on_line)
+                        search_highlight = strcasestr(line, s->search_term);
+                        
+                    char tmp = '\0';
+                    if (search_highlight) {
+                        tmp = *search_highlight;
+                        *search_highlight = '\0';
+                    }
+                    
+                    G2D::FontSetStyle(font, 1.f, (s->rel_pos == i)? TITLE_COLOUR : TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
+                    int width = G2D::DrawText(x, START_Y + (i * FONT_Y_SPACE), line);
+                    line += std::strlen(line);
+                    
+                    if (p) {
+                        *p = '\t';
+                        x += width + TAB_SIZE * font_size_cache[' '];
+                        line++;
+                    }
+                    
+                    if (search_highlight) {
+                        *search_highlight = tmp;
+                        
+                        int search_term_length = std::strlen(s->search_term);
+                        tmp = search_highlight[search_term_length];
+                        search_highlight[search_term_length] = '\0';
+                        
+                        x += width;
+                        G2D::FontSetStyle(font, 1.f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
+                        x += G2D::DrawText(x, START_Y + (i * FONT_Y_SPACE), line);
+                        
+                        search_highlight[search_term_length] = tmp;
+                        line += std::strlen(s->search_term); 
+                    }
+                }
+                
+                entry = entry->next;
+            }
+
+            if (state == STATE_DIALOG) {
+                G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
+                G2D::DrawImage(cfg.dark_theme? dialog_dark : dialog, ((480 - (dialog->w)) / 2), ((272 - (dialog->h)) / 2));
+                G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
+                G2D::DrawText(((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, "Save");
+                
+                int confirm_width = intraFontMeasureText(font, "YES");
+                int cancel_width = intraFontMeasureText(font, "NO");
+                
+                if (selection == 0)
+                    G2D::DrawRect((364 - cancel_width) - 5, (180 - (font->texYSize - 15)) - 5, cancel_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
+                else
+                    G2D::DrawRect((409 - (confirm_width)) - 5, (180 - (font->texYSize - 15)) - 5, confirm_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
+                    
+                G2D::DrawText(409 - (confirm_width), (192 - (font->texYSize - 15)) - 3, "YES");
+                G2D::DrawText(364 - cancel_width, (192 - (font->texYSize - 15)) - 3, "NO");
+                
+                int prompt_width = intraFontMeasureText(font, prompt.c_str());
+                G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
+                G2D::DrawText(((480 - (prompt_width)) / 2), ((272 - (dialog->h)) / 2) + 60, prompt.c_str());
+            }
+
+            g2dFlip(G2D_VSYNC);
+        }
+        
+        s->count_lines_running = 0;
+        sceKernelWaitThreadEnd(s->count_lines_thid, nullptr);
+        
+        if (s->search_running) {
+            s->search_running = 0;
+            sceKernelWaitThreadEnd(s->search_thid, nullptr);
+        }
+        
+        TextViewer::EmptyList(&s->list);
+        std::free(s);
+        std::free(buffer_base); 
+        return 0;
+    }
+}

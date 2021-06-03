@@ -51,7 +51,7 @@ namespace G2D {
         data.desc = desc;
         data.intext = intext;
         data.outtextlength = 128;
-        data.outtextlimit = 32; // Limit input to 32 characters
+        data.outtextlimit = 128; // Limit input to 128 characters
         data.outtext = outtext;
         
         SceUtilityOskParams params;
@@ -117,7 +117,7 @@ namespace G2D {
     char *KeyboardGetText(const std::string &desc_msg, const std::string &initial_msg) {
         int ret = 0;
         size_t i = 0;
-        static char str[64];
+        static char str[128];
         unsigned short initial[128]  = { 0 };
         unsigned short desc[128]  = { 0 };
         

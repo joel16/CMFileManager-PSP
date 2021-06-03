@@ -6,6 +6,7 @@
 #include <string>
 
 extern intraFont *font, *jpn0, *chn;
+extern char font_size_cache[256];
 
 namespace G2D {
     void DrawRect(float x, float y, float width, float height, g2dColor colour);

@@ -7,6 +7,7 @@
 #include "g2d.h"
 #include "gui.h"
 #include "textures.h"
+#include "texteditor.h"
 #include "utils.h"
 
 namespace GUI {
@@ -112,6 +113,10 @@ namespace GUI {
                         item->texture = g2dTexLoad(path.c_str(), G2D_SWIZZLE);
                         if (item->texture)
                             item->state = MENU_STATE_IMAGEVIEWER;
+                        break;
+
+                    case FileTypeText:
+                        TextViewer::Edit(path.c_str());
                         break;
 
                     // case FileTypeZip:
