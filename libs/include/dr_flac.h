@@ -1,6 +1,6 @@
 /*
 FLAC audio decoder. Choice of public domain or MIT-0. See license statements at the end of this file.
-dr_flac - v0.12.15 - 2020-07-06
+dr_flac - v0.12.29 - 2021-04-02
 
 David Reid - mackron@gmail.com
 
@@ -166,7 +166,7 @@ If you just want to quickly decode an entire FLAC file in one go you can do some
 
     ...
 
-    drflac_free(pSampleData);
+    drflac_free(pSampleData, NULL);
     ```
 
 You can read samples as signed 16-bit integer and 32-bit floating-point PCM with the *_s16() and *_f32() family of APIs respectively, but note that these
@@ -232,45 +232,44 @@ extern "C" {
 
 #define DRFLAC_VERSION_MAJOR     0
 #define DRFLAC_VERSION_MINOR     12
-#define DRFLAC_VERSION_REVISION  15
+#define DRFLAC_VERSION_REVISION  29
 #define DRFLAC_VERSION_STRING    DRFLAC_XSTRINGIFY(DRFLAC_VERSION_MAJOR) "." DRFLAC_XSTRINGIFY(DRFLAC_VERSION_MINOR) "." DRFLAC_XSTRINGIFY(DRFLAC_VERSION_REVISION)
 
 #include <stddef.h> /* For size_t. */
 
-/* Sized types. Prefer built-in types. Fall back to stdint. */
-#ifdef _MSC_VER
-    #if defined(__clang__)
+/* Sized types. */
+typedef   signed char           drflac_int8;
+typedef unsigned char           drflac_uint8;
+typedef   signed short          drflac_int16;
+typedef unsigned short          drflac_uint16;
+typedef   signed int            drflac_int32;
+typedef unsigned int            drflac_uint32;
+#if defined(_MSC_VER)
+    typedef   signed __int64    drflac_int64;
+    typedef unsigned __int64    drflac_uint64;
+#else
+    #if defined(__clang__) || (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)))
         #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Wlanguage-extension-token"
-        #pragma GCC diagnostic ignored "-Wlong-long"        
-        #pragma GCC diagnostic ignored "-Wc++11-long-long"
+        #pragma GCC diagnostic ignored "-Wlong-long"
+        #if defined(__clang__)
+            #pragma GCC diagnostic ignored "-Wc++11-long-long"
+        #endif
     #endif
-    typedef   signed __int8  drflac_int8;
-    typedef unsigned __int8  drflac_uint8;
-    typedef   signed __int16 drflac_int16;
-    typedef unsigned __int16 drflac_uint16;
-    typedef   signed __int32 drflac_int32;
-    typedef unsigned __int32 drflac_uint32;
-    typedef   signed __int64 drflac_int64;
-    typedef unsigned __int64 drflac_uint64;
-    #if defined(__clang__)
+    typedef   signed long long  drflac_int64;
+    typedef unsigned long long  drflac_uint64;
+    #if defined(__clang__) || (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)))
         #pragma GCC diagnostic pop
     #endif
-#else
-    #include <stdint.h>
-    typedef int8_t           drflac_int8;
-    typedef uint8_t          drflac_uint8;
-    typedef int16_t          drflac_int16;
-    typedef uint16_t         drflac_uint16;
-    typedef int32_t          drflac_int32;
-    typedef uint32_t         drflac_uint32;
-    typedef int64_t          drflac_int64;
-    typedef uint64_t         drflac_uint64;
 #endif
-typedef drflac_uint8         drflac_bool8;
-typedef drflac_uint32        drflac_bool32;
-#define DRFLAC_TRUE          1
-#define DRFLAC_FALSE         0
+#if defined(__LP64__) || defined(_WIN64) || (defined(__x86_64__) && !defined(__ILP32__)) || defined(_M_X64) || defined(__ia64) || defined (_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
+    typedef drflac_uint64       drflac_uintptr;
+#else
+    typedef drflac_uint32       drflac_uintptr;
+#endif
+typedef drflac_uint8            drflac_bool8;
+typedef drflac_uint32           drflac_bool32;
+#define DRFLAC_TRUE             1
+#define DRFLAC_FALSE            0
 
 #if !defined(DRFLAC_API)
     #if defined(DRFLAC_DLL)
@@ -317,7 +316,7 @@ typedef drflac_uint32        drflac_bool32;
 #endif
 
 DRFLAC_API void drflac_version(drflac_uint32* pMajor, drflac_uint32* pMinor, drflac_uint32* pRevision);
-DRFLAC_API const char* drflac_version_string();
+DRFLAC_API const char* drflac_version_string(void);
 
 /*
 As data is read from the client it is placed into an internal buffer for fast access. This controls the size of that buffer. Larger values means more speed,
@@ -409,7 +408,10 @@ typedef struct
 
 typedef struct
 {
-    /* The metadata type. Use this to know how to interpret the data below. */
+    /*
+    The metadata type. Use this to know how to interpret the data below. Will be set to one of the
+    DRFLAC_METADATA_BLOCK_TYPE_* tokens.
+    */
     drflac_uint32 type;
 
     /*
@@ -553,7 +555,8 @@ pMetadata (in)
 
 Remarks
 -------
-Use pMetadata->type to determine which metadata block is being handled and how to read the data.
+Use pMetadata->type to determine which metadata block is being handled and how to read the data. This
+will be set to one of the DRFLAC_METADATA_BLOCK_TYPE_* tokens.
 */
 typedef void (* drflac_meta_proc)(void* pUserData, drflac_metadata* pMetadata);
 
@@ -798,6 +801,8 @@ from a block of memory respectively.
 
 The STREAMINFO block must be present for this to succeed. Use `drflac_open_relaxed()` to open a FLAC stream where the header may not be present.
 
+Use `drflac_open_with_metadata()` if you need access to metadata.
+
 
 Seek Also
 ---------
@@ -844,6 +849,8 @@ as that is for internal use only.
 
 Opening in relaxed mode will continue reading data from onRead until it finds a valid frame. If a frame is never found it will continue forever. To abort,
 force your `onRead` callback to return 0, which dr_flac will use as an indicator that the end of the stream was found.
+
+Use `drflac_open_with_metadata_relaxed()` if you need access to metadata.
 */
 DRFLAC_API drflac* drflac_open_relaxed(drflac_read_proc onRead, drflac_seek_proc onSeek, drflac_container container, void* pUserData, const drflac_allocation_callbacks* pAllocationCallbacks);
 
@@ -883,7 +890,9 @@ Close the decoder with `drflac_close()`.
 This is slower than `drflac_open()`, so avoid this one if you don't need metadata. Internally, this will allocate and free memory on the heap for every
 metadata block except for STREAMINFO and PADDING blocks.
 
-The caller is notified of the metadata via the `onMeta` callback. All metadata blocks will be handled before the function returns.
+The caller is notified of the metadata via the `onMeta` callback. All metadata blocks will be handled before the function returns. This callback takes a
+pointer to a `drflac_metadata` object which is a union containing the data of all relevant metadata blocks. Use the `type` member to discriminate against
+the different metadata types.
 
 The STREAMINFO block must be present for this to succeed. Use `drflac_open_with_metadata_relaxed()` to open a FLAC stream where the header may not be present.
 
@@ -1320,7 +1329,7 @@ DRFLAC_API drflac_bool32 drflac_next_cuesheet_track(drflac_cuesheet_track_iterat
 #define dr_flac_c
 
 /* Disable some annoying warnings. */
-#if defined(__GNUC__)
+#if defined(__clang__) || (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)))
     #pragma GCC diagnostic push
     #if __GNUC__ >= 7
     #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
@@ -1330,6 +1339,9 @@ DRFLAC_API drflac_bool32 drflac_next_cuesheet_track(drflac_cuesheet_track_iterat
 #ifdef __linux__
     #ifndef _BSD_SOURCE
         #define _BSD_SOURCE
+    #endif
+    #ifndef _DEFAULT_SOURCE
+        #define _DEFAULT_SOURCE
     #endif
     #ifndef __USE_BSD
         #define __USE_BSD
@@ -1355,6 +1367,8 @@ DRFLAC_API drflac_bool32 drflac_next_cuesheet_track(drflac_cuesheet_track_iterat
     #else
         #define DRFLAC_INLINE inline __attribute__((always_inline))
     #endif
+#elif defined(__WATCOMC__)
+    #define DRFLAC_INLINE __inline
 #else
     #define DRFLAC_INLINE
 #endif
@@ -1364,11 +1378,19 @@ DRFLAC_API drflac_bool32 drflac_next_cuesheet_track(drflac_cuesheet_track_iterat
     #define DRFLAC_X64
 #elif defined(__i386) || defined(_M_IX86)
     #define DRFLAC_X86
-#elif defined(__arm__) || defined(_M_ARM)
+#elif defined(__arm__) || defined(_M_ARM) || defined(_M_ARM64)
     #define DRFLAC_ARM
 #endif
 
-/* Intrinsics Support */
+/*
+Intrinsics Support
+
+There's a bug in GCC 4.2.x which results in an incorrect compilation error when using _mm_slli_epi32() where it complains with
+
+    "error: shift must be an immediate"
+
+Unfortuantely dr_flac depends on this for a few things so we're just going to disable SSE on GCC 4.2 and below.
+*/
 #if !defined(DR_FLAC_NO_SIMD)
     #if defined(DRFLAC_X64) || defined(DRFLAC_X86)
         #if defined(_MSC_VER) && !defined(__clang__)
@@ -1379,7 +1401,7 @@ DRFLAC_API drflac_bool32 drflac_next_cuesheet_track(drflac_cuesheet_track_iterat
             #if _MSC_VER >= 1600 && !defined(DRFLAC_NO_SSE41)   /* 2010 */
                 #define DRFLAC_SUPPORT_SSE41
             #endif
-        #else
+        #elif defined(__clang__) || (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3)))
             /* Assume GNUC-style. */
             #if defined(__SSE2__) && !defined(DRFLAC_NO_SSE2)
                 #define DRFLAC_SUPPORT_SSE2
@@ -1519,7 +1541,7 @@ static DRFLAC_INLINE drflac_bool32 drflac_has_sse41(void)
 }
 
 
-#if defined(_MSC_VER) && _MSC_VER >= 1500 && (defined(DRFLAC_X86) || defined(DRFLAC_X64))
+#if defined(_MSC_VER) && _MSC_VER >= 1500 && (defined(DRFLAC_X86) || defined(DRFLAC_X64)) && !defined(__clang__)
     #define DRFLAC_HAS_LZCNT_INTRINSIC
 #elif (defined(__GNUC__) && ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)))
     #define DRFLAC_HAS_LZCNT_INTRINSIC
@@ -1531,7 +1553,7 @@ static DRFLAC_INLINE drflac_bool32 drflac_has_sse41(void)
     #endif
 #endif
 
-#if defined(_MSC_VER) && _MSC_VER >= 1400
+#if defined(_MSC_VER) && _MSC_VER >= 1400 && !defined(__clang__)
     #define DRFLAC_HAS_BYTESWAP16_INTRINSIC
     #define DRFLAC_HAS_BYTESWAP32_INTRINSIC
     #define DRFLAC_HAS_BYTESWAP64_INTRINSIC
@@ -1555,6 +1577,27 @@ static DRFLAC_INLINE drflac_bool32 drflac_has_sse41(void)
     #if ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8))
         #define DRFLAC_HAS_BYTESWAP16_INTRINSIC
     #endif
+#elif defined(__WATCOMC__) && defined(__386__)
+    #define DRFLAC_HAS_BYTESWAP16_INTRINSIC
+    #define DRFLAC_HAS_BYTESWAP32_INTRINSIC
+    #define DRFLAC_HAS_BYTESWAP64_INTRINSIC
+    extern __inline drflac_uint16 _watcom_bswap16(drflac_uint16);
+    extern __inline drflac_uint32 _watcom_bswap32(drflac_uint32);
+    extern __inline drflac_uint64 _watcom_bswap64(drflac_uint64);
+#pragma aux _watcom_bswap16 = \
+    "xchg al, ah" \
+    parm   [ax]   \
+    modify [ax];
+#pragma aux _watcom_bswap32 = \
+    "bswap eax"  \
+    parm   [eax] \
+    modify [eax];
+#pragma aux _watcom_bswap64 = \
+    "bswap eax"     \
+    "bswap edx"     \
+    "xchg eax,edx"  \
+    parm [eax edx]  \
+    modify [eax edx];
 #endif
 
 
@@ -1673,7 +1716,7 @@ DRFLAC_API void drflac_version(drflac_uint32* pMajor, drflac_uint32* pMinor, drf
     }
 }
 
-DRFLAC_API const char* drflac_version_string()
+DRFLAC_API const char* drflac_version_string(void)
 {
     return DRFLAC_VERSION_STRING;
 }
@@ -1774,10 +1817,12 @@ static DRFLAC_INLINE drflac_bool32 drflac__is_little_endian(void)
 static DRFLAC_INLINE drflac_uint16 drflac__swap_endian_uint16(drflac_uint16 n)
 {
 #ifdef DRFLAC_HAS_BYTESWAP16_INTRINSIC
-    #if defined(_MSC_VER)
+    #if defined(_MSC_VER) && !defined(__clang__)
         return _byteswap_ushort(n);
     #elif defined(__GNUC__) || defined(__clang__)
         return __builtin_bswap16(n);
+    #elif defined(__WATCOMC__) && defined(__386__)
+        return _watcom_bswap16(n);
     #else
         #error "This compiler does not support the byte swap intrinsic."
     #endif
@@ -1790,7 +1835,7 @@ static DRFLAC_INLINE drflac_uint16 drflac__swap_endian_uint16(drflac_uint16 n)
 static DRFLAC_INLINE drflac_uint32 drflac__swap_endian_uint32(drflac_uint32 n)
 {
 #ifdef DRFLAC_HAS_BYTESWAP32_INTRINSIC
-    #if defined(_MSC_VER)
+    #if defined(_MSC_VER) && !defined(__clang__)
         return _byteswap_ulong(n);
     #elif defined(__GNUC__) || defined(__clang__)
         #if defined(DRFLAC_ARM) && (defined(__ARM_ARCH) && __ARM_ARCH >= 6) && !defined(DRFLAC_64BIT)   /* <-- 64-bit inline assembly has not been tested, so disabling for now. */
@@ -1807,6 +1852,8 @@ static DRFLAC_INLINE drflac_uint32 drflac__swap_endian_uint32(drflac_uint32 n)
         #else
             return __builtin_bswap32(n);
         #endif
+    #elif defined(__WATCOMC__) && defined(__386__)
+        return _watcom_bswap32(n);
     #else
         #error "This compiler does not support the byte swap intrinsic."
     #endif
@@ -1821,22 +1868,25 @@ static DRFLAC_INLINE drflac_uint32 drflac__swap_endian_uint32(drflac_uint32 n)
 static DRFLAC_INLINE drflac_uint64 drflac__swap_endian_uint64(drflac_uint64 n)
 {
 #ifdef DRFLAC_HAS_BYTESWAP64_INTRINSIC
-    #if defined(_MSC_VER)
+    #if defined(_MSC_VER) && !defined(__clang__)
         return _byteswap_uint64(n);
     #elif defined(__GNUC__) || defined(__clang__)
         return __builtin_bswap64(n);
+    #elif defined(__WATCOMC__) && defined(__386__)
+        return _watcom_bswap64(n);
     #else
         #error "This compiler does not support the byte swap intrinsic."
     #endif
 #else
-    return ((n & (drflac_uint64)0xFF00000000000000) >> 56) |
-           ((n & (drflac_uint64)0x00FF000000000000) >> 40) |
-           ((n & (drflac_uint64)0x0000FF0000000000) >> 24) |
-           ((n & (drflac_uint64)0x000000FF00000000) >>  8) |
-           ((n & (drflac_uint64)0x00000000FF000000) <<  8) |
-           ((n & (drflac_uint64)0x0000000000FF0000) << 24) |
-           ((n & (drflac_uint64)0x000000000000FF00) << 40) |
-           ((n & (drflac_uint64)0x00000000000000FF) << 56);
+    /* Weird "<< 32" bitshift is required for C89 because it doesn't support 64-bit constants. Should be optimized out by a good compiler. */
+    return ((n & ((drflac_uint64)0xFF000000 << 32)) >> 56) |
+           ((n & ((drflac_uint64)0x00FF0000 << 32)) >> 40) |
+           ((n & ((drflac_uint64)0x0000FF00 << 32)) >> 24) |
+           ((n & ((drflac_uint64)0x000000FF << 32)) >>  8) |
+           ((n & ((drflac_uint64)0xFF000000      )) <<  8) |
+           ((n & ((drflac_uint64)0x00FF0000      )) << 24) |
+           ((n & ((drflac_uint64)0x0000FF00      )) << 40) |
+           ((n & ((drflac_uint64)0x000000FF      )) << 56);
 #endif
 }
 
@@ -2390,7 +2440,6 @@ static DRFLAC_INLINE drflac_bool32 drflac__read_uint32(drflac_bs* bs, unsigned i
 static drflac_bool32 drflac__read_int32(drflac_bs* bs, unsigned int bitCount, drflac_int32* pResult)
 {
     drflac_uint32 result;
-    drflac_uint32 signbit;
 
     DRFLAC_ASSERT(bs != NULL);
     DRFLAC_ASSERT(pResult != NULL);
@@ -2401,8 +2450,12 @@ static drflac_bool32 drflac__read_int32(drflac_bs* bs, unsigned int bitCount, dr
         return DRFLAC_FALSE;
     }
 
-    signbit = ((result >> (bitCount-1)) & 0x01);
-    result |= (~signbit + 1) << bitCount;
+    /* Do not attempt to shift by 32 as it's undefined. */
+    if (bitCount < 32) {
+        drflac_uint32 signbit;
+        signbit = ((result >> (bitCount-1)) & 0x01);
+        result |= (~signbit + 1) << bitCount;
+    }
 
     *pResult = (drflac_int32)result;
     return DRFLAC_TRUE;
@@ -2625,8 +2678,11 @@ static drflac_bool32 drflac__find_and_seek_to_next_sync_code(drflac_bs* bs)
 #if defined(DRFLAC_HAS_LZCNT_INTRINSIC)
 #define DRFLAC_IMPLEMENT_CLZ_LZCNT
 #endif
-#if  defined(_MSC_VER) && _MSC_VER >= 1400 && (defined(DRFLAC_X64) || defined(DRFLAC_X86))
+#if  defined(_MSC_VER) && _MSC_VER >= 1400 && (defined(DRFLAC_X64) || defined(DRFLAC_X86)) && !defined(__clang__)
 #define DRFLAC_IMPLEMENT_CLZ_MSVC
+#endif
+#if  defined(__WATCOMC__) && defined(__386__)
+#define DRFLAC_IMPLEMENT_CLZ_WATCOM
 #endif
 
 static DRFLAC_INLINE drflac_uint32 drflac__clz_software(drflac_cache_t x)
@@ -2680,7 +2736,25 @@ static DRFLAC_INLINE drflac_bool32 drflac__is_lzcnt_supported(void)
 
 static DRFLAC_INLINE drflac_uint32 drflac__clz_lzcnt(drflac_cache_t x)
 {
-#if defined(_MSC_VER) && !defined(__clang__)
+    /*
+    It's critical for competitive decoding performance that this function be highly optimal. With MSVC we can use the __lzcnt64() and __lzcnt() intrinsics
+    to achieve good performance, however on GCC and Clang it's a little bit more annoying. The __builtin_clzl() and __builtin_clzll() intrinsics leave
+    it undefined as to the return value when `x` is 0. We need this to be well defined as returning 32 or 64, depending on whether or not it's a 32- or
+    64-bit build. To work around this we would need to add a conditional to check for the x = 0 case, but this creates unnecessary inefficiency. To work
+    around this problem I have written some inline assembly to emit the LZCNT (x86) or CLZ (ARM) instruction directly which removes the need to include
+    the conditional. This has worked well in the past, but for some reason Clang's MSVC compatible driver, clang-cl, does not seem to be handling this
+    in the same way as the normal Clang driver. It seems that `clang-cl` is just outputting the wrong results sometimes, maybe due to some register
+    getting clobbered?
+
+    I'm not sure if this is a bug with dr_flac's inlined assembly (most likely), a bug in `clang-cl` or just a misunderstanding on my part with inline
+    assembly rules for `clang-cl`. If somebody can identify an error in dr_flac's inlined assembly I'm happy to get that fixed.
+
+    Fortunately there is an easy workaround for this. Clang implements MSVC-specific intrinsics for compatibility. It also defines _MSC_VER for extra
+    compatibility. We can therefore just check for _MSC_VER and use the MSVC intrinsic which, fortunately for us, Clang supports. It would still be nice
+    to know how to fix the inlined assembly for correctness sake, however.
+    */
+
+#if defined(_MSC_VER) /*&& !defined(__clang__)*/    /* <-- Intentionally wanting Clang to use the MSVC __lzcnt64/__lzcnt intrinsics due to above ^. */
     #ifdef DRFLAC_64BIT
         return (drflac_uint32)__lzcnt64(x);
     #else
@@ -2692,7 +2766,7 @@ static DRFLAC_INLINE drflac_uint32 drflac__clz_lzcnt(drflac_cache_t x)
             {
                 drflac_uint64 r;
                 __asm__ __volatile__ (
-                    "lzcnt{ %1, %0| %0, %1}" : "=r"(r) : "r"(x)
+                    "lzcnt{ %1, %0| %0, %1}" : "=r"(r) : "r"(x) : "cc"
                 );
 
                 return (drflac_uint32)r;
@@ -2701,7 +2775,7 @@ static DRFLAC_INLINE drflac_uint32 drflac__clz_lzcnt(drflac_cache_t x)
             {
                 drflac_uint32 r;
                 __asm__ __volatile__ (
-                    "lzcnt{l %1, %0| %0, %1}" : "=r"(r) : "r"(x)
+                    "lzcnt{l %1, %0| %0, %1}" : "=r"(r) : "r"(x) : "cc"
                 );
 
                 return r;
@@ -2757,6 +2831,16 @@ static DRFLAC_INLINE drflac_uint32 drflac__clz_msvc(drflac_cache_t x)
 }
 #endif
 
+#ifdef DRFLAC_IMPLEMENT_CLZ_WATCOM
+static __inline drflac_uint32 drflac__clz_watcom (drflac_uint32);
+#pragma aux drflac__clz_watcom = \
+    "bsr eax, eax" \
+    "xor eax, 31" \
+    parm [eax] nomemory \
+    value [eax] \
+    modify exact [eax] nomemory;
+#endif
+
 static DRFLAC_INLINE drflac_uint32 drflac__clz(drflac_cache_t x)
 {
 #ifdef DRFLAC_IMPLEMENT_CLZ_LZCNT
@@ -2767,6 +2851,8 @@ static DRFLAC_INLINE drflac_uint32 drflac__clz(drflac_cache_t x)
     {
 #ifdef DRFLAC_IMPLEMENT_CLZ_MSVC
         return drflac__clz_msvc(x);
+#elif defined(DRFLAC_IMPLEMENT_CLZ_WATCOM)
+        return (x == 0) ? sizeof(x)*8 : drflac__clz_watcom(x);
 #else
         return drflac__clz_software(x);
 #endif
@@ -3150,7 +3236,6 @@ static drflac_bool32 drflac__decode_samples_with_residual__rice__reference(drfla
     drflac_uint32 i;
 
     DRFLAC_ASSERT(bs != NULL);
-    DRFLAC_ASSERT(count > 0);
     DRFLAC_ASSERT(pSamplesOut != NULL);
 
     for (i = 0; i < count; ++i) {
@@ -3532,7 +3617,6 @@ static drflac_bool32 drflac__decode_samples_with_residual__rice__scalar_zeroorde
     drflac_uint32 i;
 
     DRFLAC_ASSERT(bs != NULL);
-    DRFLAC_ASSERT(count > 0);
     DRFLAC_ASSERT(pSamplesOut != NULL);
 
     (void)bitsPerSample;
@@ -3578,7 +3662,6 @@ static drflac_bool32 drflac__decode_samples_with_residual__rice__scalar(drflac_b
     drflac_uint32 i;
 
     DRFLAC_ASSERT(bs != NULL);
-    DRFLAC_ASSERT(count > 0);
     DRFLAC_ASSERT(pSamplesOut != NULL);
 
     if (order == 0) {
@@ -4132,7 +4215,6 @@ static drflac_bool32 drflac__decode_samples_with_residual__rice__sse41_64(drflac
 static drflac_bool32 drflac__decode_samples_with_residual__rice__sse41(drflac_bs* bs, drflac_uint32 bitsPerSample, drflac_uint32 count, drflac_uint8 riceParam, drflac_uint32 order, drflac_int32 shift, const drflac_int32* coefficients, drflac_int32* pSamplesOut)
 {
     DRFLAC_ASSERT(bs != NULL);
-    DRFLAC_ASSERT(count > 0);
     DRFLAC_ASSERT(pSamplesOut != NULL);
 
     /* In my testing the order is rarely > 12, so in this case I'm going to simplify the SSE implementation by only handling order <= 12. */
@@ -4631,7 +4713,6 @@ static drflac_bool32 drflac__decode_samples_with_residual__rice__neon_64(drflac_
 static drflac_bool32 drflac__decode_samples_with_residual__rice__neon(drflac_bs* bs, drflac_uint32 bitsPerSample, drflac_uint32 count, drflac_uint8 riceParam, drflac_uint32 order, drflac_int32 shift, const drflac_int32* coefficients, drflac_int32* pSamplesOut)
 {
     DRFLAC_ASSERT(bs != NULL);
-    DRFLAC_ASSERT(count > 0);
     DRFLAC_ASSERT(pSamplesOut != NULL);
 
     /* In my testing the order is rarely > 12, so in this case I'm going to simplify the NEON implementation by only handling order <= 12. */
@@ -4674,7 +4755,6 @@ static drflac_bool32 drflac__read_and_seek_residual__rice(drflac_bs* bs, drflac_
     drflac_uint32 i;
 
     DRFLAC_ASSERT(bs != NULL);
-    DRFLAC_ASSERT(count > 0);
 
     for (i = 0; i < count; ++i) {
         if (!drflac__seek_rice_parts(bs, riceParam)) {
@@ -4690,7 +4770,6 @@ static drflac_bool32 drflac__decode_samples_with_residual__unencoded(drflac_bs* 
     drflac_uint32 i;
 
     DRFLAC_ASSERT(bs != NULL);
-    DRFLAC_ASSERT(count > 0);
     DRFLAC_ASSERT(unencodedBitsPerSample <= 31);    /* <-- unencodedBitsPerSample is a 5 bit number, so cannot exceed 31. */
     DRFLAC_ASSERT(pSamplesOut != NULL);
 
@@ -4754,7 +4833,7 @@ static drflac_bool32 drflac__decode_samples_with_residual(drflac_bs* bs, drflac_
     }
 
     /* Validation check. */
-    if ((blockSize / (1 << partitionOrder)) <= order) {
+    if ((blockSize / (1 << partitionOrder)) < order) {
         return DRFLAC_FALSE;
     }
 
@@ -5126,7 +5205,8 @@ static drflac_bool32 drflac__read_next_flac_frame_header(drflac_bs* bs, drflac_u
         DRFLAC_ASSERT(blockSize > 0);
         if (blockSize == 1) {
             header->blockSizeInPCMFrames = 192;
-        } else if (blockSize >= 2 && blockSize <= 5) {
+        } else if (blockSize <= 5) {
+            DRFLAC_ASSERT(blockSize >= 2);
             header->blockSizeInPCMFrames = 576 * (1 << (blockSize - 2));
         } else if (blockSize == 6) {
             if (!drflac__read_uint16(bs, 8, &header->blockSizeInPCMFrames)) {
@@ -5720,6 +5800,9 @@ static drflac_bool32 drflac__seek_to_approximate_flac_frame_to_byte(drflac* pFla
     *pLastSuccessfulSeekOffset = pFlac->firstFLACFramePosInBytes;
 
     for (;;) {
+        /* After rangeLo == rangeHi == targetByte fails, we need to break out. */
+        drflac_uint64 lastTargetByte = targetByte;
+
         /* When seeking to a byte, failure probably means we've attempted to seek beyond the end of the stream. To counter this we just halve it each attempt. */
         if (!drflac__seek_to_byte(&pFlac->bs, targetByte)) {
             /* If we couldn't even seek to the first byte in the stream we have a problem. Just abandon the whole thing. */
@@ -5759,6 +5842,11 @@ static drflac_bool32 drflac__seek_to_approximate_flac_frame_to_byte(drflac* pFla
                 break;
             }
 #endif
+        }
+
+        /* We already tried this byte and there are no more to try, break out. */
+        if(targetByte == lastTargetByte) {
+            return DRFLAC_FALSE;
         }
     }
 
@@ -8272,7 +8360,7 @@ static drflac_result drflac_result_from_errno(int e)
 
 static drflac_result drflac_fopen(FILE** ppFile, const char* pFilePath, const char* pOpenMode)
 {
-#if _MSC_VER && _MSC_VER >= 1400
+#if defined(_MSC_VER) && _MSC_VER >= 1400
     errno_t err;
 #endif
 
@@ -8284,7 +8372,7 @@ static drflac_result drflac_fopen(FILE** ppFile, const char* pFilePath, const ch
         return DRFLAC_INVALID_ARGS;
     }
 
-#if _MSC_VER && _MSC_VER >= 1400
+#if defined(_MSC_VER) && _MSC_VER >= 1400
     err = fopen_s(ppFile, pFilePath, pOpenMode);
     if (err != 0) {
         return drflac_result_from_errno(err);
@@ -8319,12 +8407,13 @@ _wfopen() isn't always available in all compilation environments.
     * MSVC seems to support it universally as far back as VC6 from what I can tell (haven't checked further back).
     * MinGW-64 (both 32- and 64-bit) seems to support it.
     * MinGW wraps it in !defined(__STRICT_ANSI__).
+    * OpenWatcom wraps it in !defined(_NO_EXT_KEYS).
 
 This can be reviewed as compatibility issues arise. The preference is to use _wfopen_s() and _wfopen() as opposed to the wcsrtombs()
 fallback, so if you notice your compiler not detecting this properly I'm happy to look at adding support.
 */
 #if defined(_WIN32)
-    #if defined(_MSC_VER) || defined(__MINGW64__) || !defined(__STRICT_ANSI__)
+    #if defined(_MSC_VER) || defined(__MINGW64__) || (!defined(__STRICT_ANSI__) && !defined(_NO_EXT_KEYS))
         #define DRFLAC_HAS_WFOPEN
     #endif
 #endif
@@ -11294,6 +11383,7 @@ DRFLAC_API drflac_bool32 drflac_seek_to_pcm_frame(drflac* pFlac, drflac_uint64 p
         return drflac__seek_to_first_frame(pFlac);
     } else {
         drflac_bool32 wasSuccessful = DRFLAC_FALSE;
+        drflac_uint64 originalPCMFrame = pFlac->currentPCMFrame;
 
         /* Clamp the sample to the end. */
         if (pcmFrameIndex > pFlac->totalPCMFrameCount) {
@@ -11351,7 +11441,16 @@ DRFLAC_API drflac_bool32 drflac_seek_to_pcm_frame(drflac* pFlac, drflac_uint64 p
             }
         }
 
-        pFlac->currentPCMFrame = pcmFrameIndex;
+        if (wasSuccessful) {
+            pFlac->currentPCMFrame = pcmFrameIndex;
+        } else {
+            /* Seek failed. Try putting the decoder back to it's original state. */
+            if (drflac_seek_to_pcm_frame(pFlac, originalPCMFrame) == DRFLAC_FALSE) {
+                /* Failed to seek back to the original PCM frame. Fall back to 0. */
+                drflac_seek_to_pcm_frame(pFlac, 0);
+            }
+        }
+
         return wasSuccessful;
     }
 }
@@ -11742,7 +11841,7 @@ DRFLAC_API drflac_bool32 drflac_next_cuesheet_track(drflac_cuesheet_track_iterat
     return DRFLAC_TRUE;
 }
 
-#if defined(__GNUC__)
+#if defined(__clang__) || (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)))
     #pragma GCC diagnostic pop
 #endif
 #endif  /* dr_flac_c */
@@ -11752,6 +11851,50 @@ DRFLAC_API drflac_bool32 drflac_next_cuesheet_track(drflac_cuesheet_track_iterat
 /*
 REVISION HISTORY
 ================
+v0.12.29 - 2021-04-02
+  - Fix a bug where the running PCM frame index is set to an invalid value when over-seeking.
+  - Fix a decoding error due to an incorrect validation check.
+
+v0.12.28 - 2021-02-21
+  - Fix a warning due to referencing _MSC_VER when it is undefined.
+
+v0.12.27 - 2021-01-31
+  - Fix a static analysis warning.
+
+v0.12.26 - 2021-01-17
+  - Fix a compilation warning due to _BSD_SOURCE being deprecated.
+
+v0.12.25 - 2020-12-26
+  - Update documentation.
+
+v0.12.24 - 2020-11-29
+  - Fix ARM64/NEON detection when compiling with MSVC.
+
+v0.12.23 - 2020-11-21
+  - Fix compilation with OpenWatcom.
+
+v0.12.22 - 2020-11-01
+  - Fix an error with the previous release.
+
+v0.12.21 - 2020-11-01
+  - Fix a possible deadlock when seeking.
+  - Improve compiler support for older versions of GCC.
+
+v0.12.20 - 2020-09-08
+  - Fix a compilation error on older compilers.
+
+v0.12.19 - 2020-08-30
+  - Fix a bug due to an undefined 32-bit shift.
+
+v0.12.18 - 2020-08-14
+  - Fix a crash when compiling with clang-cl.
+
+v0.12.17 - 2020-08-02
+  - Simplify sized types.
+
+v0.12.16 - 2020-07-25
+  - Fix a compilation warning.
+
 v0.12.15 - 2020-07-06
   - Check for negative LPC shifts and return an error.
 
