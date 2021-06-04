@@ -10,10 +10,10 @@
 namespace GUI {
     void DisplayFileProperties(MenuItem *item) {
         G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
-        G2D::DrawImage(cfg.dark_theme? properties_dialog_dark : properties_dialog, ((480 - (properties_dialog->w)) / 2), ((272 - (properties_dialog->h)) / 2));
+        G2D::DrawImage(properties_dialog[cfg.dark_theme], ((480 - (properties_dialog[0]->w)) / 2), ((272 - (properties_dialog[0]->h)) / 2));
         G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
 
-        G2D::DrawText(((480 - (properties_dialog->w)) / 2) + 10, ((272 - (properties_dialog->h)) / 2) + 20, "Properties");
+        G2D::DrawText(((480 - (properties_dialog[0]->w)) / 2) + 10, ((272 - (properties_dialog[0]->h)) / 2) + 20, "Properties");
 
         int ok_width = intraFontMeasureText(font, "OK");
         G2D::DrawRect((340 - (ok_width)) - 5, (220 - (font->texYSize - 15)) - 5, ok_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);

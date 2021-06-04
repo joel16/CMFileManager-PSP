@@ -30,61 +30,61 @@ namespace GUI {
         G2D::FontSetStyle(font, 1.0f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
         
         if (is_psp_go) {
-            G2D::DrawImage(cfg.dark_theme? icon_sd_dark : icon_sd, pos_x + 10, 92);
+            G2D::DrawImage(icon_sd[cfg.dark_theme], pos_x + 10, 92);
             G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2), !is_ms_inserted? "ef0:/" : "ms0:/");
             
             if (is_ms_inserted) {
-                G2D::DrawImage(cfg.dark_theme? icon_secure_dark : icon_secure, pos_x + 10, 122);
+                G2D::DrawImage(icon_secure[cfg.dark_theme], pos_x + 10, 122);
                 G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 30, "ef0:/");
                 
                 if (cfg.dev_options) {
-                    G2D::DrawImage(cfg.dark_theme? icon_secure_dark : icon_secure, pos_x + 10, 152);
+                    G2D::DrawImage(icon_secure[cfg.dark_theme], pos_x + 10, 152);
                     G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 60, "flash0:/");
                     
-                    G2D::DrawImage(cfg.dark_theme? icon_secure_dark : icon_secure, pos_x + 10, 182);
+                    G2D::DrawImage(icon_secure[cfg.dark_theme], pos_x + 10, 182);
                     G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 90, "flash1:/");
                     
-                    G2D::DrawImage(cfg.dark_theme? icon_secure_dark : icon_secure, pos_x + 10, 212);
+                    G2D::DrawImage(icon_secure[cfg.dark_theme], pos_x + 10, 212);
                     G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 120, "flash2:/");
                     
-                    G2D::DrawImage(cfg.dark_theme? icon_secure_dark : icon_secure, pos_x + 10, 242);
+                    G2D::DrawImage(icon_secure[cfg.dark_theme], pos_x + 10, 242);
                     G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 150, "flash3:/");
                 }
             }
             else {
                 if (cfg.dev_options) {
-                    G2D::DrawImage(cfg.dark_theme? icon_secure_dark : icon_secure, pos_x + 10, 122);
+                    G2D::DrawImage(icon_secure[cfg.dark_theme], pos_x + 10, 122);
                     G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 30, "flash0:/");
                     
-                    G2D::DrawImage(cfg.dark_theme? icon_secure_dark : icon_secure, pos_x + 10, 152);
+                    G2D::DrawImage(icon_secure[cfg.dark_theme], pos_x + 10, 152);
                     G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 60, "flash1:/");
                     
-                    G2D::DrawImage(cfg.dark_theme? icon_secure_dark : icon_secure, pos_x + 10, 182);
+                    G2D::DrawImage(icon_secure[cfg.dark_theme], pos_x + 10, 182);
                     G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 90, "flash2:/");
                     
-                    G2D::DrawImage(cfg.dark_theme? icon_secure_dark : icon_secure, pos_x + 10, 212);
+                    G2D::DrawImage(icon_secure[cfg.dark_theme], pos_x + 10, 212);
                     G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 120, "flash3:/");
                 }
             }
         }
         else {
-            G2D::DrawImage(cfg.dark_theme? icon_sd_dark : icon_sd, pos_x + 10, 92);
+            G2D::DrawImage(icon_sd[cfg.dark_theme], pos_x + 10, 92);
             G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2), "ms0:/");
             
             if (cfg.dev_options) {
-                G2D::DrawImage(cfg.dark_theme? icon_secure_dark : icon_secure, pos_x + 10, 122);
+                G2D::DrawImage(icon_secure[cfg.dark_theme], pos_x + 10, 122);
                 G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 30, "flash0:/");
                 
-                G2D::DrawImage(cfg.dark_theme? icon_secure_dark : icon_secure, pos_x + 10, 152);
+                G2D::DrawImage(icon_secure[cfg.dark_theme], pos_x + 10, 152);
                 G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 60, "flash1:/");
                 
-                G2D::DrawImage(cfg.dark_theme? icon_secure_dark : icon_secure, pos_x + 10, 182);
+                G2D::DrawImage(icon_secure[cfg.dark_theme], pos_x + 10, 182);
                 G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 90, "flash2:/");
                 
-                G2D::DrawImage(cfg.dark_theme? icon_secure_dark : icon_secure, pos_x + 10, 212);
+                G2D::DrawImage(icon_secure[cfg.dark_theme], pos_x + 10, 212);
                 G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 120, "flash3:/");
                 
-                G2D::DrawImage(cfg.dark_theme? icon_secure_dark : icon_secure, pos_x + 10, 242);
+                G2D::DrawImage(icon_secure[cfg.dark_theme], pos_x + 10, 242);
                 G2D::DrawText(pos_x + 50, 90 + ((30 - (font->glyph->height - 6)) / 2) + 150, "disc0:/");
             }
         }

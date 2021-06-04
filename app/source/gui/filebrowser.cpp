@@ -38,13 +38,13 @@ namespace GUI {
                 G2D::DrawRect(0, start_y + (sel_dist * (i - start)), 480, sel_dist, SELECTOR_COLOUR);
 
             if ((item->checked[i]) && (!item->checked_cwd.compare(cfg.cwd)))
-                G2D::DrawImageScale(cfg.dark_theme? icon_check_dark : icon_check, 0, start_y + (sel_dist * (i - start)), 18.f, 18.f);
+                G2D::DrawImageScale(icon_check[cfg.dark_theme], 0, start_y + (sel_dist * (i - start)), 18.f, 18.f);
             else
-                G2D::DrawImageScale(cfg.dark_theme? icon_uncheck_dark : icon_uncheck, 0, start_y + (sel_dist * (i - start)), 18.f, 18.f);
+                G2D::DrawImageScale(icon_uncheck[cfg.dark_theme], 0, start_y + (sel_dist * (i - start)), 18.f, 18.f);
 
             FileType file_type = FS::GetFileType(filename);
             if (FIO_S_ISDIR(item->entries[i].d_stat.st_mode))
-                G2D::DrawImageScale(cfg.dark_theme? icon_dir_dark : icon_dir, 20, start_y + (sel_dist * (i - start)), 18.f, 18.f);
+                G2D::DrawImageScale(icon_dir[cfg.dark_theme], 20, start_y + (sel_dist * (i - start)), 18.f, 18.f);
             else
                 G2D::DrawImageScale(file_icons[file_type], 20, start_y + (sel_dist * (i - start)), 18.f, 18.f);
 

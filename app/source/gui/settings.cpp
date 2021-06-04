@@ -229,9 +229,9 @@ namespace GUI {
 
     static void DisplayFTPSettings(void) {
         G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
-        G2D::DrawImage(cfg.dark_theme? dialog_dark : dialog, ((480 - (dialog->w)) / 2), ((272 - (dialog->h)) / 2));
+        G2D::DrawImage(dialog[cfg.dark_theme], ((480 - (dialog[0]->w)) / 2), ((272 - (dialog[0]->h)) / 2));
         G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
-        G2D::DrawText(((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, "FTP");
+        G2D::DrawText(((480 - (dialog[0]->w)) / 2) + 10, ((272 - (dialog[0]->h)) / 2) + 20, "FTP");
 
         int ok_width = intraFontMeasureText(font, "OK");
         G2D::DrawRect((409 - (ok_width)) - 5, (180 - (font->texYSize - 15)) - 5, ok_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
@@ -239,7 +239,7 @@ namespace GUI {
         
         int text_width = intraFontMeasureText(font, ftp_text);
         G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
-        G2D::DrawText(((480 - (text_width)) / 2), ((272 - (dialog->h)) / 2) + 60, ftp_text);
+        G2D::DrawText(((480 - (text_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 60, ftp_text);
     }
 
     static void ControlFTPSettings(void) {
@@ -267,10 +267,10 @@ namespace GUI {
         G2D::DrawText(40, 204, "Size");
         G2D::DrawText(40, 218, "Sort by size (smallest first).");
 
-        G2D::DrawImage(cfg.sort == 0? (cfg.dark_theme? icon_radio_dark_on : icon_radio_on) : (cfg.dark_theme? icon_radio_dark_off : icon_radio_off), 425, 60);
-        G2D::DrawImage(cfg.sort == 1? (cfg.dark_theme? icon_radio_dark_on : icon_radio_on) : (cfg.dark_theme? icon_radio_dark_off : icon_radio_off), 425, 104);
-        G2D::DrawImage(cfg.sort == 2? (cfg.dark_theme? icon_radio_dark_on : icon_radio_on) : (cfg.dark_theme? icon_radio_dark_off : icon_radio_off), 425, 148);
-        G2D::DrawImage(cfg.sort == 3? (cfg.dark_theme? icon_radio_dark_on : icon_radio_on) : (cfg.dark_theme? icon_radio_dark_off : icon_radio_off), 425, 192);
+        G2D::DrawImage(cfg.sort == 0? icon_radio_on[cfg.dark_theme] : icon_radio_off[cfg.dark_theme], 425, 60);
+        G2D::DrawImage(cfg.sort == 1? icon_radio_on[cfg.dark_theme] : icon_radio_off[cfg.dark_theme], 425, 104);
+        G2D::DrawImage(cfg.sort == 2? icon_radio_on[cfg.dark_theme] : icon_radio_off[cfg.dark_theme], 425, 148);
+        G2D::DrawImage(cfg.sort == 3? icon_radio_on[cfg.dark_theme] : icon_radio_off[cfg.dark_theme], 425, 192);
     }
 
     static void ControlSortSettings(MenuItem *item) {
@@ -289,9 +289,9 @@ namespace GUI {
 
     static void DisplayAboutSettings(void) {
         G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
-        G2D::DrawImage(cfg.dark_theme? dialog_dark : dialog, ((480 - (dialog->w)) / 2), ((272 - (dialog->h)) / 2));
+        G2D::DrawImage(dialog[cfg.dark_theme], ((480 - (dialog[0]->w)) / 2), ((272 - (dialog[0]->h)) / 2));
         G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
-        G2D::DrawText(((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, "About");
+        G2D::DrawText(((480 - (dialog[0]->w)) / 2) + 10, ((272 - (dialog[0]->h)) / 2) + 20, "About");
 
         int ok_width = intraFontMeasureText(font, "OK");
         G2D::DrawRect((409 - (ok_width)) - 5, (180 - (font->texYSize - 15)) - 5, ok_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
@@ -299,11 +299,11 @@ namespace GUI {
         
         G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
         int version_width = intraFontMeasureText(font, "CMFileManager-PSP version: v4.0.0");
-        intraFontPrintf(font, ((480 - (version_width)) / 2), ((272 - (dialog->h)) / 2) + 50, "CMFileManager-PSP version: v%d.%d.%d", 
+        intraFontPrintf(font, ((480 - (version_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 50, "CMFileManager-PSP version: v%d.%d.%d", 
             VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO);
 
         int author_width = intraFontMeasureText(font, "Author: Joel16");
-        G2D::DrawText(((480 - (author_width)) / 2), ((272 - (dialog->h)) / 2) + 68, "Author: Joel16");
+        G2D::DrawText(((480 - (author_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 68, "Author: Joel16");
     }
 
     static void ControlAboutSettings(void) {
@@ -317,27 +317,33 @@ namespace GUI {
         G2D::DrawText(40, 40, "Settings");
 
         G2D::FontSetStyle(font, 1.0f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
-        G2D::DrawText(40, 72, "FTP connection");
-        G2D::DrawText(40, 86, "Wireless connection");
 
-        G2D::DrawText(40, 116, "Sorting options");
-        G2D::DrawText(40, 130, "Select between various sorting options.");
+        G2D::DrawImage(ftp_icon[cfg.dark_theme], 15, 59);
+        G2D::DrawText(60, 72, "FTP connection");
+        G2D::DrawText(60, 86, "Wireless connection");
 
-        G2D::DrawText(40, 160, "Dark theme");
-        G2D::DrawText(40, 174, "Enables dark theme mode.");
+        G2D::DrawImage(sort_icon[cfg.dark_theme], 15, 103);
+        G2D::DrawText(60, 116, "Sorting options");
+        G2D::DrawText(60, 130, "Select between various sorting options.");
 
-        G2D::DrawText(40, 204, "Developer options");
-        G2D::DrawText(40, 218, "Enable logging and fs access to NAND.");
+        G2D::DrawImage(dark_theme_icon[cfg.dark_theme], 15, 147);
+        G2D::DrawText(60, 160, "Dark theme");
+        G2D::DrawText(60, 174, "Enables dark theme mode.");
 
-        G2D::DrawText(40, 248, "About");
-        G2D::DrawText(40, 262, "Application and device info");
+        G2D::DrawImage(dev_options_icon[cfg.dark_theme], 15, 191);
+        G2D::DrawText(60, 204, "Developer options");
+        G2D::DrawText(60, 218, "Enable logging and fs access to NAND.");
+
+        G2D::DrawImage(about_icon[cfg.dark_theme], 15, 235);
+        G2D::DrawText(60, 248, "About");
+        G2D::DrawText(60, 262, "Application and device info");
 
         if (cfg.dark_theme)
-            G2D::DrawImage(cfg.dark_theme? icon_toggle_dark_on : icon_toggle_on, 415, 143);
+            G2D::DrawImage(icon_toggle_on[cfg.dark_theme], 415, 143);
         else
             G2D::DrawImage(icon_toggle_off, 415, 143);
 
-        G2D::DrawImage(cfg.dev_options? (cfg.dark_theme? icon_toggle_dark_on : icon_toggle_on) : icon_toggle_off, 415, 187);
+        G2D::DrawImage(cfg.dev_options? icon_toggle_on[cfg.dark_theme] : icon_toggle_off, 415, 187);
     }
     
     static void ControlGeneralSettings(MenuItem *item, int *ctrl) {

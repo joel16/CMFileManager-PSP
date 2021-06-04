@@ -3,17 +3,18 @@
 
 #include <glib2d.h>
 
-constexpr int NUM_ICONS = 6;
+constexpr int NUM_FILE_ICONS = 6;
 constexpr int NUM_BATT_ICONS = 6;
+constexpr int NUM_THEMES = 2;
 
-extern g2dTexture *file_icons[NUM_ICONS], *icon_dir, *icon_dir_dark, *icon_check, *icon_check_dark, *icon_uncheck, \
-    *icon_uncheck_dark, *icon_toggle_on, *icon_toggle_dark_on, *icon_toggle_off, *icon_radio_off, \
-    *icon_radio_on, *icon_radio_dark_off, *icon_radio_dark_on, *icon_nav_drawer, *icon_back, \
-    *options_dialog, *options_dialog_dark, *properties_dialog, *properties_dialog_dark, *dialog, *dialog_dark, \
+extern g2dTexture *file_icons[NUM_FILE_ICONS], *icon_dir[NUM_THEMES], *icon_check[NUM_THEMES], *icon_uncheck[NUM_THEMES], \
+    *icon_toggle_on[NUM_THEMES], *icon_toggle_off, *icon_radio_off[NUM_THEMES], *icon_radio_on[NUM_THEMES], *icon_nav_drawer, \
+    *icon_back, *options_dialog[NUM_THEMES], *properties_dialog[NUM_THEMES], *dialog[NUM_THEMES], \
     *battery_charging[NUM_BATT_ICONS], *battery[NUM_BATT_ICONS], *usb_icon, \
     *default_artwork, *default_artwork_blur, *btn_play, *btn_pause, *btn_rewind, *btn_forward, \
     *btn_repeat, *btn_shuffle, *btn_repeat_overlay, *btn_shuffle_overlay, \
-    *bg_header, *icon_sd, *icon_secure, *icon_sd_dark, *icon_secure_dark, *ic_play_btn;
+    *bg_header, *icon_sd[NUM_THEMES], *icon_secure[NUM_THEMES], *ic_play_btn, *ftp_icon[NUM_THEMES], *sort_icon[NUM_THEMES], \
+    *dark_theme_icon[NUM_THEMES], *dev_options_icon[NUM_THEMES], *about_icon[NUM_THEMES];
 
 namespace Textures {
     void Load(void);

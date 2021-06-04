@@ -63,16 +63,16 @@ namespace GUI {
         GUI::DisplayFileBrowser(&item);
         
         G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
-        G2D::DrawImage(cfg.dark_theme? dialog_dark : dialog, ((480 - (dialog->w)) / 2), ((272 - (dialog->h)) / 2));
+        G2D::DrawImage(dialog[cfg.dark_theme], ((480 - (dialog[0]->w)) / 2), ((272 - (dialog[0]->h)) / 2));
         G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
-        G2D::DrawText(((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, title.c_str());
+        G2D::DrawText(((480 - (dialog[0]->w)) / 2) + 10, ((272 - (dialog[0]->h)) / 2) + 20, title.c_str());
 
         int text_width = intraFontMeasureText(font, message.c_str());
         G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
-        G2D::DrawText(((480 - (text_width)) / 2), ((272 - (dialog->h)) / 2) + 60, message.c_str());
+        G2D::DrawText(((480 - (text_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 60, message.c_str());
         
-        G2D::DrawRect(((480 - dialog->w) / 2) + 20, ((272 - dialog->h) / 2) + 70, 318, 4, SELECTOR_COLOUR);
-        G2D::DrawRect(((480 - dialog->w) / 2) + 20, ((272 - dialog->h) / 2) + 70,
+        G2D::DrawRect(((480 - dialog[0]->w) / 2) + 20, ((272 - dialog[0]->h) / 2) + 70, 318, 4, SELECTOR_COLOUR);
+        G2D::DrawRect(((480 - dialog[0]->w) / 2) + 20, ((272 - dialog[0]->h) / 2) + 70,
             static_cast<int>((static_cast<float>(offset) / static_cast<float>(size)) * 318.f), 4, TITLE_COLOUR);
         
         g2dFlip(G2D_VSYNC);

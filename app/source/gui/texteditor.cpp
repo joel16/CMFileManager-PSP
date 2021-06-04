@@ -580,9 +580,9 @@ namespace TextViewer {
 
             if (state == STATE_DIALOG) {
                 G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
-                G2D::DrawImage(cfg.dark_theme? dialog_dark : dialog, ((480 - (dialog->w)) / 2), ((272 - (dialog->h)) / 2));
+                G2D::DrawImage(dialog[cfg.dark_theme], ((480 - (dialog[0]->w)) / 2), ((272 - (dialog[0]->h)) / 2));
                 G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
-                G2D::DrawText(((480 - (dialog->w)) / 2) + 10, ((272 - (dialog->h)) / 2) + 20, "Save");
+                G2D::DrawText(((480 - (dialog[0]->w)) / 2) + 10, ((272 - (dialog[0]->h)) / 2) + 20, "Save");
                 
                 int confirm_width = intraFontMeasureText(font, "YES");
                 int cancel_width = intraFontMeasureText(font, "NO");
@@ -597,7 +597,7 @@ namespace TextViewer {
                 
                 int prompt_width = intraFontMeasureText(font, prompt.c_str());
                 G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
-                G2D::DrawText(((480 - (prompt_width)) / 2), ((272 - (dialog->h)) / 2) + 60, prompt.c_str());
+                G2D::DrawText(((480 - (prompt_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 60, prompt.c_str());
             }
 
             g2dFlip(G2D_VSYNC);

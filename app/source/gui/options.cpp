@@ -124,7 +124,7 @@ namespace Options {
 namespace GUI {
     void DisplayFileOptions(MenuItem *item) {
         G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
-        G2D::DrawImage(cfg.dark_theme? options_dialog_dark : options_dialog, (480 - options_dialog->w) / 2, (272 - options_dialog->h) / 2);
+        G2D::DrawImage(options_dialog[cfg.dark_theme], (480 - options_dialog[0]->w) / 2, (272 - options_dialog[0]->h) / 2);
         G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
         G2D::DrawText(140, 52, "Actions");
         
