@@ -1,6 +1,5 @@
 #include <cstdlib>
 #include <cstring>
-#include <filesystem>
 #include <malloc.h>
 #include <pspiofilemgr.h>
 #include <pspthreadman.h>
@@ -344,7 +343,7 @@ namespace TextViewer {
 
         std::string new_line = std::string();
         TEXT_VIEWER_STATE state = STATE_EDIT;
-        std::string filename = std::filesystem::path(path.data()).filename();
+        std::string filename = FS::GetFilename(path);
         
         static int selection = 0;
         static const std::string prompt = "Do you wish to save your changes?";

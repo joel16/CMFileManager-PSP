@@ -14,8 +14,8 @@ VERSION_MAJOR :=  4
 VERSION_MINOR :=  0
 VERSION_MICRO :=  0
 
-INCDIR   = ../libs/include ../libs/include/ogg ../libs/include/opus include
-CFLAGS   = -Os -G0 -Wall -ffast-math -fno-rtti -fno-exceptions -Wno-narrowing \
+INCDIR   = ../libs/include ../libs/include/opus include
+CFLAGS   = -Os -G0 -Wall -ffast-math -fno-rtti -fno-exceptions -Wno-narrowing -Wno-unused-variable \
            -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
 CXXFLAGS = $(CFLAGS) -std=gnu++17
 ASFLAGS  := $(CFLAGS)

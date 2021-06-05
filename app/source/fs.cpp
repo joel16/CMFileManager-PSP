@@ -267,6 +267,10 @@ namespace FS {
         
         return FS::ChangeDir(parent_path.empty()? cfg.cwd : parent_path, entries);
     }
+    
+    std::string GetFilename(const std::string &path) {
+        return std::filesystem::path(path).filename().u8string();
+    }
 
     static int CopyFile(const std::string &src_path, const std::string &dest_path) {
         int ret = 0;

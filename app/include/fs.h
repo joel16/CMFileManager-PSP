@@ -35,6 +35,7 @@ namespace FS {
     int GetDirList(const std::string &path, std::vector<SceIoDirent> &entries);
     int ChangeDirNext(const std::string &path, std::vector<SceIoDirent> &entries);
     int ChangeDirPrev(std::vector<SceIoDirent> &entries);
+    std::string GetFilename(const std::string &path);
     void Copy(SceIoDirent *entry, const std::string &path);
     int Paste(void);
     int Move(void);
