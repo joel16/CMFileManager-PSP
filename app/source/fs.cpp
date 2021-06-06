@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <cstring>
 #include <filesystem>
-#include <cstdarg>
+#include <psppower.h>
 
 #include "config.h"
 #include "fs.h"
@@ -485,16 +485,19 @@ namespace FS {
     static int DeleteDirectoryRecursive(const std::string &path) {
         int ret = 0;
         SceUID dir = 0;
+        scePowerLock(0);
 
 #ifdef FS_DEBUG
         if (R_FAILED(ret = dir = sceIoDopen(path.c_str()))) {
             Log::Error("sceIoDopen(%s) failed: %08x\n", path.c_str(), ret);
+            scePowerUnlock(0);
             return ret;
         }
 #else
         if (R_FAILED(ret = dir = pspOpenDir(path.c_str()))) {
             if (R_FAILED(ret = sceIoRemove(path.c_str()))) {
                 Log::Error("sceIoRemove(%s) failed: %08x\n", path.c_str(), ret);
+                scePowerUnlock(0);
                 return ret;
             }
         }
@@ -502,13 +505,15 @@ namespace FS {
 
         do {
             if (Utils::IsCancelButtonPressed()) {
-                delete[] buf;
-                sceIoClose(src_handle);
-                sceIoClose(dest_handle);
+#ifdef FS_DEBUG
+                sceIoDclose(dir);
+#else
+                pspCloseDir(dir);
+#endif
                 scePowerUnlock(0);
                 return 0;
             }
-            
+
             SceIoDirent entry;
             std::memset(&entry, 0, sizeof(entry));
 
@@ -532,6 +537,7 @@ namespace FS {
 #else
                         pspCloseDir(dir);
 #endif
+                        scePowerUnlock(0);
                         return ret;
                     }
                 }
@@ -544,6 +550,7 @@ namespace FS {
 #else
                         pspCloseDir(dir);
 #endif
+                        scePowerUnlock(0);
                         return ret;
                     }
                 }
@@ -555,6 +562,7 @@ namespace FS {
 #else
         pspCloseDir(dir);
 #endif
+        scePowerUnlock(0);
 
         if (R_FAILED(ret = sceIoRmdir(path.c_str()))) {
             Log::Error("sceIoRmdir(%s) failed: %08x\n", path.c_str(), ret);
