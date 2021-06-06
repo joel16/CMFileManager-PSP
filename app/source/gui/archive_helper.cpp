@@ -1,6 +1,5 @@
 #include <archive.h>
 #include <archive_entry.h>
-#include <cstring>
 #include <filesystem>
 #include <psppower.h>
 #include <string>
@@ -66,8 +65,17 @@ namespace ArchiveHelper {
         return 0;
     }
 
+    static void FreeHandles(struct archive *read, struct archive *write) {
+        archive_read_close(read);
+        archive_read_free(read);
+        archive_write_close(write);
+        archive_write_free(write);
+        scePowerUnlock(0);
+    }
+
     int Extract(const std::string &path) {
         int ret = 0;
+        scePowerLock(0);
 
         int flags = ARCHIVE_EXTRACT_TIME;
         flags |= ARCHIVE_EXTRACT_PERM;
@@ -83,11 +91,8 @@ namespace ArchiveHelper {
         struct archive_entry *entry = nullptr;
 
         if ((ret = archive_read_open_filename(arch, path.c_str(), 0x3000)) != ARCHIVE_OK) {
-            archive_read_close(arch);
-            archive_read_free(arch);
-            archive_write_close(ext);
-            archive_write_free(ext);
             Log::Error("archive_read_open_filename(%s) failed: %s\n", path.c_str(), archive_error_string(arch));
+            ArchiveHelper::FreeHandles(arch, ext);
             return ret;
         }
 
@@ -100,10 +105,7 @@ namespace ArchiveHelper {
 
         for (;;) {
             if (Utils::IsCancelButtonPressed()) {
-                archive_read_close(arch);
-                archive_read_free(arch);
-                archive_write_close(ext);
-                archive_write_free(ext);
+                ArchiveHelper::FreeHandles(arch, ext);
                 return 0;
             }
 
@@ -113,10 +115,7 @@ namespace ArchiveHelper {
                 
             if (ret != ARCHIVE_OK) {
                 Log::Error("archive_read_next_header(%s) failed: %s\n", path.c_str(), archive_error_string(arch));
-                archive_read_close(arch);
-                archive_read_free(arch);
-                archive_write_close(ext);
-                archive_write_free(ext);
+                ArchiveHelper::FreeHandles(arch, ext);
                 return ret;
             }
             
@@ -129,20 +128,14 @@ namespace ArchiveHelper {
             
             if (ret < ARCHIVE_OK) {
                 Log::Error("archive_write_header(%s) failed: %s\n", dest_path.c_str(), archive_error_string(arch));
-                archive_read_close(arch);
-                archive_read_free(arch);
-                archive_write_close(ext);
-                archive_write_free(ext);
+                ArchiveHelper::FreeHandles(arch, ext);
                 return ret;
             }
             else if (archive_entry_size(entry) > 0) {
                 ret = ArchiveHelper::CopyData(arch, ext);
                 if (ret != ARCHIVE_OK) {
                     Log::Error("ArchiveHelper::CopyData(%s) failed: %s\n", dest_path.c_str(), archive_error_string(arch));
-                    archive_read_close(arch);
-                    archive_read_free(arch);
-                    archive_write_close(ext);
-                    archive_write_free(ext);
+                    ArchiveHelper::FreeHandles(arch, ext);
                     return ret;
                 }
             }
@@ -152,10 +145,7 @@ namespace ArchiveHelper {
             index++;
         }
         
-        archive_read_close(arch);
-        archive_read_free(arch);
-        archive_write_close(ext);
-        archive_write_free(ext);
+        ArchiveHelper::FreeHandles(arch, ext);
         return 0;
     }
 }
