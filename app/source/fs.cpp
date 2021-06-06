@@ -276,9 +276,11 @@ namespace FS {
     static int CopyFile(const std::string &src_path, const std::string &dest_path) {
         int ret = 0;
         SceUID src_handle = 0, dest_handle = 0;
+        scePowerLock(0);
         
         if (R_FAILED(ret = src_handle = sceIoOpen(src_path.c_str(), PSP_O_RDONLY, 0))) {
             Log::Error("sceIoOpen(%s) failed: 0x%x\n", src_path.c_str(), ret);
+            scePowerUnlock(0);
             return ret;
         }
         
@@ -289,12 +291,14 @@ namespace FS {
         if (Utils::GetFreeStorage() < size) {
             Log::Error("Not enough storage is available to process this command 0x%x\n", src_path.c_str(), ret);
             sceIoClose(src_handle);
+            scePowerUnlock(0);
             return -1;
         }
 
         if (R_FAILED(ret = dest_handle = sceIoOpen(dest_path.c_str(), PSP_O_WRONLY | PSP_O_CREAT | PSP_O_APPEND, 0777))) {
             Log::Error("sceIoOpen(%s) failed: 0x%x\n", dest_path.c_str(), ret);
             sceIoClose(src_handle);
+            scePowerUnlock(0);
             return ret;
         }
         
@@ -309,6 +313,7 @@ namespace FS {
                 delete[] buf;
                 sceIoClose(src_handle);
                 sceIoClose(dest_handle);
+                scePowerUnlock(0);
                 return 0;
             }
             
@@ -319,6 +324,7 @@ namespace FS {
                 delete[] buf;
                 sceIoClose(src_handle);
                 sceIoClose(dest_handle);
+                scePowerUnlock(0);
                 return ret;
             }
 
@@ -327,6 +333,7 @@ namespace FS {
                 delete[] buf;
                 sceIoClose(src_handle);
                 sceIoClose(dest_handle);
+                scePowerUnlock(0);
                 return ret;
             }
             
@@ -337,6 +344,7 @@ namespace FS {
         delete[] buf;
         sceIoClose(src_handle);
         sceIoClose(dest_handle);
+        scePowerUnlock(0);
         return 0;
     }
     
@@ -493,6 +501,14 @@ namespace FS {
 #endif
 
         do {
+            if (Utils::IsCancelButtonPressed()) {
+                delete[] buf;
+                sceIoClose(src_handle);
+                sceIoClose(dest_handle);
+                scePowerUnlock(0);
+                return 0;
+            }
+            
             SceIoDirent entry;
             std::memset(&entry, 0, sizeof(entry));
 
