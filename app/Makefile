@@ -28,6 +28,7 @@ LDFLAGS =
 LIBS    = -lpsputility -lintrafont -lglib2d -lpspgu -lpsprtc -lpspvram \
           -lxmp-lite -lmpg123 -lvorbisfile -lvorbis -lopusfile -lopus -lFLAC -logg -lpspaudio \
           -lpspctrl -lpsppower -lpspreg -lpspusb -lpspusbstor -lpspusbdevice -lpspumd \
+          -larchive -lbz2 -llzma -lz \
           -lpspkubridge -lpspsystemctrl_user -lstdc++ -lm -lz
 
 EXTRA_TARGETS    = EBOOT.PBP

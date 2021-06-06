@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <pspctrl.h>
 
+#include "archive_helper.h"
 #include "config.h"
 #include "fs.h"
 #include "colours.h"
@@ -109,6 +110,13 @@ namespace GUI {
                 FileType file_type = FS::GetFileType(item->entries[item->selected].d_name);
                 
                 switch(file_type) {
+                    case FileTypeArchive:
+                        if (R_SUCCEEDED(ArchiveHelper::Extract(path))) {
+                            FS::GetDirList(cfg.cwd, item->entries);
+                            GUI::ResetCheckbox(item);
+                        }
+                        break;
+                    
                     case FileTypeImage:
                         item->texture = g2dTexLoad(path.c_str(), G2D_SWIZZLE);
                         if (item->texture)
@@ -118,13 +126,6 @@ namespace GUI {
                     case FileTypeText:
                         TextViewer::Edit(path.c_str());
                         break;
-
-                    // case FileTypeZip:
-                    //     if (R_SUCCEEDED(ArchiveHelper::Extract(path))) {
-                    //         FS::GetDirList(cfg.cwd, item->entries);
-                    //         GUI::ResetCheckbox(item);
-                    //     }
-                    //     break;
                     
                     default:
                         break;
