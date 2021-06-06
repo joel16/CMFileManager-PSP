@@ -50,7 +50,7 @@ namespace GUI {
                 G2D::DrawImageScale(file_icons[file_type], 20, start_y + (sel_dist * (i - start)), 18.f, 18.f);
 
             G2D::FontSetStyle(font, 1.0f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
-            intraFontPrintf(font, 45, start_y + 10 + ((sel_dist - height) / 2) + (i - start) * sel_dist, filename.length() > 42? "%.45s..." : "%s", filename.c_str());
+            intraFontPrintf(font, 45, start_y + 10 + ((sel_dist - height) / 2) + (i - start) * sel_dist, filename.length() > 42? "%.42s..." : "%s", filename.c_str());
         }
     }
 
