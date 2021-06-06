@@ -30,7 +30,7 @@ namespace Services {
 			return ret;
 		}
 
-        font = intraFontLoad("flash0:/font/ltn8.pgf", 0);
+        font = intraFontLoad("flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ALL);
         jpn0 = intraFontLoad("flash0:/font/jpn0.pgf", INTRAFONT_STRING_UTF8);
         chn = intraFontLoad("flash0:/font/gb3s1518.bwfon", 0);
         intraFontSetAltFont(font, jpn0);
