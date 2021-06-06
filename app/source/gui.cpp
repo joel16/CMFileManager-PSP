@@ -42,11 +42,11 @@ namespace GUI {
         int battery_val = (percent / 20);
         
         static char percent_string[10];
-        snprintf(percent_string, 10, "%d%%", percent);
-        int percent_width = intraFontMeasureText(font, percent_string); 
-        G2D::DrawText(475 - percent_width, 14, percent_string);
+        snprintf(percent_string, 10, "%d", percent);
+        int percent_width = intraFontMeasureText(font, percent_string);
+        intraFontPrintf(font, 475 - percent_width - 15, 14, "%s%%", percent_string);
 
-        G2D::DrawImage(state != 0? battery_charging[battery_val] : battery[battery_val], 475 - percent_width - battery[battery_val]->w, 2);
+        G2D::DrawImage(state != 0? battery_charging[battery_val] : battery[battery_val], 475 - percent_width - battery[battery_val]->w - 15, 2);
     }
 
     void ProgressBar(const std::string &title, std::string message, u64 offset, u64 size) {
