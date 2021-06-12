@@ -24,9 +24,12 @@ namespace GUI {
         float height = G2D::GetTextHeight(font);
         intraFontPrintf(font, 40, 36, cfg.cwd.length() > 42? "%.42s..." : "%s", cfg.cwd.c_str());
         G2D::DrawRect(40, 43, 400, 3, SELECTOR_COLOUR);
-        float fill = (static_cast<double>(item->used_storage)/static_cast<double>(item->total_storage)) * 400.f;
-        G2D::DrawRect(40, 43, fill, 3, TITLE_COLOUR);
 
+        if ((device == BROWSE_STATE_INTERNAL) || (device == BROWSE_STATE_EXTERNAL)) {
+            float fill = (static_cast<double>(item->used_storage)/static_cast<double>(item->total_storage)) * 400.f;
+            G2D::DrawRect(40, 43, fill, 3, TITLE_COLOUR);
+        }
+        
         if (item->entries.empty()) {
             G2D::FontSetStyle(font, 1.0f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_CENTER);
             G2D::DrawText(240, 136, empty_dir.c_str());
