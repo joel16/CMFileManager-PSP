@@ -12,7 +12,7 @@ OBJS := $(addsuffix .o,$(BINFILES)) \
 
 VERSION_MAJOR :=  4
 VERSION_MINOR :=  0
-VERSION_MICRO :=  0
+VERSION_MICRO :=  1
 
 INCDIR   = ../libs/include ../libs/include/opus include
 CFLAGS   = -Os -G0 -Wall -ffast-math -fno-rtti -fno-exceptions -Wno-narrowing -Wno-unused-variable \
