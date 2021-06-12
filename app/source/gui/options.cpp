@@ -189,7 +189,7 @@ namespace GUI {
                 Utils::SetBounds(&row, 0, 1);
         }
 
-        if (Utils::IsButtonPressed(PSP_CTRL_CROSS)) {
+        if (Utils::IsButtonPressed(PSP_CTRL_ENTER)) {
             const std::string filename = item->entries[item->selected].d_name;
 
             if (row == 0) {
