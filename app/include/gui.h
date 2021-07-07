@@ -7,7 +7,6 @@
 #include <vector>
 
 enum MENU_STATES {
-    MENU_STATE_HOME,
     MENU_STATE_MENUBAR,
     MENU_STATE_FILEBROWSER,
     MENU_STATE_OPTIONS,
@@ -32,15 +31,14 @@ typedef struct {
     g2dTexture *texture = nullptr;
 } MenuItem;
 
+extern bool g_running;
+
 namespace GUI {
     void ResetCheckbox(MenuItem *item);
     void GetStorageSize(MenuItem *item);
     void DisplayStatusBar(void);
     void ProgressBar(const std::string &title, std::string message, u64 offset, u64 size);
     int RenderLoop(void);
-
-    void DisplayHomeMenu(void);
-    bool ControlHomeMenu(MenuItem *item, int *ctrl);
 
     void HandleMenubarAnim(float *delta_time);
     void DisplayMenubar(void);

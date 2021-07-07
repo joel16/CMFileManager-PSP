@@ -38,7 +38,6 @@ namespace Utils {
         { "audio_driver.prx", -1, },
         { "display_driver.prx", -1, },
         { "fs_driver.prx", -1, },
-        { "impose_driver.prx", -1, },
         { "input_driver.prx", -1, }
     };
     

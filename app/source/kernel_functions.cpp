@@ -14,14 +14,5 @@ int pspOpenDir(const char *dirname);
 int pspReadDir(SceUID dir, SceIoDirent *dirent);
 int pspCloseDir(SceUID dir);
 
-// impose_driver functions
-int pspGetVolume(void);
-int pspSetVolume(int volume);
-int pspGetMute(void);
-int pspSetMute(int mute);
-int pspGetEqualizerMode(void);
-int pspSetEqualizerMode(int mode);
-int pspSetHomePopup(int popup);
-
 // input_driver functions
 unsigned int pspGetButtons(void);

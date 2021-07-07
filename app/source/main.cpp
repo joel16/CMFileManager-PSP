@@ -12,6 +12,8 @@ PSP_MODULE_INFO("CMFileManager", 0x800, VERSION_MAJOR, VERSION_MINOR);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
 PSP_HEAP_SIZE_KB(-2048);
 
+bool g_running = true;
+
 namespace Services {
     int Init(void) {
         sceCtrlSetSamplingCycle(0);
@@ -61,9 +63,32 @@ namespace Services {
         Utils::TermKernelDrivers();
         sceKernelExitGame();
     }
+    
+    static int ExitCallback(int arg1, int arg2, void *common) {
+        g_running = false;
+        return 0;
+    }
+    
+    static int CallbackThread(SceSize args, void *argp) {
+        int callback = 0;
+        callback = sceKernelCreateCallback("ExitCallback", Services::ExitCallback, nullptr);
+        sceKernelRegisterExitCallback(callback);
+        sceKernelSleepThreadCB();
+        return 0;
+    }
+    
+    int SetupCallbacks(void) {
+        int thread = 0;
+
+        if (R_SUCCEEDED(thread = sceKernelCreateThread("CallbackThread", Services::CallbackThread, 0x11, 0xFA0, 0, nullptr)))
+            sceKernelStartThread(thread, 0, 0);
+            
+        return thread;
+    }
 }
 
 int main(int argc, char* argv[]) {
+    Services::SetupCallbacks();
     Services::Init();
     GUI::RenderLoop();
     Services::Exit();
