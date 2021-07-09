@@ -55,7 +55,7 @@ namespace G2D {
         data.outtext = outtext;
         
         SceUtilityOskParams params;
-        memset(&params, 0, sizeof(params));
+        std::memset(&params, 0, sizeof(params));
         
         params.base.size = sizeof(params);
         sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &params.base.language);
