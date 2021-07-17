@@ -33,7 +33,7 @@ namespace Utils {
     void HandleUSB(void);
     bool IsModelPSPGo(void);
     int IsMemCardInserted(bool *is_inserted);
-    bool IsEF0(void);
+    bool IsInternalStorage(void);
     int LaunchEboot(const char *path);
     u64 GetTotalStorage(void);
     u64 GetFreeStorage(void);

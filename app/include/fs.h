@@ -24,6 +24,7 @@ namespace FS {
     bool FileExists(const std::string &path);
     bool DirExists(const std::string &path);
     int MakeDir(const std::string &path);
+    int RecursiveMakeDir(const std::string &path);
     int CreateFile(const std::string &path);
     std::string GetFileExt(const std::string &filename);
     FileType GetFileType(const std::string &filename);

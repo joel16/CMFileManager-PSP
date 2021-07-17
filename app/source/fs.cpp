@@ -20,14 +20,8 @@ namespace FS {
     static FSCopyEntry fs_copy_entry;
     
     bool FileExists(const std::string &path) {
-        SceUID file = 0;
-        
-        if (R_SUCCEEDED(file = sceIoOpen(path.c_str(), PSP_O_RDONLY, 0777))) {
-            sceIoClose(file);
-            return true;
-        }
-        
-        return false;
+        SceIoStat stat;
+        return sceIoGetstat(path.c_str(), &stat) >= 0;
     }
     
     bool DirExists(const std::string &path) {	
@@ -51,6 +45,26 @@ namespace FS {
         if (R_FAILED(ret = sceIoMkdir(path.c_str(), 0777)))
             return ret;
             
+        return 0;
+    }
+
+    // https://newbedev.com/mkdir-c-function
+    int RecursiveMakeDir(const std::string &path) {
+        std::string current_level = "";
+        std::string level;
+        std::stringstream ss(path);
+        
+        // split path using slash as a separator
+        while (std::getline(ss, level, '/')) {
+            current_level += level; // append folder to the current level
+            
+            // create current level
+            if (!FS::DirExists(current_level) && FS::MakeDir(current_level.c_str()) != 0)
+                return -1;
+                
+            current_level += "/"; // don't forget to append a slash
+        }
+        
         return 0;
     }
     

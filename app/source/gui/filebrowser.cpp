@@ -6,6 +6,7 @@
 #include "fs.h"
 #include "colours.h"
 #include "g2d.h"
+#include "game_launcher.h"
 #include "gui.h"
 #include "textures.h"
 #include "texteditor.h"
@@ -113,6 +114,10 @@ namespace GUI {
                 FileType file_type = FS::GetFileType(item->entries[item->selected].d_name);
                 
                 switch(file_type) {
+                    case FileTypeApp:
+                        GameLauncher::DisplayLauncher(path);
+                        break;
+
                     case FileTypeArchive:
                         if (R_SUCCEEDED(ArchiveHelper::Extract(path))) {
                             FS::GetDirList(cfg.cwd, item->entries);
@@ -127,7 +132,7 @@ namespace GUI {
                         break;
 
                     case FileTypeText:
-                        TextViewer::Edit(path.c_str());
+                        TextViewer::Edit(path);
                         break;
                     
                     default:
