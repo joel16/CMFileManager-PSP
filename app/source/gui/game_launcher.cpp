@@ -9,44 +9,48 @@
 
 namespace GameLauncher {
     typedef struct {
-        char id[4];
-        unsigned int version;
-        unsigned int sfo_offset;
-        unsigned int icon0_offset;
-        unsigned int icon1_offset;
-        unsigned int pic0_offset;
-        unsigned int pic1_offset;
-        unsigned int snd0_offset;
-        unsigned int psp_offset;
-        unsigned int psar_offset;
+        u32 magic = 0;
+        u32 version = 0;
+        u32 sfo_offset = 0;
+        u32 icon0_offset = 0;
+        u32 icon1_offset = 0;
+        u32 pic0_offset = 0;
+        u32 pic1_offset = 0;
+        u32 snd0_offset = 0;
+        u32 psp_offset = 0;
+        u32 psar_offset = 0;
     } pbp;
     
     typedef struct {
-        unsigned short key_offset;
-        unsigned char alignment;
-        unsigned char data_type;
-        unsigned int value_size;
-        unsigned int value_size_with_padding;
-        unsigned int data_offset;
+        u16 key_offset = 0;
+        u8 alignment = 0;
+        u8 data_type = 0;
+        u32 value_size = 0;
+        u32 value_size_with_padding = 0;
+        u32 data_offset = 0;
     } sfo_index;
     
     typedef struct {
-        char id[4];
-        unsigned int version;
-        unsigned int key_offset;
-        unsigned int value_offset;
-        unsigned int pair_count;
+        u32 magic = 0;
+        u32 version = 0;
+        u32 key_offset = 0;
+        u32 value_offset = 0;
+        u32 pair_count = 0;
     } sfo;
     
     typedef struct {
-        unsigned char *icon0_data;
-        int icon0_size;
-        unsigned char *pic1_data;
-        int pic1_size;
-        char *title;
+        u8 *icon0_data = nullptr;
+        int icon0_size = 0;
+        u8 *icon1_data = nullptr;
+        int icon1_size = 0;
+        u8 *pic1_data = nullptr;
+        int pic1_size = 0;
+        u8 *snd0_data = nullptr;
+        int snd0_size = 0;
+        char *title = nullptr;
     } eboot_meta;
 
-    int ReadSFOTitle(SceUID file, unsigned char *buffer, int size, char *id_buf, int id_size) {
+    int ReadSFOTitle(SceUID file, u8 *buffer, int size, char *id_buf, int id_size) {
         int ret = 0;
         sfo *sfo_data = reinterpret_cast<sfo *>(buffer);
         
@@ -57,7 +61,7 @@ namespace GameLauncher {
         }
         
         // allocate memory to read the sfo block
-        unsigned char *sfo_block = buffer + size;
+        u8 *sfo_block = buffer + size;
         if (R_FAILED(ret = sceIoRead(file, sfo_block, size))) {
             Log::Error("GameLauncher::ReadSFOTitle sceIoRead sfo block failed: %08x\n", ret);
             return ret;
@@ -65,10 +69,10 @@ namespace GameLauncher {
         
         // get the sfo index table inside the block
         sfo_index *index_block = reinterpret_cast<sfo_index *>(sfo_block);
-        unsigned int keys_offset_block = sizeof(sfo) + (sizeof(sfo_index) * sfo_data->pair_count);
-        unsigned char *value_block = sfo_block + sfo_data->value_offset - sizeof(sfo);
+        u32 keys_offset_block = sizeof(sfo) + (sizeof(sfo_index) * sfo_data->pair_count);
+        u8 *value_block = sfo_block + sfo_data->value_offset - sizeof(sfo);
 
-        for (unsigned int i = 0; i < sfo_data->pair_count; i++) {
+        for (u32 i = 0; i < sfo_data->pair_count; i++) {
             char *key_addr = reinterpret_cast<char *>(sfo_block) + index_block[i].key_offset + keys_offset_block - sizeof(sfo);
             if (!std::strcmp(key_addr, "TITLE")) {
                 std::memcpy(id_buf, value_block, id_size);
@@ -96,7 +100,7 @@ namespace GameLauncher {
         
         // Get title
         int title_size = pbp_data.icon0_offset - pbp_data.sfo_offset;
-        unsigned char *buffer = new unsigned char[4096];
+        u8 *buffer = new u8[4096];
         meta->title = new char[128];
         GameLauncher::ReadSFOTitle(file, buffer, title_size, title_buf, sizeof(title_buf));
         snprintf(meta->title, 128, title_buf);
@@ -106,9 +110,20 @@ namespace GameLauncher {
         sceIoLseek(file, pbp_data.icon0_offset, PSP_SEEK_SET);
         meta->icon0_size = pbp_data.icon1_offset - pbp_data.icon0_offset;
         if (meta->icon0_size) {
-            meta->icon0_data = new unsigned char[meta->icon0_size];
+            meta->icon0_data = new u8[meta->icon0_size];
             if (R_FAILED(ret = sceIoRead(file, meta->icon0_data, meta->icon0_size))) {
                 Log::Error("GameLauncher::GetMeta icon0 sceIoRead(%s) failed: %08x\n", path.c_str(), ret);
+                return ret;
+            }
+        }
+
+        // Get icon1
+        sceIoLseek(file, pbp_data.icon1_offset, PSP_SEEK_SET);
+        meta->icon1_size = pbp_data.pic0_offset - pbp_data.icon1_offset;
+        if (meta->icon1_size) {
+            meta->icon1_data = new u8[meta->icon1_size];
+            if (R_FAILED(ret = sceIoRead(file, meta->icon1_data, meta->icon1_size))) {
+                Log::Error("GameLauncher::GetMeta icon1 sceIoRead(%s) failed: %08x\n", path.c_str(), ret);
                 return ret;
             }
         }
@@ -117,9 +132,20 @@ namespace GameLauncher {
         sceIoLseek(file, pbp_data.pic1_offset, PSP_SEEK_SET);
         meta->pic1_size = pbp_data.snd0_offset - pbp_data.pic1_offset;
         if (meta->pic1_size) {
-            meta->pic1_data = new unsigned char[meta->pic1_size];
+            meta->pic1_data = new u8[meta->pic1_size];
             if (R_FAILED(ret = sceIoRead(file, meta->pic1_data, meta->pic1_size))) {
                 Log::Error("GameLauncher::GetMeta pic1 sceIoRead(%s) failed: %08x\n", path.c_str(), ret);
+                return ret;
+            }
+        }
+
+        // Get snd0
+        sceIoLseek(file, pbp_data.snd0_offset, PSP_SEEK_SET);
+        meta->snd0_size = pbp_data.psp_offset - pbp_data.snd0_offset;
+        if (meta->snd0_size) {
+            meta->snd0_data = new u8[meta->snd0_size];
+            if (R_FAILED(ret = sceIoRead(file, meta->snd0_data, meta->snd0_size))) {
+                Log::Error("GameLauncher::GetMeta snd0 sceIoRead(%s) failed: %08x\n", path.c_str(), ret);
                 return ret;
             }
         }
