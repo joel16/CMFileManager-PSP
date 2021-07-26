@@ -22,22 +22,28 @@ char font_size_cache[256];
 */
 
 namespace TextViewer {
+    // Text editor const vars
     constexpr int MAX_LINES = 0x10000;
     constexpr int MAX_LINE_CHARACTERS = 1024;
     constexpr int MAX_COPY_BUFFER_SIZE = 1024;
     constexpr int MAX_SELECTION = 1024;
     constexpr float TEXT_START_X = 55.f;
     constexpr int TAB_SIZE = 4;
-    constexpr int SCREEN_WIDTH = 480;
+    constexpr int SCREEN_WIDTH = 475;
     constexpr int SCREEN_HEIGHT =  272;
     constexpr float SHELL_MARGIN_X = 5.f;
-    constexpr float SHELL_MARGIN_Y = 28.f;
+    constexpr float SHELL_MARGIN_Y = 27.f;
     constexpr float MAX_WIDTH = (SCREEN_WIDTH - 5.f * SHELL_MARGIN_X);
     constexpr int MAX_POSITION = 17;
     constexpr int MAX_ENTRIES = 18;
     constexpr u64 BIG_BUFFER_SIZE = 16 * 1024 * 1024;
     constexpr float FONT_Y_SPACE = 12.f;
     constexpr float START_Y = (SHELL_MARGIN_Y + 3.f * FONT_Y_SPACE);
+
+    // Scroll bar const vars
+    constexpr float SCROLL_BAR_X = 476.f;
+    constexpr float SCROLL_BAR_WIDTH = 4.f;
+    constexpr float SCROLL_BAR_MIN_HEIGHT = 2.f;
 
     typedef struct TextListEntry {
         struct TextListEntry *next;
@@ -118,6 +124,18 @@ namespace TextViewer {
         list->head = nullptr;
         list->tail = nullptr;
         list->length = 0;
+    }
+    
+    void DrawScrollbar(int pos, int n) {
+        if (n > MAX_POSITION) {
+            int START_Y_EXT = START_Y - 10.f;
+            G2D::DrawRect(SCROLL_BAR_X, 52, SCROLL_BAR_WIDTH, 220, SELECTOR_COLOUR);
+            
+            float y = START_Y_EXT + ((pos * FONT_Y_SPACE) / (n * FONT_Y_SPACE)) * (MAX_ENTRIES * FONT_Y_SPACE);
+            float height = ((MAX_POSITION * FONT_Y_SPACE) / (n * FONT_Y_SPACE)) * (MAX_ENTRIES * FONT_Y_SPACE);
+            float scroll_bar_y = std::min(y, (START_Y_EXT + MAX_ENTRIES * FONT_Y_SPACE - height));
+            G2D::DrawRect(SCROLL_BAR_X, scroll_bar_y, SCROLL_BAR_WIDTH, std::max(height, SCROLL_BAR_MIN_HEIGHT), TITLE_COLOUR);
+        }
     }
 
     static int ReadLine(char *buffer, int offset, int size, char *line) {
@@ -534,8 +552,10 @@ namespace TextViewer {
             G2D::DrawRect(0, 18, 480, 34, MENU_BAR_COLOUR);
             GUI::DisplayStatusBar();
             G2D::DrawImage(icon_back, 5, 20);
-            G2D::FontSetStyle(font, 1.0f, WHITE, INTRAFONT_ALIGN_LEFT);
+            G2D::FontSetStyle(font, 1.f, WHITE, INTRAFONT_ALIGN_LEFT);
             G2D::DrawText(40, 40, filename.c_str());
+            
+            TextViewer::DrawScrollbar(s->base_pos, s->n_lines);
 
             TextListEntry *entry = s->list.head;
             
@@ -580,7 +600,7 @@ namespace TextViewer {
             if (state == STATE_DIALOG) {
                 G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
                 G2D::DrawImage(dialog[cfg.dark_theme], ((480 - (dialog[0]->w)) / 2), ((272 - (dialog[0]->h)) / 2));
-                G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
+                G2D::FontSetStyle(font, 1.f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
                 G2D::DrawText(((480 - (dialog[0]->w)) / 2) + 10, ((272 - (dialog[0]->h)) / 2) + 20, "Save");
                 
                 int confirm_width = intraFontMeasureText(font, "YES");
@@ -595,7 +615,7 @@ namespace TextViewer {
                 G2D::DrawText(364 - cancel_width, (192 - (font->texYSize - 15)) - 3, "NO");
                 
                 int prompt_width = intraFontMeasureText(font, prompt.c_str());
-                G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
+                G2D::FontSetStyle(font, 1.f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
                 G2D::DrawText(((480 - (prompt_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 60, prompt.c_str());
             }
 
