@@ -43,6 +43,8 @@ namespace GameLauncher {
         int icon0_size = 0;
         u8 *icon1_data = nullptr;
         int icon1_size = 0;
+        u8 *pic0_data = nullptr;
+        int pic0_size = 0;
         u8 *pic1_data = nullptr;
         int pic1_size = 0;
         u8 *snd0_data = nullptr;
@@ -50,7 +52,15 @@ namespace GameLauncher {
         char *title = nullptr;
     } eboot_meta;
 
-    int ReadSFOTitle(SceUID file, u8 *buffer, int size, char *id_buf, int id_size) {
+    enum MetadataType {
+        MetadataIcon0,
+        MetadataIcon1,
+        MetadataPic0,
+        MetadataPic1,
+        MetadataSnd0
+    };
+
+    static int ReadSFOTitle(SceUID file, u8 *buffer, int size, char *id_buf, int id_size) {
         int ret = 0;
         sfo *sfo_data = reinterpret_cast<sfo *>(buffer);
         
@@ -127,6 +137,17 @@ namespace GameLauncher {
                 return ret;
             }
         }
+
+        // Get pic0
+        sceIoLseek(file, pbp_data.pic0_offset, PSP_SEEK_SET);
+        meta->pic0_size = pbp_data.pic1_offset - pbp_data.pic0_offset;
+        if (meta->pic0_size) {
+            meta->pic0_data = new u8[meta->pic0_size];
+            if (R_FAILED(ret = sceIoRead(file, meta->pic0_data, meta->pic0_size))) {
+                Log::Error("GameLauncher::GetMeta pic0 sceIoRead(%s) failed: %08x\n", path.c_str(), ret);
+                return ret;
+            }
+        }
         
         // Get pic1
         sceIoLseek(file, pbp_data.pic1_offset, PSP_SEEK_SET);
@@ -154,6 +175,18 @@ namespace GameLauncher {
         return 0;
     }
 
+    static void ExportData(const std::string &path, const char *title, const std::string &ext, u8 *data, int size) {
+        std::string new_path = Utils::IsInternalStorage()? "ef0:" : "ms0:";
+        new_path.append(path);
+        new_path.append(title);
+        
+        if (!(FS::DirExists(new_path)))
+            FS::RecursiveMakeDir(new_path);
+        
+        new_path.append(ext); // "/icon0.png"
+        FS::WriteFile(new_path, data, size);
+    }
+
     int DisplayLauncher(const std::string &path) {
         int ret = 0;
         SceIoStat stat;
@@ -174,6 +207,9 @@ namespace GameLauncher {
         char install_date[128];
         const char *months[] = { "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov" };
         snprintf(install_date, 128, "Installed %d %s %d", stat.st_ctime.day, months[stat.st_ctime.month], stat.st_ctime.year);
+
+        int selection = 0;
+        const char *metadata_types[] = { "< ICON0 >", "< ICON1 >", "< PIC0 >", "< PIC1 >", "< SND0 >" };
 
         while(true) {
             g2dClear(G2D_RGBA(32, 33, 36, 255));
@@ -196,43 +232,52 @@ namespace GameLauncher {
             G2D::FontSetStyle(font, 0.75f, G2D_RGBA(232, 234, 238, 255), INTRAFONT_ALIGN_LEFT);
             G2D::DrawText(242 + ((238 - intraFontMeasureText(font, install_date)) / 2), 76, install_date);
 
-            G2D::DrawText(242 + ((238 - intraFontMeasureText(font, "Press Square to save ICON0")) / 2), 210, "Press Square to save ICON0");
-            G2D::DrawText(242 + ((238 - intraFontMeasureText(font, "Press Triangle to save PIC1")) / 2), 230, "Press Triangle to save PIC1");
+            G2D::DrawText(242 + ((238 - intraFontMeasureText(font, "Press Square to save:")) / 2), 210, "Press Square to save:");
+            G2D::DrawText(242 + ((238 - intraFontMeasureText(font, metadata_types[selection])) / 2), 230, metadata_types[selection]);
             g2dFlip(G2D_VSYNC);
 
-            Utils::ReadControls();
+            int ctrl = Utils::ReadControls();
+            
+            if (ctrl & PSP_CTRL_LEFT)
+                selection--;
+            else if (ctrl & PSP_CTRL_RIGHT)
+                selection++;
+
+            Utils::SetBounds(&selection, 0, 4);
             
             if (Utils::IsButtonPressed(PSP_CTRL_ENTER))
                 Utils::LaunchEboot(path.c_str());
-                
+            
             if (Utils::IsButtonPressed(PSP_CTRL_SQUARE)) {
-                if (meta.icon0_data) {
-                    std::string icon0_path = Utils::IsInternalStorage()? "ef0:" : "ms0:";
-                    icon0_path.append("/PSP/PHOTO/CMFileManager/");
-                    icon0_path.append(meta.title);
-                    
-                    if (!(FS::DirExists(icon0_path)))
-                        FS::RecursiveMakeDir(icon0_path);
-                    
-                    icon0_path.append("/icon0.png");
-                    FS::WriteFile(icon0_path, meta.icon0_data, meta.icon0_size);
+                switch(selection) {
+                    case MetadataIcon0:
+                        if (meta.icon0_data)
+                            GameLauncher::ExportData("/PSP/PHOTO/CMFileManager/", meta.title, "/ICON0.PNG", meta.icon0_data, meta.icon0_size);
+                        break;
+
+                    case MetadataIcon1:
+                        if (meta.icon1_data)
+                            GameLauncher::ExportData("/PSP/PHOTO/CMFileManager/", meta.title, "/ICON1.PNG", meta.icon1_data, meta.icon1_size);
+                        break;
+
+                    case MetadataPic0:
+                        if (meta.pic0_data)
+                            GameLauncher::ExportData("/PSP/PHOTO/CMFileManager/", meta.title, "/PIC0.PNG", meta.pic0_data, meta.pic0_size);
+                        break;
+
+                    case MetadataPic1:
+                        if (meta.pic1_data)
+                            GameLauncher::ExportData("/PSP/PHOTO/CMFileManager/", meta.title, "/PIC1.PNG", meta.pic1_data, meta.pic1_size);
+                        break;
+
+                    case MetadataSnd0:
+                        if (meta.snd0_data)
+                            GameLauncher::ExportData("/PSP/MUSIC/CMFileManager/", meta.title, "/SND0.AT3", meta.snd0_data, meta.snd0_size);
+                        break;
                 }
+                
             }
-            
-            if (Utils::IsButtonPressed(PSP_CTRL_TRIANGLE)) {
-                if (meta.pic1_data) {
-                    std::string pic1_path = Utils::IsInternalStorage()? "ef0:" : "ms0:";
-                    pic1_path.append("/PSP/PHOTO/CMFileManager/");
-                    pic1_path.append(meta.title);
-                    
-                    if (!(FS::DirExists(pic1_path)))
-                        FS::RecursiveMakeDir(pic1_path);
-                    
-                    pic1_path.append("/pic1.png");
-                    FS::WriteFile(pic1_path, meta.pic1_data, meta.pic1_size);
-                }
-            }
-            
+
             if (Utils::IsButtonPressed(PSP_CTRL_CANCEL))
                 break;
         }
