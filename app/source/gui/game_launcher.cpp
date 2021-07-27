@@ -291,6 +291,18 @@ namespace GameLauncher {
         if (meta.icon0_data)
             delete[] meta.icon0_data;
 
+        if (meta.icon1_data)
+            delete[] meta.icon1_data;
+
+        if (meta.pic0_data)
+            delete[] meta.pic0_data;
+
+        if (meta.pic1_data)
+            delete[] meta.pic1_data;
+
+        if (meta.snd0_data)
+            delete[] meta.snd0_data;
+
         return 0;
     }
 }
