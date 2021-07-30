@@ -88,7 +88,7 @@ namespace FS {
     FileType GetFileType(const std::string &filename) {
         std::string ext = FS::GetFileExt(filename);
 
-        if (!ext.compare(".PBP"))
+        if ((!ext.compare(".PBP")) || (!ext.compare(".ISO")) || (!ext.compare(".CSO")))
             return FileTypeApp;
         else if ((!ext.compare(".ZIP")) || (!ext.compare(".RAR")) || (!ext.compare(".7Z")) || (!ext.compare(".LZMA")))
             return FileTypeArchive;
