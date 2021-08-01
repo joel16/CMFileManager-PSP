@@ -126,7 +126,7 @@ namespace GUI {
                         break;
                     
                     case FileTypeImage:
-                        item->texture = g2dTexLoad(path.c_str(), G2D_SWIZZLE);
+                        item->texture = Textures::LoadImage(path.c_str());
                         if (item->texture)
                             item->state = MENU_STATE_IMAGEVIEWER;
                         break;

@@ -2,6 +2,7 @@
 #define _CMFILEMANAGER_TEXTURES_H_
 
 #include <glib2d.h>
+#include <string>
 
 constexpr int NUM_FILE_ICONS = 6;
 constexpr int NUM_BATT_ICONS = 6;
@@ -17,6 +18,8 @@ extern g2dTexture *file_icons[NUM_FILE_ICONS], *icon_dir[NUM_THEMES], *icon_chec
     *dark_theme_icon[NUM_THEMES], *dev_options_icon[NUM_THEMES], *about_icon[NUM_THEMES];
 
 namespace Textures {
+    g2dTexture *LoadImageBufferPNG(unsigned char *data, int size);
+    g2dTexture *LoadImage(const std::string &path);
     void Load(void);
     void Free(void);
 }

@@ -56,22 +56,6 @@ extern "C" {
 #include <stdbool.h>
 
 /**
- * \def G2D_USE_*
- * \brief Choose if the * extension support is enabled.
- *
- * Otherwise, this part will be not compiled to gain some space.
- * Enable this to get * support, disable to avoid compilation errors
- */
-
-#define G2D_USE_BMP
-#define G2D_USE_GIF
-#define G2D_USE_JPEG
-#define G2D_USE_PCX
-#define G2D_USE_PNG
-#define G2D_USE_PNM
-#define G2D_USE_TGA
-
-/**
  * \def G2D_SCR_W
  * \brief Screen width constant, in pixels.
  */
@@ -385,26 +369,16 @@ void g2dTexFree(g2dTexture **tex);
 
 /**
  * \brief Loads an image.
- * @param path Path to the file.
+ * @param data RGBA texture buffer.
+ * @param width Texture width.
+ * @param height Texture height.
  * @param tex_mode A g2dTex_Mode constant.
  * @returns Pointer to the generated texture.
  *
  * Swizzling is enabled only for 16*16+ textures (useless on small textures), pass G2D_SWIZZLE to enable it.
  * Texture supported up to 512*512 in size only (hardware limitation).
  */
-g2dTexture *g2dTexLoad(const char *path, g2dTex_Mode mode);
-
-/**
- * \brief Loads an image from memory.
- * @param data Pointer to buffer.
- * @param size Size of buffer.
- * @param tex_mode A g2dTex_Mode constant.
- * @returns Pointer to the generated texture.
- *
- * Swizzling is enabled only for 16*16+ textures (useless on small textures), pass G2D_SWIZZLE to enable it.
- * Texture supported up to 512*512 in size only (hardware limitation).
- */
-g2dTexture *g2dTexLoadMemory(void *data, int size, g2dTex_Mode mode);
+g2dTexture *g2dTexLoad(void *data, int width, int height, g2dTex_Mode mode);
 
 /**
  * \brief Resets the current coordinates.

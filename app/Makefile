@@ -1,6 +1,6 @@
 TARGET = CMFileManager
 
-SOURCES   := data drivers source source/audio source/gui
+SOURCES   := data drivers source source/audio source/gui ../libs/libnsbmp ../libs/libnsgif
 CFILES    := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.c))
 SFILES    := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.S))
 CPPFILES  := $(foreach dir,$(SOURCES), $(wildcard $(dir)/*.cpp))
@@ -14,10 +14,10 @@ VERSION_MAJOR :=  4
 VERSION_MINOR :=  0
 VERSION_MICRO :=  1
 
-INCDIR   = ../libs/include ../libs/include/opus include
-CFLAGS   = -Os -G0 -Wall -ffast-math -fno-rtti -fno-exceptions -Wno-narrowing -Wno-unused-variable \
+INCDIR   = ../libs/ ../libs/include ../libs/libnsbmp ../libs/libnsgif include
+CFLAGS   = -Os -G0 -Wall -ffast-math -fno-exceptions -Wno-narrowing -Wno-unused-variable \
            -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
-CXXFLAGS = $(CFLAGS) -std=gnu++17
+CXXFLAGS = $(CFLAGS) -fno-rtti -std=gnu++17
 ASFLAGS  := $(CFLAGS)
 
 BUILD_PRX = 1
@@ -28,7 +28,8 @@ LDFLAGS =
 LIBS    = -lpsputility -lintrafont -lglib2d -lpspgu -lpsprtc -lpspvram \
           -lxmp-lite -lmpg123 -lvorbisfile -lvorbis -lopusfile -lopus -lFLAC -logg -lpspaudio \
           -lpspctrl -lpsppower -lpspreg -lpspusb -lpspusbstor -lpspusbdevice -lpspumd \
-          -larchive -lbz2 -llzma -lz \
+          -larchive -lbz2 -llzma \
+          -lturbojpeg -ljpeg -lpng16 \
           -lpspkubridge -lpspsystemctrl_user -lstdc++ -lm -lz
 
 EXTRA_TARGETS    = EBOOT.PBP

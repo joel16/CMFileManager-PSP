@@ -566,7 +566,7 @@ namespace GameLauncher {
 
         g2dTexture *icon0 = nullptr;
         if (meta.icon0_data)
-            icon0 = g2dTexLoadMemory(meta.icon0_data, meta.icon0_size, G2D_SWIZZLE);
+            icon0 = Textures::LoadImageBufferPNG(meta.icon0_data, meta.icon0_size);
         
         char install_date[128];
         const char *months[] = { "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov" };
