@@ -7,6 +7,7 @@
 #include "fs.h"
 #include "g2d.h"
 #include "gui.h"
+#include "screenshot.h"
 #include "textures.h"
 #include "utils.h"
 
@@ -150,6 +151,9 @@ namespace GUI {
 
             g2dFlip(G2D_VSYNC);
             
+            if (Utils::IsButtonPressed(static_cast<enum PspCtrlButtons>(PSP_CTRL_LTRIGGER | PSP_CTRL_RTRIGGER)))
+                Screenshot::Capture();
+
             if (Utils::IsButtonPressed(PSP_CTRL_START))
                 item.state = MENU_STATE_SETTINGS;
         }
