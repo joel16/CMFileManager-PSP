@@ -2,6 +2,10 @@
 
 CMFileManager PSP is a PSP application built using the unofficial PSPSDK and [glib2d (modded)](https://github.com/joel16/gLib2D). The user interface in this homebrew is heavily inspired and based on the LineageOS/CM file manager. The aim of this project is to provide a stable and up to date file manager that makes use of updated tools, whilst offering a modernized and user friendly interace. CMFileManager PSP is the **only** homebrew that properly uses the 'move' function correctly for moving files/folder from one place to another. Unlike other file managers for PSP which copies a file from one place to another and then deletes it, which can take a while depending on the file size.
 
+<p align="center">
+  <img src="https://i.imgur.com/VhxiN0s.png" alt="CMFileManager-PSP"/>
+</p>
+
 **Features:**
 
 - Copy files/folders.
