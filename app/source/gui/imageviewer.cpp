@@ -143,5 +143,10 @@ namespace GUI {
             else
                 properties = false;
         }
+
+        if (Utils::IsButtonPressed(PSP_CTRL_ENTER)) {
+            if (properties)
+                properties = false;
+        }
     }
 }
