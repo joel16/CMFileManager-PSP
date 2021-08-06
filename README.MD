@@ -8,13 +8,13 @@ CMFileManager PSP is a PSP application built using the unofficial PSPSDK and [gl
 - Move files/folders.
 - Delete files/folders.
 - Multi file handling functions for copy/move/delete.
+- Edit text files. (Supported extensiosn include .JSON, .INI, .CFG, .LOG, .TXT and .MD)
 - File properties. (File size, creation time, modification time, access times, permissions)
 - Creating directories.
 - Renaming files/folders.
-- Image viewer (BMP, GIF - non animated, JPG, PCX, PNG, PGM, PPM and TGA).
-- Auto USB mount (with ef0:/ and ms0:/ support for PSP Go).
+- Image viewer (BMP, GIF - non animated, JPG/JPEG, PNG).
 - Dark theme mode.
-- EBOOT (homebrew/game) launcher - Also allows you to rip icon0/pic1 from eboot if it exists.
+- Extract metadata from homebrew (Eboots) or ISOs. (ICON0.PNG, ICON1.PMF, PIC0.PNG, PIC1.PNG, SND0.AT3)
 - Browse other drives like flah0, flash1 and UMD (if not using PSP Go).
 - Support for both ef0:/ (internal) and ms0:/ (external) drives on PSP Go.
 - Screenshots in .BMP format. Use L + R to capture a screenshot.
