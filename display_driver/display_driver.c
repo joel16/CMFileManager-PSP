@@ -2,27 +2,13 @@
 #include <pspdisplay_kernel.h>
 #include <pspsysmem_kernel.h>
 
-PSP_MODULE_INFO("display_driver", PSP_MODULE_KERNEL, 1, 3);
+PSP_MODULE_INFO("display_driver", PSP_MODULE_KERNEL, 1, 4);
 PSP_NO_CREATE_MAIN_THREAD();
 
 int sceDisplayEnable(void);
 int sceDisplayDisable(void);
 int sceDisplayEnable371(void);
 int sceDisplayDisable371(void);
-
-int pspGetBrightness(int *brightness) {
-    u32 k1 = pspSdkSetK1(0);
-    sceDisplayGetBrightness(brightness, 0);
-    pspSdkSetK1(k1);
-    return 0;
-}
-
-int pspSetBrightness(int brightness) {
-    u32 k1 = pspSdkSetK1(0);
-    sceDisplaySetBrightness(brightness, 0);
-    pspSdkSetK1(k1);
-    return 0;
-}
 
 int pspDisplayEnable(void) {
     u32 k1 = pspSdkSetK1(0);

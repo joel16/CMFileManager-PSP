@@ -14,8 +14,6 @@ extern "C" {
 extern int pspAudioSetFrequency(int frequency);
 
 // display_driver functions
-extern int pspGetBrightness(int *brightness);
-extern int pspSetBrightness(int brightness);
 extern int pspDisplayEnable(void);
 extern int pspDisplayDisable(void);
 

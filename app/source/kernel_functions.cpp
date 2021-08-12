@@ -4,8 +4,6 @@
 int pspAudioSetFrequency(int frequency);
 
 // display driver functions
-int pspGetBrightness(int *brightness);
-int pspSetBrightness(int brightness);
 int pspDisplayEnable(void);
 int pspDisplayDisable(void);
 

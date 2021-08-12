@@ -10,8 +10,6 @@ PSP_EXPORT_VAR(module_info)
 PSP_EXPORT_END
 
 PSP_EXPORT_START(display_driver, 0, 0x4001)
-PSP_EXPORT_FUNC(pspGetBrightness)
-PSP_EXPORT_FUNC(pspSetBrightness)
 PSP_EXPORT_FUNC(pspDisplayEnable)
 PSP_EXPORT_FUNC(pspDisplayDisable)
 PSP_EXPORT_END
