@@ -191,7 +191,7 @@ namespace Textures {
         return tex;
     }
 
-    static g2dTexture *LoadImageBufferJPEG(unsigned char *data, int size) {
+    g2dTexture *LoadImageBufferJPEG(unsigned char *data, int size) {
         int width = 0; int height = 0;
         unsigned char *buffer = nullptr;
         tjhandle jpeg = tjInitDecompress();

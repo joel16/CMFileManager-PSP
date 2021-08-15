@@ -2,6 +2,7 @@
 #include <pspctrl.h>
 
 #include "archive_helper.h"
+#include "audioplayer.h"
 #include "config.h"
 #include "fs.h"
 #include "colours.h"
@@ -116,6 +117,10 @@ namespace GUI {
                 switch(file_type) {
                     case FileTypeApp:
                         GameLauncher::DisplayLauncher(path);
+                        break;
+                    
+                    case FileTypeAudio:
+                        AudioPlayer::Play(path);
                         break;
 
                     case FileTypeArchive:
