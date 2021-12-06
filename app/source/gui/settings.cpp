@@ -248,7 +248,7 @@ namespace GUI {
             settings_state = GENERAL_SETTINGS;
         }
 
-        Utils::SetBounds(&selection, 0, 0);
+        Utils::SetBounds(selection, 0, 0);
     }
 
     static void DisplaySortSettings(void) {
@@ -284,7 +284,7 @@ namespace GUI {
             settings_state = GENERAL_SETTINGS;
         }
 
-        Utils::SetBounds(&selection, 0, 3);
+        Utils::SetBounds(selection, 0, 3);
     }
 
     static void DisplayAboutSettings(void) {
@@ -310,7 +310,7 @@ namespace GUI {
         if ((Utils::IsButtonPressed(PSP_CTRL_ENTER)) || (Utils::IsButtonPressed(PSP_CTRL_CANCEL)))
             settings_state = GENERAL_SETTINGS;
         
-        Utils::SetBounds(&selection, 4, 4);
+        Utils::SetBounds(selection, 4, 4);
     }
 
     static void DisplayGeneralSettings(void) {
@@ -380,7 +380,7 @@ namespace GUI {
             item->state = MENU_STATE_FILEBROWSER;
         }
 
-        Utils::SetBounds(&selection, 0, 4);
+        Utils::SetBounds(selection, 0, 4);
     }
 
     void DisplaySettings(MenuItem *item) {

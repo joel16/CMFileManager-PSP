@@ -25,10 +25,10 @@ namespace Config {
         return 0;
     }
 
-    static void SetDefault(config_t *config) {
-        config->sort = 0;
-        config->dark_theme = false;
-        config->dev_options = false;
+    static void SetDefault(config_t &config) {
+        config.sort = 0;
+        config.dark_theme = false;
+        config.dev_options = false;
     }
 
     int Load(void) {
@@ -43,7 +43,7 @@ namespace Config {
             device = BROWSE_STATE_EXTERNAL;
         
         if (!FS::FileExists("config.json")) {
-            Config::SetDefault(&cfg);
+            Config::SetDefault(cfg);
             return Save(cfg);
         }
         
@@ -74,9 +74,9 @@ namespace Config {
         delete[] buf;
         
         // delete[] config file if config file is updated. This will rarely happen.
-        if (config_version_holder  < config_version) {
+        if (config_version_holder < config_version) {
             sceIoRemove("config.json");
-            Config::SetDefault(&cfg);
+            Config::SetDefault(cfg);
             return Config::Save(cfg);
         }
         

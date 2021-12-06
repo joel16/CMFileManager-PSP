@@ -384,7 +384,7 @@ namespace TextViewer {
                         break;
                 }
                 
-                Utils::SetBounds(&selection, 0, 1);
+                Utils::SetBounds(selection, 0, 1);
             }
             else {
                 if (ctrl & PSP_CTRL_UP) {

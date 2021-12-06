@@ -63,21 +63,21 @@ namespace Utils {
         SystemDevCtl *pdevinf;    
     } SystemDevCommand;
     
-    void SetBounds(int *set, int min, int max) {
-        if (*set > max)
-            *set = min;
-        else if (*set < min)
-            *set = max;
+    void SetBounds(int &set, int min, int max) {
+        if (set > max)
+            set = min;
+        else if (set < min)
+            set = max;
     }
 
-    void SetMax(int *set, int value, int max) {
-        if (*set > max)
-            *set = value;
+    void SetMax(int &set, int value, int max) {
+        if (set > max)
+            set = value;
     }
 
-    void SetMin(int *set, int value, int min) {
-        if (*set < min)
-            *set = value;
+    void SetMin(int &set, int value, int min) {
+        if (set < min)
+            set = value;
     }
 
     void GetSizeString(char *string, double size) {
@@ -244,15 +244,15 @@ namespace Utils {
         return (kuKernelGetModel() == 4);
     }
 
-    int IsMemCardInserted(bool *is_inserted) {
+    int IsMemCardInserted(bool &is_inserted) {
         int status = 0, ret = 0;
         if (R_FAILED(ret = sceIoDevctl("mscmhc0:", 0x02025806, 0, 0, &status, sizeof(status))))
             return ret;
             
         if (status != 1)
-            *is_inserted = false;
+            is_inserted = false;
         else
-            *is_inserted = true;
+            is_inserted = true;
         
         return 0;
     }
@@ -389,30 +389,30 @@ namespace Utils {
         return kernel_pad.Buttons & buttons;
     }
     
-    int GetEnterButton(void) {
+    enum PspCtrlButtons GetEnterButton(void) {
         unsigned int button = 0;
         
         if (R_SUCCEEDED(GetRegistryValue("/CONFIG/SYSTEM/XMB", "button_assign", &button))) {
             if (button == 0)
-                return 0x002000; // PSP_CTRL_CIRCLE
+                return PSP_CTRL_CIRCLE; // PSP_CTRL_CIRCLE
             else
-                return 0x004000; // PSP_CTRL_CROSS
+                return PSP_CTRL_CROSS; // PSP_CTRL_CROSS
         }
         
-        return 0x004000; // By default return PSP_CTRL_CROSS
+        return PSP_CTRL_CROSS; // By default return PSP_CTRL_CROSS
     }
     
     // Basically the opposite of GetEnterButton()
-    int GetCancelButton(void) {
+    enum PspCtrlButtons GetCancelButton(void) {
         unsigned int button = 0;
         if (R_SUCCEEDED(GetRegistryValue("/CONFIG/SYSTEM/XMB", "button_assign", &button))) {
             if (button == 0)
-                return 0x004000; // PSP_CTRL_CROSS
+                return PSP_CTRL_CROSS; // PSP_CTRL_CROSS
             else
-                return 0x002000; // PSP_CTRL_CIRCLE
+                return PSP_CTRL_CIRCLE; // PSP_CTRL_CIRCLE
         }
         
-        return 0x002000; // By default return PSP_CTRL_CIRCLE
+        return PSP_CTRL_CIRCLE; // By default return PSP_CTRL_CIRCLE
     }
     
     float GetAnalogX(void) {

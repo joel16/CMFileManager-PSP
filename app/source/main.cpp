@@ -47,11 +47,11 @@ namespace Services {
             font_size_cache[i] = intraFontMeasureText(font, character);
         }
 
-        Utils::IsMemCardInserted(&is_ms_inserted);
+        Utils::IsMemCardInserted(is_ms_inserted);
 		is_psp_go = Utils::IsModelPSPGo();
 		
-		PSP_CTRL_ENTER = static_cast<enum PspCtrlButtons>(Utils::GetEnterButton());
-		PSP_CTRL_CANCEL = static_cast<enum PspCtrlButtons>(Utils::GetCancelButton());
+		PSP_CTRL_ENTER = Utils::GetEnterButton();
+		PSP_CTRL_CANCEL = Utils::GetCancelButton();
         return 0;
     }
 

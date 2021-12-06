@@ -13,7 +13,7 @@ namespace Options {
         if ((item->checked_count > 1) && (!item->checked_cwd.compare(cfg.cwd))) {
             for (u32 i = 0; i < item->checked.size(); i++) {
                 if (item->checked.at(i)) {
-                    if (R_FAILED(ret = FS::Delete(&item->entries[i]))) {
+                    if (R_FAILED(ret = FS::Delete(item->entries[i]))) {
                         FS::GetDirList(cfg.cwd, item->entries);
                         GUI::ResetCheckbox(item);
                         break;
@@ -22,7 +22,7 @@ namespace Options {
             }
         }
         else
-            ret = FS::Delete(&item->entries[item->selected]);
+            ret = FS::Delete(item->entries[item->selected]);
         
         if (R_SUCCEEDED(ret)) {
             FS::GetDirList(cfg.cwd, item->entries);
@@ -78,6 +78,6 @@ namespace GUI {
         else if (Utils::IsButtonPressed(PSP_CTRL_CANCEL))
             item->state = MENU_STATE_OPTIONS;
         
-        Utils::SetBounds(&selection, 0, 1);
+        Utils::SetBounds(selection, 0, 1);
     }
 }

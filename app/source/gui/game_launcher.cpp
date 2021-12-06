@@ -607,7 +607,7 @@ namespace GameLauncher {
             else if (ctrl & PSP_CTRL_RIGHT)
                 selection++;
 
-            Utils::SetBounds(&selection, 0, 4);
+            Utils::SetBounds(selection, 0, 4);
             
             if (Utils::IsButtonPressed(PSP_CTRL_ENTER))
                 Utils::LaunchEboot(path.c_str());

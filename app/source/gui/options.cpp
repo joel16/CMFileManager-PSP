@@ -26,7 +26,7 @@ namespace Options {
             
         for (u32 i = 0; i < item->checked_copy.size(); i++) {
             if (item->checked_copy.at(i)) {
-                FS::Copy(&entries[i], item->checked_cwd);
+                FS::Copy(entries[i], item->checked_cwd);
                 if (R_FAILED((*func)())) {
                     FS::GetDirList(cfg.cwd, item->entries);
                     GUI::ResetCheckbox(item);
@@ -78,7 +78,7 @@ namespace Options {
             if ((item->checked_count >= 1) && (item->checked_cwd.compare(cfg.cwd) != 0))
                 GUI::ResetCheckbox(item);
             if (item->checked_count <= 1)
-                FS::Copy(&item->entries[item->selected], cfg.cwd);
+                FS::Copy(item->entries[item->selected], cfg.cwd);
             
             copy = !copy;
             item->state = MENU_STATE_FILEBROWSER;
@@ -105,7 +105,7 @@ namespace Options {
                 GUI::ResetCheckbox(item);
                 
             if (item->checked_count <= 1)
-                FS::Copy(&item->entries[item->selected], cfg.cwd);
+                FS::Copy(item->entries[item->selected], cfg.cwd);
         }
         else {
             if ((item->checked_count > 1) && (item->checked_cwd.compare(cfg.cwd) != 0))
@@ -177,16 +177,16 @@ namespace GUI {
             column--;
         
         if (!options_more) {
-            Utils::SetBounds(&row, 0, 1);
-            Utils::SetBounds(&column, 0, 3);
+            Utils::SetBounds(row, 0, 1);
+            Utils::SetBounds(column, 0, 3);
         }
         else {
-            Utils::SetBounds(&column, 0, 2);
+            Utils::SetBounds(column, 0, 2);
             
             if (column == 1)
-                Utils::SetBounds(&row, 0, 0);
+                Utils::SetBounds(row, 0, 0);
             else
-                Utils::SetBounds(&row, 0, 1);
+                Utils::SetBounds(row, 0, 1);
         }
 
         if (Utils::IsButtonPressed(PSP_CTRL_ENTER)) {

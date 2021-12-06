@@ -27,16 +27,16 @@ namespace GUI {
             char size[16];
             Utils::GetSizeString(size, item->entries[item->selected].d_stat.st_size);
             intraFontPrintf(font, 140, 92, "Size: %s", size);
-            intraFontPrintf(font, 140, 110, "Created: %s", FS::GetFileTimestamp(&item->entries[item->selected].d_stat, FileCreatedTime));
-            intraFontPrintf(font, 140, 128, "Accessed: %s", FS::GetFileTimestamp(&item->entries[item->selected].d_stat, FileAccessedTime));
-            intraFontPrintf(font, 140, 146, "Modified: %s", FS::GetFileTimestamp(&item->entries[item->selected].d_stat, FileModifiedTime));
-            intraFontPrintf(font, 140, 164, "Perms: %s", FS::GetFilePermission(&item->entries[item->selected].d_stat));
+            intraFontPrintf(font, 140, 110, "Created: %s", FS::GetFileTimestamp(item->entries[item->selected].d_stat, FileCreatedTime));
+            intraFontPrintf(font, 140, 128, "Accessed: %s", FS::GetFileTimestamp(item->entries[item->selected].d_stat, FileAccessedTime));
+            intraFontPrintf(font, 140, 146, "Modified: %s", FS::GetFileTimestamp(item->entries[item->selected].d_stat, FileModifiedTime));
+            intraFontPrintf(font, 140, 164, "Perms: %s", FS::GetFilePermission(item->entries[item->selected].d_stat));
         }
         else {
-            intraFontPrintf(font, 140, 92, "Created: %s", FS::GetFileTimestamp(&item->entries[item->selected].d_stat, FileCreatedTime));
-            intraFontPrintf(font, 140, 110, "Accessed: %s", FS::GetFileTimestamp(&item->entries[item->selected].d_stat, FileAccessedTime));
-            intraFontPrintf(font, 140, 128, "Modified: %s", FS::GetFileTimestamp(&item->entries[item->selected].d_stat, FileModifiedTime));
-            intraFontPrintf(font, 140, 146, "Perms: %s", FS::GetFilePermission(&item->entries[item->selected].d_stat));
+            intraFontPrintf(font, 140, 92, "Created: %s", FS::GetFileTimestamp(item->entries[item->selected].d_stat, FileCreatedTime));
+            intraFontPrintf(font, 140, 110, "Accessed: %s", FS::GetFileTimestamp(item->entries[item->selected].d_stat, FileAccessedTime));
+            intraFontPrintf(font, 140, 128, "Modified: %s", FS::GetFileTimestamp(item->entries[item->selected].d_stat, FileModifiedTime));
+            intraFontPrintf(font, 140, 146, "Perms: %s", FS::GetFilePermission(item->entries[item->selected].d_stat));
         }
     }
 

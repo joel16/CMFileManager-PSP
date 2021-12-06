@@ -98,17 +98,17 @@ namespace GUI {
             
         if (is_psp_go) {
             if (cfg.dev_options) {
-                Utils::SetMax(&selection, 0, is_ms_inserted? 5 : 4);
-                Utils::SetMin(&selection, is_ms_inserted? 5 : 4, 0);
+                Utils::SetMax(selection, 0, is_ms_inserted? 5 : 4);
+                Utils::SetMin(selection, is_ms_inserted? 5 : 4, 0);
             }
             else {
-                Utils::SetMax(&selection, 0, is_ms_inserted? 1 : 0);
-                Utils::SetMin(&selection, is_ms_inserted? 1 : 0, 0);
+                Utils::SetMax(selection, 0, is_ms_inserted? 1 : 0);
+                Utils::SetMin(selection, is_ms_inserted? 1 : 0, 0);
             }
         }
         else {
-            Utils::SetMax(&selection, 0, cfg.dev_options? 5 : 0);
-            Utils::SetMin(&selection, cfg.dev_options? 5 : 0, 0);
+            Utils::SetMax(selection, 0, cfg.dev_options? 5 : 0);
+            Utils::SetMin(selection, cfg.dev_options? 5 : 0, 0);
         }
         
         if (Utils::IsButtonPressed(PSP_CTRL_ENTER)) {

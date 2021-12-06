@@ -117,36 +117,36 @@ namespace FS {
         return stat.st_size;
     }
     
-    char *GetFileTimestamp(SceIoStat *stat, FileTimestamp time) {
+    char *GetFileTimestamp(SceIoStat &stat, FileTimestamp time) {
         static char timestamp[30];
 
         switch(time) {
             case FileCreatedTime:
-                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat->st_ctime.year, stat->st_ctime.month, stat->st_ctime.day, stat->st_ctime.hour,
-                    stat->st_ctime.minute);
+                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat.st_ctime.year, stat.st_ctime.month, stat.st_ctime.day, stat.st_ctime.hour,
+                    stat.st_ctime.minute);
                 break;
                 
             case FileAccessedTime:
-                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat->st_atime.year, stat->st_atime.month, stat->st_atime.day, stat->st_atime.hour,
-                    stat->st_atime.minute);
+                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat.st_atime.year, stat.st_atime.month, stat.st_atime.day, stat.st_atime.hour,
+                    stat.st_atime.minute);
                 break;
             
             case FileModifiedTime:
-                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat->st_mtime.year, stat->st_mtime.month, stat->st_mtime.day, stat->st_mtime.hour,
-                    stat->st_mtime.minute);
+                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat.st_mtime.year, stat.st_mtime.month, stat.st_mtime.day, stat.st_mtime.hour,
+                    stat.st_mtime.minute);
                 break;
         }
         
         return timestamp;
     }
 
-    char *GetFilePermission(SceIoStat *stat) {
+    char *GetFilePermission(SceIoStat &stat) {
         static char perms[11];
 
-        snprintf(perms, 11, "%s%s%s%s%s%s%s%s%s%s", (FIO_S_ISDIR(stat->st_mode)) ? "d" : "-", (stat->st_mode & FIO_S_IRUSR) ? "r" : "-",
-            (stat->st_mode & FIO_S_IWUSR) ? "w" : "-", (stat->st_mode & FIO_S_IXUSR) ? "x" : "-", (stat->st_mode & FIO_S_IRGRP) ? "r" : "-",
-            (stat->st_mode & FIO_S_IWGRP) ? "w" : "-", (stat->st_mode & FIO_S_IXGRP) ? "x" : "-", (stat->st_mode & FIO_S_IROTH) ? "r" : "-",
-            (stat->st_mode & FIO_S_IWOTH) ? "w" : "-", (stat->st_mode & FIO_S_IXOTH) ? "x" : "-");
+        snprintf(perms, 11, "%s%s%s%s%s%s%s%s%s%s", (FIO_S_ISDIR(stat.st_mode)) ? "d" : "-", (stat.st_mode & FIO_S_IRUSR) ? "r" : "-",
+            (stat.st_mode & FIO_S_IWUSR) ? "w" : "-", (stat.st_mode & FIO_S_IXUSR) ? "x" : "-", (stat.st_mode & FIO_S_IRGRP) ? "r" : "-",
+            (stat.st_mode & FIO_S_IWGRP) ? "w" : "-", (stat.st_mode & FIO_S_IXGRP) ? "x" : "-", (stat.st_mode & FIO_S_IROTH) ? "r" : "-",
+            (stat.st_mode & FIO_S_IWOTH) ? "w" : "-", (stat.st_mode & FIO_S_IXOTH) ? "x" : "-");
             
         return perms;
     }
@@ -418,12 +418,12 @@ namespace FS {
         fs_copy_entry.is_dir = false;
     }
     
-    void Copy(SceIoDirent *entry, const std::string &path) {
+    void Copy(SceIoDirent &entry, const std::string &path) {
         FS::ClearCopyData();
-        fs_copy_entry.copy_path = FS::BuildPath(path, entry->d_name);
-        fs_copy_entry.copy_filename.append(entry->d_name);
+        fs_copy_entry.copy_path = FS::BuildPath(path, entry.d_name);
+        fs_copy_entry.copy_filename.append(entry.d_name);
         
-        if (FIO_S_ISDIR(entry->d_stat.st_mode))
+        if (FIO_S_ISDIR(entry.d_stat.st_mode))
             fs_copy_entry.is_dir = true;
     }
     
@@ -586,11 +586,11 @@ namespace FS {
         return 1;
     }
 
-    int Delete(SceIoDirent *entry) {
+    int Delete(SceIoDirent &entry) {
         int ret = 0;
-        std::string path = FS::BuildPath(cfg.cwd, entry->d_name);
+        std::string path = FS::BuildPath(cfg.cwd, entry.d_name);
 
-        if (FIO_S_ISDIR(entry->d_stat.st_mode)) {
+        if (FIO_S_ISDIR(entry.d_stat.st_mode)) {
             if (R_FAILED(ret = FS::DeleteDirectoryRecursive(path))) {
                 Log::Error("FS::DeleteDirectoryRecursive(%s) failed: 0x%x\n", path.c_str(), ret);
                 return ret;

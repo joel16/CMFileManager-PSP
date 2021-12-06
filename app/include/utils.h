@@ -24,15 +24,15 @@ extern enum PspCtrlButtons PSP_CTRL_ENTER, PSP_CTRL_CANCEL;
 extern BROWSE_STATE device;
 
 namespace Utils {
-    void SetBounds(int *set, int min, int max);
-    void SetMax(int *set, int value, int max);
-    void SetMin(int *set, int value, int min);
+    void SetBounds(int &set, int min, int max);
+    void SetMax(int &set, int value, int max);
+    void SetMin(int &set, int value, int min);
     void GetSizeString(char *string, double size);
     void InitKernelDrivers(void);
     void TermKernelDrivers(void);
     void HandleUSB(void);
     bool IsModelPSPGo(void);
-    int IsMemCardInserted(bool *is_inserted);
+    int IsMemCardInserted(bool &is_inserted);
     bool IsInternalStorage(void);
     int LaunchEboot(const char *path);
     u64 GetTotalStorage(void);
@@ -43,8 +43,8 @@ namespace Utils {
     int IsButtonHeld(enum PspCtrlButtons buttons);
     int IsKButtonPressed(enum PspCtrlButtons buttons);
     int IsKButtonHeld(enum PspCtrlButtons buttons);
-    int GetEnterButton(void);
-    int GetCancelButton(void);
+    enum PspCtrlButtons GetEnterButton(void);
+    enum PspCtrlButtons GetCancelButton(void);
     float GetAnalogX(void);
     float GetAnalogY(void);
     bool IsCancelButtonPressed(void);

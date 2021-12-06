@@ -29,18 +29,18 @@ namespace FS {
     std::string GetFileExt(const std::string &filename);
     FileType GetFileType(const std::string &filename);
     SceOff GetFileSize(const std::string &path);
-    char *GetFileTimestamp(SceIoStat *stat, FileTimestamp time);
-    char *GetFilePermission(SceIoStat *stat);
+    char *GetFileTimestamp(SceIoStat &stat, FileTimestamp time);
+    char *GetFilePermission(SceIoStat &stat);
     int ReadFile(const std::string &path, void *buf, int size);
     int WriteFile(const std::string &path, void *buf, int size);
     int GetDirList(const std::string &path, std::vector<SceIoDirent> &entries);
     int ChangeDirNext(const std::string &path, std::vector<SceIoDirent> &entries);
     int ChangeDirPrev(std::vector<SceIoDirent> &entries);
     std::string GetFilename(const std::string &path);
-    void Copy(SceIoDirent *entry, const std::string &path);
+    void Copy(SceIoDirent &entry, const std::string &path);
     int Paste(void);
     int Move(void);
-    int Delete(SceIoDirent *entry);
+    int Delete(SceIoDirent &entry);
     std::string BuildPath(const std::string &path, const std::string &filename);
 }
 

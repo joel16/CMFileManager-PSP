@@ -61,7 +61,7 @@ namespace GUI {
 
     void ControlFileBrowser(MenuItem *item, int *ctrl) {
         u32 size = (item->entries.size() - 1);
-        Utils::SetBounds(&item->selected, 0, size);
+        Utils::SetBounds(item->selected, 0, size);
 
         if (*ctrl & PSP_CTRL_UP) {
             item->selected--;

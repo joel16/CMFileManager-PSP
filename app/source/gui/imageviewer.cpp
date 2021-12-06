@@ -118,16 +118,16 @@ namespace GUI {
         }
         
         if ((degrees == 0) || (degrees == 180)) {
-            Utils::SetMax(&pos_x, horizantal_flip? -width : width, horizantal_flip? -width : width);
-            Utils::SetMin(&pos_x, horizantal_flip? width : -width, horizantal_flip? width : -width);
-            Utils::SetMax(&pos_y, vertical_flip? -height : height, vertical_flip? -height : height);
-            Utils::SetMin(&pos_y, vertical_flip? height : -height, vertical_flip? height : -height);
+            Utils::SetMax(pos_x, horizantal_flip? -width : width, horizantal_flip? -width : width);
+            Utils::SetMin(pos_x, horizantal_flip? width : -width, horizantal_flip? width : -width);
+            Utils::SetMax(pos_y, vertical_flip? -height : height, vertical_flip? -height : height);
+            Utils::SetMin(pos_y, vertical_flip? height : -height, vertical_flip? height : -height);
         }
         else {
-            Utils::SetMax(&pos_x, vertical_flip? -height : height, vertical_flip? -height : height);
-            Utils::SetMin(&pos_x, vertical_flip? height : -height, vertical_flip? height : -height);
-            Utils::SetMax(&pos_y, horizantal_flip? -width : width, horizantal_flip? -width : width);
-            Utils::SetMin(&pos_y, horizantal_flip? width : -width, horizantal_flip? width : -width);
+            Utils::SetMax(pos_x, vertical_flip? -height : height, vertical_flip? -height : height);
+            Utils::SetMin(pos_x, vertical_flip? height : -height, vertical_flip? height : -height);
+            Utils::SetMax(pos_y, horizantal_flip? -width : width, horizantal_flip? -width : width);
+            Utils::SetMin(pos_y, horizantal_flip? width : -width, horizantal_flip? width : -width);
         }
 
         if (Utils::IsButtonPressed(PSP_CTRL_CANCEL)) {
