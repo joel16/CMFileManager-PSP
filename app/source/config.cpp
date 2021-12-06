@@ -44,7 +44,6 @@ namespace Config {
         
         if (!FS::FileExists("config.json")) {
             Config::SetDefault(&cfg);
-            Log::Error("File doesn't exist\n");
             return Save(cfg);
         }
         
