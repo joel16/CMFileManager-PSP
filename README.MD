@@ -21,7 +21,7 @@ CMFileManager PSP is a PSP application built using the unofficial PSPSDK and [gl
 - Extract metadata from homebrew (Eboots) or ISOs. (ICON0.PNG, ICON1.PMF, PIC0.PNG, PIC1.PNG, SND0.AT3)
 - Browse other drives like flah0, flash1 and UMD (if not using PSP Go).
 - Support for both ef0:/ (internal) and ms0:/ (external) drives on PSP Go.
-- Screenshots in .BMP format. Use L + R to capture a screenshot.
+- Screenshots in .PNG format. Use L + R to capture a screenshot.
 - Audio Player 16-Bit short 41K - 48K Hz. (FLAC, IT, MOD, MP3, OGG, OPUS, S3M, WAV and XM)
 - FTP connection
 
