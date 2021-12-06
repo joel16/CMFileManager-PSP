@@ -16,3 +16,18 @@ jobs:
     - uses: actions/checkout@v2
     - name: Compile
       run: make
+    - uses: actions/upload-artifact@v2
+      with:
+        path: audio_driver/audio_driver.prx
+    - uses: actions/upload-artifact@v2
+      with:
+        path: display_driver/display_driver.prx
+    - uses: actions/upload-artifact@v2
+      with:
+        path: fs_driver/fs_driver.prx
+    - uses: actions/upload-artifact@v2
+      with:
+        path: input_driver/input_driver.prx
+    - uses: actions/upload-artifact@v2
+      with:
+        path: app/EBOOT.PBP
