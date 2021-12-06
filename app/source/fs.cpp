@@ -88,9 +88,9 @@ namespace FS {
     FileType GetFileType(const std::string &filename) {
         std::string ext = FS::GetFileExt(filename);
 
-        if ((!ext.compare(".PBP")) || (!ext.compare(".ISO")) || (!ext.compare(".CSO")))
+        if ((!ext.compare(".CSO")) || (!ext.compare(".ISO")) || (!ext.compare(".PBP")))
             return FileTypeApp;
-        else if ((!ext.compare(".ZIP")) || (!ext.compare(".RAR")) || (!ext.compare(".7Z")) || (!ext.compare(".LZMA")))
+        else if ((!ext.compare(".7Z")) || (!ext.compare(".LZMA")) || (!ext.compare(".RAR")) || (!ext.compare(".ZIP")))
             return FileTypeArchive;
         else if ((!ext.compare(".FLAC")) || (!ext.compare(".IT")) || (!ext.compare(".MOD")) || (!ext.compare(".MP3")) || (!ext.compare(".OGG"))
             || (!ext.compare(".OPUS")) || (!ext.compare(".S3M")) || (!ext.compare(".WAV")) || (!ext.compare(".XM")))
@@ -98,8 +98,8 @@ namespace FS {
         else if ((!ext.compare(".BMP")) || (!ext.compare(".GIF")) || (!ext.compare(".JPG")) || (!ext.compare(".JPEG")) || (!ext.compare(".PGM"))
             || (!ext.compare(".PPM")) || (!ext.compare(".PNG")) || (!ext.compare(".PSD")) || (!ext.compare(".TGA")) || (!ext.compare(".WEBP")))
             return FileTypeImage;
-        else if ((!ext.compare(".JSON")) || (!ext.compare(".LOG")) || (!ext.compare(".TXT")) || (!ext.compare(".CFG")) || (!ext.compare(".INI"))
-            || (!ext.compare(".MD")))
+        else if ((!ext.compare(".CFG")) || (!ext.compare(".CONF")) || (!ext.compare(".INI")) || (!ext.compare(".JSON")) || (!ext.compare(".LOG"))
+            || (!ext.compare(".MD")) || (!ext.compare(".TXT")))
             return FileTypeText;
             
         return FileTypeNone;
