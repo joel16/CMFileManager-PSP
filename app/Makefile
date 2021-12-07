@@ -26,11 +26,10 @@ PSP_LARGE_MEMORY = 1
 LIBDIR  = ../libs/lib
 LDFLAGS =
 LIBS    = -lintrafont -lglib2d \
-          -lxmp -lmpg123 -lvorbisfile -lvorbis -lopusfile -lopus -lFLAC -logg -lpspaudio \
-          -larchive -lbz2 -llzma \
-          -lturbojpeg -ljpeg -lpng16 \
-          -lpspgu -lpspvram -lpsppower -lpspreg -lpspusb -lpspusbstor -lpspusbdevice -lpspumd \
-          -lpspkubridge -lpspsystemctrl_user -lstdc++ -lz
+          -lxmp -lmpg123 -lvorbisfile -lvorbis -lopusfile -lopus -lFLAC -logg \
+          -larchive -llzma -lturbojpeg -ljpeg -lpng -lstdc++ -lz \
+          -lpspkubridge -lpspsystemctrl_user \
+          -lpspgu -lpspgum -lpspvram -lpspaudio -lpspfpu -lpsppower -lpspreg -lpspusb -lpspusbstor -lpspusbdevice -lpspumd
 
 EXTRA_TARGETS    = EBOOT.PBP
 PSP_EBOOT_TITLE  = CM File Manager PSP v$(VERSION_MAJOR).$(VERSION_MINOR)$(VERSION_MICRO)
