@@ -570,7 +570,7 @@ namespace GameLauncher {
         
         char install_date[128] = {0};
         const char *months[] = { "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov" };
-        snprintf(install_date, 128, "Installed %d %s %d", stat.st_ctime.day, months[stat.st_ctime.month], stat.st_ctime.year);
+        snprintf(install_date, 128, "Installed %d %s %d", stat.sce_st_ctime.day, months[stat.sce_st_ctime.month], stat.sce_st_ctime.year);
 
         int selection = 0;
         const char *metadata_types[] = { "< ICON0.PNG >", "< ICON1.PMF >", "< PIC0.PNG >", "< PIC1.PNG >", "< SND0.AT3 >" };

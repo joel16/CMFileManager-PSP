@@ -8,7 +8,6 @@
 
 PSP_MODULE_INFO("CMFileManager Launcher", PSP_MODULE_USER, VERSION_MAJOR, VERSION_MINOR);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
-PSP_HEAP_SIZE_MAX();
 
 int main(int argc, char **argv) {
 	int ret = 0;

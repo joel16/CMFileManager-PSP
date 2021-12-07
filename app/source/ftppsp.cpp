@@ -6,18 +6,22 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <pspkernel.h>
 #include <pspiofilemgr.h>
-#include <pspnet_inet.h>
+#include <pspkernel.h>
 #include <pspnet_apctl.h>
-#include <sys/time.h>
 #include <psprtc.h>
 #include <sys/syslimits.h>
+
+#ifdef STD_SOCKET
+    #include <sys/socket.h>
+    #include <unistd.h>
+#else
+    #include <pspnet_inet.h>
+#endif
 
 #include "fs.h"
 #include "ftppsp.h"
 #include "kernel_functions.h"
-#include "log.h"
 #include "mutex.h"
 
 #define UNUSED(x) (void)(x)
@@ -75,13 +79,12 @@ static void log_func(ftppsp_log_cb_t log_cb, const char *s, ...) {
 
 static int client_send_ctrl_msg(ftppsp_client_info_t *cl, const char *str) {
     std::printf(str);
+#ifdef STD_SOCKET
+    return send(cl->ctrl_sockfd, str, std::strlen(str), 0);
+#else
     return sceNetInetSend(cl->ctrl_sockfd, str, std::strlen(str), 0);
+#endif
 }
-
-// Missing prototypes in the PSPSDK
-int sceNetInetGetsockname(int, struct sockaddr *, socklen_t *);
-const char* sceNetInetInetNtop(int, const void *, char *, socklen_t);
-int sceNetInetInetPton(int, const char *, void *);
 
 static __inline__ unsigned int sceAllegrexWsbw(unsigned int x) {
     return (((x & 0xFF)<<24) | ((x & 0xFF00)<<8) | ((x>>8) & 0xFF00) | ((x>>24) & 0xFF));
@@ -101,23 +104,47 @@ static inline u16 SCE_HTONS(u16 hostshort) {
 
 static inline void client_send_data_msg(ftppsp_client_info_t *client, const char *str) {
     if (client->data_con_type == FTP_DATA_CONNECTION_ACTIVE)
+#ifdef STD_SOCKET
+        send(client->data_sockfd, str, std::strlen(str), 0);
+#else
         sceNetInetSend(client->data_sockfd, str, std::strlen(str), 0);
+#endif
     else
+#ifdef STD_SOCKET
+        send(client->pasv_sockfd, str, std::strlen(str), 0);
+#else
         sceNetInetSend(client->pasv_sockfd, str, std::strlen(str), 0);
+#endif
 }
 
 static inline int client_recv_data_raw(ftppsp_client_info_t *client, void *buf, unsigned int len) {
     if (client->data_con_type == FTP_DATA_CONNECTION_ACTIVE)
+#ifdef STD_SOCKET
+        return recv(client->data_sockfd, buf, len, 0);
+#else
         return sceNetInetRecv(client->data_sockfd, buf, len, 0);
+#endif
     else
+#ifdef STD_SOCKET
+        return recv(client->pasv_sockfd, buf, len, 0);
+#else
         return sceNetInetRecv(client->pasv_sockfd, buf, len, 0);
+#endif
 }
 
 static inline void client_send_data_raw(ftppsp_client_info_t *client, const void *buf, unsigned int len) {
     if (client->data_con_type == FTP_DATA_CONNECTION_ACTIVE)
+#ifdef STD_SOCKET
+        send(client->data_sockfd, buf, len, 0);
+#else
         sceNetInetSend(client->data_sockfd, buf, len, 0);
+#endif
     else
+#ifdef STD_SOCKET
+        send(client->pasv_sockfd, buf, len, 0);
+#else
         sceNetInetSend(client->pasv_sockfd, buf, len, 0);
+#endif
 }
 
 static inline const char *get_psp_path(const char *path) {
@@ -152,11 +179,15 @@ static void cmd_PASV_func(ftppsp_client_info_t *client) {
     UNUSED(ret);
     
     char cmd[512] = {0};
-    unsigned int namelen;
+    socklen_t namelen = 0;
     struct sockaddr_in picked;
     
     /* Create the data socket */
+#ifdef STD_SOCKET
+    client->data_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+#else
     client->data_sockfd = sceNetInetSocket(AF_INET, SOCK_STREAM, 0);
+#endif
     
     DEBUG("PASV data socket fd: %d\n", client->data_sockfd);
     
@@ -167,21 +198,35 @@ static void cmd_PASV_func(ftppsp_client_info_t *client) {
     client->data_sockaddr.sin_port = SCE_HTONS(0);
     
     /* Bind the data socket address to the data socket */
+#ifdef STD_SOCKET
+    ret = bind(client->data_sockfd, (struct sockaddr *)&client->data_sockaddr, sizeof(client->data_sockaddr));
+    DEBUG("bind(): 0x%08X\n", ret);
+#else
     ret = sceNetInetBind(client->data_sockfd, (struct sockaddr *)&client->data_sockaddr, sizeof(client->data_sockaddr));
     DEBUG("sceNetInetBind(): 0x%08X\n", ret);
+#endif
     
     /* Start listening */
+#ifdef STD_SOCKET
+    ret = listen(client->data_sockfd, 128);
+    DEBUG("listen(): 0x%08X\n", ret);
+#else
     ret = sceNetInetListen(client->data_sockfd, 128);
     DEBUG("sceNetInetListen(): 0x%08X\n", ret);
+#endif
     
     /* Get the port that the PSP has chosen */
     namelen = sizeof(picked);
+#ifdef STD_SOCKET
+    getsockname(client->data_sockfd, (struct sockaddr *)&picked, &namelen);
+#else
     sceNetInetGetsockname(client->data_sockfd, (struct sockaddr *)&picked, &namelen);
+#endif
     
     DEBUG("PASV mode port: 0x%04X\n", picked.sin_port);
     
     /* Build the command */
-    std::sprintf(cmd, "227 Entering Passive Mode (%hhu,%hhu,%hhu,%hhu,%hhu,%hhu)\r\n",
+    std::sprintf(cmd, "227 Entering Passive Mode (%lu,%lu,%lu,%lu,%u,%u)\r\n",
         (psp_addr.s_addr >> 0) & 0xFF,
         (psp_addr.s_addr >> 8) & 0xFF,
         (psp_addr.s_addr >> 16) & 0xFF,
@@ -211,12 +256,20 @@ static void cmd_PORT_func(ftppsp_client_info_t *client) {
     std::sprintf(ip_str, "%d.%d.%d.%d", data_ip[0], data_ip[1], data_ip[2], data_ip[3]);
     
     /* Convert the IP to a SceNetInAddr */
+#ifdef STD_SOCKET
     sceNetInetInetPton(AF_INET, ip_str, &data_addr);
+#else
+    sceNetInetInetPton(AF_INET, ip_str, &data_addr);
+#endif
     
     DEBUG("PORT connection to client's IP: %s Port: %d\n", ip_str, data_port);
     
     /* Create data mode socket */
+#ifdef STD_SOCKET
+    client->data_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+#else
     client->data_sockfd = sceNetInetSocket(AF_INET, SOCK_STREAM, 0);
+#endif
     
     DEBUG("Client %i data socket fd: %d\n", client->num, client->data_sockfd);
     
@@ -238,23 +291,40 @@ static void client_open_data_connection(ftppsp_client_info_t *client) {
     socklen_t addrlen;
     if (client->data_con_type == FTP_DATA_CONNECTION_ACTIVE) {
         /* Connect to the client using the data socket */
+#ifdef STD_SOCKET
+        ret = connect(client->data_sockfd, (struct sockaddr *)&client->data_sockaddr, sizeof(client->data_sockaddr));
+        DEBUG("connect(): 0x%08X\n", ret);
+#else
         ret = sceNetInetConnect(client->data_sockfd, (struct sockaddr *)&client->data_sockaddr, sizeof(client->data_sockaddr));
-        
         DEBUG("sceNetInetConnect(): 0x%08X\n", ret);
+#endif
     }
     else {
         /* Listen to the client using the data socket */
         addrlen = sizeof(client->pasv_sockaddr);
+#ifdef STD_SOCKET
+        client->pasv_sockfd = accept(client->data_sockfd, (struct sockaddr *)&client->pasv_sockaddr, &addrlen);
+#else
         client->pasv_sockfd = sceNetInetAccept(client->data_sockfd, (struct sockaddr *)&client->pasv_sockaddr, &addrlen);
+#endif
         DEBUG("PASV client fd: 0x%08X\n", client->pasv_sockfd);
     }
 }
 
 static void client_close_data_connection(ftppsp_client_info_t *client) {
+#ifdef STD_SOCKET
+    close(client->data_sockfd);
+#else
     sceNetInetClose(client->data_sockfd);
+#endif
+
     /* In passive mode we have to close the client pasv socket too */
     if (client->data_con_type == FTP_DATA_CONNECTION_PASSIVE)
+#ifdef STD_SOCKET
+        close(client->pasv_sockfd);
+#else
         sceNetInetClose(client->pasv_sockfd);
+#endif
         
     client->data_con_type = FTP_DATA_CONNECTION_NONE;
 }
@@ -268,13 +338,13 @@ static int gen_list_format(char *out, int n, int dir, const SceIoStat *stat, con
     pspTime cdt;
     sceRtcGetCurrentClockLocalTime(&cdt);
     
-    if (cdt.year == stat->st_mtime.year)
-        snprintf(yt, 12, "%02d:%02d", stat->st_mtime.hour, stat->st_mtime.minute);
+    if (cdt.year == stat->sce_st_mtime.year)
+        snprintf(yt, 12, "%02d:%02d", stat->sce_st_mtime.hour, stat->sce_st_mtime.minute);
     else
-        snprintf(yt, 11, "%04d", stat->st_mtime.year);
+        snprintf(yt, 11, "%04d", stat->sce_st_mtime.year);
         
     return snprintf(out, n, "%c%s 1 psp psp %u %s %-2d %s %s\r\n", dir ? 'd' : '-', dir ? "rwxr-xr-x" : "rw-r--r--",
-        (unsigned int) stat->st_size, num_to_month[stat->st_mtime.month<=0?0:(stat->st_mtime.month-1)%12], stat->st_mtime.day,
+        (unsigned int) stat->st_size, num_to_month[stat->sce_st_mtime.month<=0?0:(stat->sce_st_mtime.month-1)%12], stat->sce_st_mtime.day,
         yt, filename);
 }
 
@@ -311,7 +381,6 @@ static void send_LIST(ftppsp_client_info_t *client, const char *path) {
         for (int i = 0; i < MAX_DEVICES; i++) {
             if (device_list[i].valid) {
                 devname = device_list[i].name;
-                Log::Error("send_devices devname: [%d]%s\n", i, devname);
                 gen_list_format(buffer, sizeof(buffer), 1, &stat, devname);
                 client_send_data_msg(client, buffer);
             }
@@ -850,14 +919,26 @@ static void client_list_thread_end(void) {
         
         /* Abort the client's control socket, only abort
         * receiving data so we can still send control messages */
+#ifdef STD_SOCKET
+        shutdown(it->ctrl_sockfd, SHUT_RDWR);
+#else
         sceNetInetShutdown(it->ctrl_sockfd, SHUT_RDWR);
+#endif
         
         // If there's an open data connection, abort it
         if (it->data_con_type != FTP_DATA_CONNECTION_NONE) {
+#ifdef STD_SOCKET
+            shutdown(it->data_sockfd, SHUT_RDWR);
+#else
             sceNetInetShutdown(it->data_sockfd, SHUT_RDWR);
+#endif
             
             if (it->data_con_type == FTP_DATA_CONNECTION_PASSIVE)
+#ifdef STD_SOCKET
+                shutdown(it->pasv_sockfd, SHUT_RDWR);
+#else
                 sceNetInetShutdown(it->pasv_sockfd, SHUT_RDWR);
+#endif
         }
         
         /* Wait until the client threads ends */
@@ -881,8 +962,12 @@ static int client_thread(SceSize args, void *argp) {
     
     while (true) {
         std::memset(client->recv_buffer, 0, sizeof(client->recv_buffer));
-        
+#ifdef STD_SOCKET
+        client->n_recv = recv(client->ctrl_sockfd, client->recv_buffer, sizeof(client->recv_buffer), 0);
+#else
         client->n_recv = sceNetInetRecv(client->ctrl_sockfd, client->recv_buffer, sizeof(client->recv_buffer), 0);
+#endif
+
         if (client->n_recv > 0) {
             DEBUG("Received %i bytes from client number %i:\n", client->n_recv, client->num);
             
@@ -924,14 +1009,26 @@ static int client_thread(SceSize args, void *argp) {
     }
     
     /* Close the client's socket */
+#ifdef STD_SOCKET
+    close(client->ctrl_sockfd);
+#else
     sceNetInetClose(client->ctrl_sockfd);
+#endif
     
     /* If there's an open data connection, close it */
     if (client->data_con_type != FTP_DATA_CONNECTION_NONE) {
+#ifdef STD_SOCKET
+        close(client->data_sockfd);
+#else
         sceNetInetClose(client->data_sockfd);
+#endif
         
         if (client->data_con_type == FTP_DATA_CONNECTION_PASSIVE)
+#ifdef STD_SOCKET
+            close(client->pasv_sockfd);
+#else
             sceNetInetClose(client->pasv_sockfd);
+#endif
     }
     
     DEBUG("Client thread %i exiting!\n", client->num);
@@ -951,7 +1048,11 @@ static int server_thread(SceSize args, void *argp) {
     DEBUG("Server thread started!\n");
     
     /* Create server socket */
+#ifdef STD_SOCKET
+    server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+#else
     server_sockfd = sceNetInetSocket(AF_INET, SOCK_STREAM, 0);
+#endif
     
     DEBUG("Server socket fd: %d\n", server_sockfd);
     
@@ -961,12 +1062,22 @@ static int server_thread(SceSize args, void *argp) {
     serveraddr.sin_port = SCE_HTONS(FTP_PORT);
     
     /* Bind the server's address to the socket */
+#ifdef STD_SOCKET
+    ret = bind(server_sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
+    DEBUG("bind(): 0x%08X\n", ret);
+#else
     ret = sceNetInetBind(server_sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
     DEBUG("sceNetInetBind(): 0x%08X\n", ret);
+#endif
     
     /* Start listening */
+#ifdef STD_SOCKET
+    ret = listen(server_sockfd, 128);
+    DEBUG("listen(): 0x%08X\n", ret);
+#else
     ret = sceNetInetListen(server_sockfd, 128);
     DEBUG("sceNetInetListen(): 0x%08X\n", ret);
+#endif
     
     while (true) {
         /* Accept clients */
@@ -976,13 +1087,22 @@ static int server_thread(SceSize args, void *argp) {
         
         DEBUG("Waiting for incoming connections...\n");
         
+#ifdef STD_SOCKET
+        client_sockfd = accept(server_sockfd, (struct sockaddr *)&clientaddr, &addrlen);
+#else
         client_sockfd = sceNetInetAccept(server_sockfd, (struct sockaddr *)&clientaddr, &addrlen);
+#endif
+
         if (client_sockfd >= 0) {
             DEBUG("New connection, client fd: 0x%08X\n", client_sockfd);
             
             /* Get the client's IP address */
             char remote_ip[16] = {0};
+#ifdef STD_SOCKET
             sceNetInetInetNtop(AF_INET, &clientaddr.sin_addr.s_addr, remote_ip, sizeof(remote_ip));
+#else
+            sceNetInetInetNtop(AF_INET, &clientaddr.sin_addr.s_addr, remote_ip, sizeof(remote_ip));
+#endif
             
             INFO("Client %i connected, IP: %s port: %i\n", number_clients, remote_ip, clientaddr.sin_port);
             
@@ -1037,8 +1157,13 @@ int ftppsp_init(char *psp_ip, unsigned short int *psp_port) {
     *psp_port = FTP_PORT;
     
     /* Save the IP of PSP to a global variable */
+#ifdef STD_SOCKET
     if (sceNetInetInetPton(AF_INET, info.ip, &psp_addr) < 0)
         return -1;
+#else
+    if (sceNetInetInetPton(AF_INET, info.ip, &psp_addr) < 0)
+        return -1;
+#endif
         
     /* Create server thread */
     server_thid = sceKernelCreateThread("FTPpsp_server_thread", server_thread, 0x20, 0x6000, PSP_THREAD_ATTR_USBWLAN, nullptr);
@@ -1066,7 +1191,11 @@ void ftppsp_fini(void) {
         /* In order to "stop" the blocking sceNetAccept,
         * we have to close the server socket; this way
         * the accept call will return an error */
+#ifdef STD_SOCKET
+        close(server_sockfd);
+#else
         sceNetInetClose(server_sockfd);
+#endif
         
         /* Wait until the server threads ends */
         SceUInt timeout = 1000000;
@@ -1100,8 +1229,6 @@ int ftppsp_add_device(const char *devname) {
     for (int i = 0; i < MAX_DEVICES; i++) {
         if (!device_list[i].valid) {
             std::strcpy(device_list[i].name, devname);
-            Log::Error("ftppsp_add_device device_list.name: [%d]%s\n", i, device_list[i].name);
-            Log::Error("ftppsp_add_device devname: [%d]%s\n", i, devname);
             device_list[i].valid = 1;
             return 1;
         }

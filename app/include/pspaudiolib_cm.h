@@ -28,10 +28,10 @@ extern "C" {
 typedef void (* pspAudioCallback_t)(void *buf, unsigned int reqn, void *pdata);
 
 typedef struct {
-    int threadhandle;
-    int handle;
-    int volumeleft;
-    int volumeright;
+    int threadhandle = 0;
+    int handle = 0;
+    int volumeleft = 0;
+    int volumeright = 0;
     pspAudioCallback_t callback;
     void *pdata;
 } psp_audio_channelinfo;
