@@ -15,9 +15,9 @@ VERSION_MINOR :=  0
 VERSION_MICRO :=  1
 
 INCDIR   = ../libs/ ../libs/include ../libs/libnsbmp ../libs/libnsgif ../libs/include/opus include
-CFLAGS   = -Os -G0 -Wall -ffast-math -fno-exceptions -Wno-narrowing -Wno-unused-variable \
+CFLAGS   = -Os -Wall -ffast-math -Wno-narrowing -Wno-unused-variable \
            -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
-CXXFLAGS = $(CFLAGS) -fno-rtti -std=gnu++17
+CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti -std=gnu++17
 ASFLAGS  := $(CFLAGS)
 
 BUILD_PRX = 1
