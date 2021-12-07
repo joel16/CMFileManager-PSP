@@ -19,13 +19,13 @@
 
 namespace CSO {
     typedef struct {
-        u8 magic[4];                    /* +00 : 'C','I','S','O'                 */
-        unsigned long header_size;      /* +04 : header size (==0x18)            */
-        unsigned long long total_bytes; /* +08 : number of original data size    */
-        unsigned long block_size;       /* +10 : number of compressed block size */
-        u8 ver;                         /* +14 : version 01                      */
-        u8 align;                       /* +15 : align of index value            */
-        u8 rsv_06[2];                   /* +16 : reserved                        */
+        u8 magic[4] = {0};                  /* +00 : 'C','I','S','O'                 */
+        unsigned long header_size = 0;      /* +04 : header size (==0x18)            */
+        unsigned long long total_bytes = 0; /* +08 : number of original data size    */
+        unsigned long block_size = 0;       /* +10 : number of compressed block size */
+        u8 ver = 0;                         /* +14 : version 01                      */
+        u8 align = 0;                       /* +15 : align of index value            */
+        u8 rsv_06[2] = {0};                 /* +16 : reserved                        */
     } CISOHeader;
 
     constexpr SceOff SECTOR_SIZE = 0x800;
@@ -59,7 +59,7 @@ namespace CSO {
     int ReadFile(char *buf, SceUID fd, int pos, int size) {
         static CISOHeader ciso;
         int index = 0, index2 = 0;
-        char tmp_buf[SECTOR_SIZE * 2], tmp_buf_2[SECTOR_SIZE * 2];
+        char tmp_buf[SECTOR_SIZE * 2] = {0}, tmp_buf_2[SECTOR_SIZE * 2] = {0};
         int ret = 0, error = 0;
         
         if (R_FAILED(error = sceIoLseek(fd, 0, PSP_SEEK_SET)))
@@ -180,7 +180,7 @@ namespace ISO {
     }
     
     int GetInfo(int *pos, int *size, int *size_pos, const std::string &path, int type, const char *name) {
-        char work[256], s_path[256], s_file[256];
+        char work[256] = {0}, s_path[256] = {0}, s_file[256] = {0};
         int path_table_addr = 0, path_table_size = 0;
         int dir_recode_addr = 0;
         short int befor_dir_num = 0x0001;
@@ -205,7 +205,7 @@ namespace ISO {
         std::strcpy(s_file, ptr);
         
         ///////
-        u8 header[8];
+        u8 header[8] = {0};
         ISO::ReadFile(header, path, type, 0x8000, sizeof(header));
         u8 magic[8] = { 0x01, 0x43, 0x44, 0x30, 0x30, 0x31, 0x01, 0x00 };
         
@@ -450,7 +450,7 @@ namespace GameLauncher {
     
     static int GetEbootMeta(const std::string &path, EbootMeta *meta) {
         int ret = 0;
-        char title_buf[128];
+        char title_buf[128] = {0};
         SceUID file = 0;
         PBPHeader pbp_data = { { 0 } };
         
@@ -568,7 +568,7 @@ namespace GameLauncher {
         if (meta.icon0_data)
             icon0 = Textures::LoadImageBufferPNG(meta.icon0_data, meta.icon0_size);
         
-        char install_date[128];
+        char install_date[128] = {0};
         const char *months[] = { "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov" };
         snprintf(install_date, 128, "Installed %d %s %d", stat.st_ctime.day, months[stat.st_ctime.month], stat.st_ctime.year);
 

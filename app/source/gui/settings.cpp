@@ -158,7 +158,7 @@ namespace FTP {
 
     bool Init(char *string) {
         int ret = 0;
-        char psp_ip[16];
+        char psp_ip[16] = {0};
         unsigned short int psp_port = 0;
 
         scePowerLock(0);

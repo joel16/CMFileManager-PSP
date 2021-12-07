@@ -14,7 +14,10 @@
 #include <psprtc.h>
 #include <sys/syslimits.h>
 
+#include "fs.h"
 #include "ftppsp.h"
+#include "kernel_functions.h"
+#include "log.h"
 #include "mutex.h"
 
 #define UNUSED(x) (void)(x)
@@ -28,37 +31,37 @@
 #define MAX_CUSTOM_COMMANDS 16
 
 typedef struct {
-    const char *cmd;
+    const char *cmd = nullptr;
     cmd_dispatch_func func;
 } cmd_dispatch_entry;
 
 static struct {
-    char name[512];
-    int valid;
+    char name[512] = {0};
+    int valid = 0;
 } device_list[MAX_DEVICES];
 
 static struct {
-    const char *cmd;
+    const char *cmd = nullptr;
     cmd_dispatch_func func;
-    int valid;
+    int valid = 0;
 } custom_command_dispatchers[MAX_CUSTOM_COMMANDS];
 
 static void *net_memory = nullptr;
 static int ftp_initialized = 0;
 static unsigned int file_buf_size = DEFAULT_FILE_BUF_SIZE;
 static struct in_addr psp_addr;
-static SceUID server_thid;
-static int server_sockfd;
+static SceUID server_thid = 0;
+static int server_sockfd = 0;
 static int number_clients = 0;
 static ftppsp_client_info_t *client_list = nullptr;
-static SceUID client_list_mtx;
+static SceUID client_list_mtx = 0;
 
 static void (*info_log_cb)(const char *) = nullptr;
 static void (*debug_log_cb)(const char *) = nullptr;
 
 static void log_func(ftppsp_log_cb_t log_cb, const char *s, ...) {
     if (log_cb) {
-        char buf[256];
+        char buf[256] = {0};
         va_list argptr;
         va_start(argptr, s);
         vsnprintf(buf, sizeof(buf), s, argptr);
@@ -124,11 +127,6 @@ static inline const char *get_psp_path(const char *path) {
         return nullptr;
 }
 
-static int file_exists(const char *path) {
-    SceIoStat stat;
-    return (sceIoGetstat(path, &stat) >= 0);
-}
-
 static void cmd_NOOP_func(ftppsp_client_info_t *client) {
     client_send_ctrl_msg(client, "200 No operation ;)\r\n");
 }
@@ -153,7 +151,7 @@ static void cmd_PASV_func(ftppsp_client_info_t *client) {
     int ret;
     UNUSED(ret);
     
-    char cmd[512];
+    char cmd[512] = {0};
     unsigned int namelen;
     struct sockaddr_in picked;
     
@@ -165,7 +163,7 @@ static void cmd_PASV_func(ftppsp_client_info_t *client) {
     /* Fill the data socket address */
     client->data_sockaddr.sin_family = AF_INET;
     client->data_sockaddr.sin_addr.s_addr = SCE_HTONL(INADDR_ANY);
-    /* Let the PSVita choose a port */
+    /* Let the PSP choose a port */
     client->data_sockaddr.sin_port = SCE_HTONS(0);
     
     /* Bind the data socket address to the data socket */
@@ -176,7 +174,7 @@ static void cmd_PASV_func(ftppsp_client_info_t *client) {
     ret = sceNetInetListen(client->data_sockfd, 128);
     DEBUG("sceNetInetListen(): 0x%08X\n", ret);
     
-    /* Get the port that the PSVita has chosen */
+    /* Get the port that the PSP has chosen */
     namelen = sizeof(picked);
     sceNetInetGetsockname(client->data_sockfd, (struct sockaddr *)&picked, &namelen);
     
@@ -198,10 +196,10 @@ static void cmd_PASV_func(ftppsp_client_info_t *client) {
 }
 
 static void cmd_PORT_func(ftppsp_client_info_t *client) {
-    unsigned int data_ip[4];
+    unsigned int data_ip[4] = {0};
     unsigned int porthi, portlo;
     unsigned short data_port;
-    char ip_str[16];
+    char ip_str[16] = {0};
     struct in_addr data_addr;
     
     /* Using ints because of newlibc's u8 std::sscanf bug */
@@ -266,7 +264,7 @@ static int gen_list_format(char *out, int n, int dir, const SceIoStat *stat, con
         "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     };
     
-    char yt[13];
+    char yt[13] = {0};
     pspTime cdt;
     sceRtcGetCurrentClockLocalTime(&cdt);
     
@@ -275,13 +273,13 @@ static int gen_list_format(char *out, int n, int dir, const SceIoStat *stat, con
     else
         snprintf(yt, 11, "%04d", stat->st_mtime.year);
         
-    return snprintf(out, n, "%c%s 1 vita vita %u %s %-2d %s %s\r\n", dir ? 'd' : '-', dir ? "rwxr-xr-x" : "rw-r--r--",
+    return snprintf(out, n, "%c%s 1 psp psp %u %s %-2d %s %s\r\n", dir ? 'd' : '-', dir ? "rwxr-xr-x" : "rw-r--r--",
         (unsigned int) stat->st_size, num_to_month[stat->st_mtime.month<=0?0:(stat->st_mtime.month-1)%12], stat->st_mtime.day,
         yt, filename);
 }
 
 static void send_LIST(ftppsp_client_info_t *client, const char *path) {
-    char buffer[512];
+    char buffer[512] = {0};
     SceUID dir;
     SceIoDirent dirent;
     SceIoStat stat;
@@ -294,7 +292,11 @@ static void send_LIST(ftppsp_client_info_t *client, const char *path) {
         send_devices = 1;
         
     if (!send_devices) {
+#ifdef FS_DEBUG
         dir = sceIoDopen(get_psp_path(path));
+#else
+        dir = pspIoOpenDir(get_psp_path(path));
+#endif
         if (dir < 0) {
             client_send_ctrl_msg(client, "550 Invalid directory.\r\n");
             return;
@@ -309,6 +311,7 @@ static void send_LIST(ftppsp_client_info_t *client, const char *path) {
         for (int i = 0; i < MAX_DEVICES; i++) {
             if (device_list[i].valid) {
                 devname = device_list[i].name;
+                Log::Error("send_devices devname: [%d]%s\n", i, devname);
                 gen_list_format(buffer, sizeof(buffer), 1, &stat, devname);
                 client_send_data_msg(client, buffer);
             }
@@ -317,14 +320,22 @@ static void send_LIST(ftppsp_client_info_t *client, const char *path) {
     else {
         std::memset(&dirent, 0, sizeof(dirent));
         
+#ifdef FS_DEBUG
         while (sceIoDread(dir, &dirent) > 0) {
+#else
+        while (pspIoReadDir(dir, &dirent) > 0) {
+#endif
             gen_list_format(buffer, sizeof(buffer), FIO_S_ISDIR(dirent.d_stat.st_mode), &dirent.d_stat, dirent.d_name);
             client_send_data_msg(client, buffer);
             std::memset(&dirent, 0, sizeof(dirent));
             std::memset(buffer, 0, sizeof(buffer));
         }
         
+#ifdef FS_DEBUG
         sceIoDclose(dir);
+#else
+        pspIoCloseDir(dir);
+#endif
     }
     
     DEBUG("Done sending LIST\n");
@@ -334,12 +345,12 @@ static void send_LIST(ftppsp_client_info_t *client, const char *path) {
 }
 
 static void cmd_LIST_func(ftppsp_client_info_t *client) {
-    char list_path[512];
+    char list_path[512] = {0};
     int list_cur_path = 1;
     
     int n = std::sscanf(client->recv_cmd_args, "%[^\r\n\t]", list_path);
     
-    if (n > 0 && file_exists(list_path))
+    if (n > 0 && FS::FileExists(list_path))
         list_cur_path = 0;
         
     if (list_cur_path)
@@ -349,7 +360,7 @@ static void cmd_LIST_func(ftppsp_client_info_t *client) {
 }
 
 static void cmd_PWD_func(ftppsp_client_info_t *client) {
-    char msg[1059];
+    char msg[1059] = {0};
     snprintf(msg, 1058, "257 \"%s\" is the current directory.\r\n", client->cur_path);
     client_send_ctrl_msg(client, msg);
 }
@@ -381,8 +392,8 @@ static void dir_up(char *path) {
 }
 
 static void cmd_CWD_func(ftppsp_client_info_t *client) {
-    char cmd_path[512];
-    char tmp_path[1537];
+    char cmd_path[512] = {0};
+    char tmp_path[1537] = {0};
     SceUID pd;
     int n = std::sscanf(client->recv_cmd_args, "%[^\r\n\t]", cmd_path);
     
@@ -412,12 +423,22 @@ static void cmd_CWD_func(ftppsp_client_info_t *client) {
             /* If the path is not "/", check if it exists */
             if (std::strcmp(tmp_path, "/") != 0) {
                 /* Check if the path exists */
+#ifdef FS_DEBUG
                 pd = sceIoDopen(get_psp_path(tmp_path));
+#else
+                pd = pspIoOpenDir(get_psp_path(tmp_path));
+#endif
+
                 if (pd < 0) {
                     client_send_ctrl_msg(client, "550 Invalid directory.\r\n");
                     return;
                 }
+
+#ifdef FS_DEBUG
                 sceIoDclose(pd);
+#else
+                pspIoCloseDir(pd);
+#endif
             }
             std::strcpy(client->cur_path, tmp_path);
         }
@@ -427,7 +448,7 @@ static void cmd_CWD_func(ftppsp_client_info_t *client) {
 
 static void cmd_TYPE_func(ftppsp_client_info_t *client) {
     char data_type;
-    char format_control[8];
+    char format_control[8] = {0};
     int n_args = std::sscanf(client->recv_cmd_args, "%c %s", &data_type, format_control);
     
     if (n_args > 0) {
@@ -458,9 +479,14 @@ static void send_file(ftppsp_client_info_t *client, const char *path) {
     unsigned int bytes_read;
     
     DEBUG("Opening: %s\n", path);
-    
+
+#ifdef FS_DEBUG
     if ((fd = sceIoOpen(path, PSP_O_RDONLY, 0777)) >= 0) {
         sceIoLseek32(fd, client->restore_point, PSP_SEEK_SET);
+#else
+    if ((fd = pspIoOpenFile(path, PSP_O_RDONLY, 0777)) >= 0) {
+        pspIoLseek32(fd, client->restore_point, PSP_SEEK_SET);
+#endif
         
         buffer = new unsigned char[file_buf_size];
         if (buffer == nullptr) {
@@ -471,10 +497,18 @@ static void send_file(ftppsp_client_info_t *client, const char *path) {
         client_open_data_connection(client);
         client_send_ctrl_msg(client, "150 Opening Image mode data transfer.\r\n");
         
-        while ((bytes_read = sceIoRead (fd, buffer, file_buf_size)) > 0)
+#ifdef FS_DEBUG
+        while ((bytes_read = sceIoRead(fd, buffer, file_buf_size)) > 0)
+#else
+        while ((bytes_read = pspIoReadFile(fd, buffer, file_buf_size)) > 0)
+#endif
             client_send_data_raw(client, buffer, bytes_read);
-            
+
+#ifdef FS_DEBUG 
         sceIoClose(fd);
+#else
+        pspIoCloseFile(fd);
+#endif
         delete[] buffer;
         client->restore_point = 0;
         client_send_ctrl_msg(client, "226 Transfer completed.\r\n");
@@ -487,7 +521,7 @@ static void send_file(ftppsp_client_info_t *client, const char *path) {
 /* This function generates an FTP full-path with the input path (relative or absolute)
  * from RETR, STOR, DELE, RMD, MKD, RNFR and RNTO commands */
 static void gen_ftp_fullpath(ftppsp_client_info_t *client, char *path, size_t path_size) {
-    char cmd_path[512];
+    char cmd_path[512] = {0};
     std::sscanf(client->recv_cmd_args, "%[^\r\n\t]", cmd_path);
     
     if (cmd_path[0] == '/')
@@ -504,7 +538,7 @@ static void gen_ftp_fullpath(ftppsp_client_info_t *client, char *path, size_t pa
 }
 
 static void cmd_RETR_func(ftppsp_client_info_t *client) {
-    char dest_path[512];
+    char dest_path[512] = {0};
     gen_ftp_fullpath(client, dest_path, sizeof(dest_path));
     send_file(client, get_psp_path(dest_path));
 }
@@ -523,8 +557,12 @@ static void receive_file(ftppsp_client_info_t *client, const char *path) {
         mode = mode | PSP_O_APPEND;
     else
         mode = mode | PSP_O_TRUNC;
-        
+
+#ifdef FS_DEBUG
     if ((fd = sceIoOpen(path, mode, 0777)) >= 0) {
+#else
+    if ((fd = pspIoOpenFile(path, mode, 0777)) >= 0) {
+#endif
         buffer = new unsigned char[file_buf_size];
         if (buffer == nullptr) {
             client_send_ctrl_msg(client, "550 Could not allocate memory.\r\n");
@@ -535,15 +573,27 @@ static void receive_file(ftppsp_client_info_t *client, const char *path) {
         client_send_ctrl_msg(client, "150 Opening Image mode data transfer.\r\n");
         
         while ((bytes_recv = client_recv_data_raw(client, buffer, file_buf_size)) > 0)
+#ifdef FS_DEBUG
             sceIoWrite(fd, buffer, bytes_recv);
-            
+#else
+            pspIoWriteFile(fd, buffer, bytes_recv);
+#endif
+
+#ifdef FS_DEBUG
         sceIoClose(fd);
+#else
+        pspIoCloseFile(fd);
+#endif
         delete[] buffer;
         client->restore_point = 0;
         if (bytes_recv == 0)
             client_send_ctrl_msg(client, "226 Transfer completed.\r\n");
         else {
+#ifdef FS_DEBUG
             sceIoRemove(path);
+#else
+            pspIoRemoveFile(path);
+#endif
             client_send_ctrl_msg(client, "426 Connection closed; transfer aborted.\r\n");
         }
         client_close_data_connection(client);   
@@ -553,7 +603,7 @@ static void receive_file(ftppsp_client_info_t *client, const char *path) {
 }
 
 static void cmd_STOR_func(ftppsp_client_info_t *client) {
-    char dest_path[512];
+    char dest_path[512] = {0};
     gen_ftp_fullpath(client, dest_path, sizeof(dest_path));
     receive_file(client, get_psp_path(dest_path));
 }
@@ -561,14 +611,18 @@ static void cmd_STOR_func(ftppsp_client_info_t *client) {
 static void delete_file(ftppsp_client_info_t *client, const char *path) {
     DEBUG("Deleting: %s\n", path);
     
+#ifdef FS_DEBUG
     if (sceIoRemove(path) >= 0)
+#else
+    if (pspIoRemoveFile(path) >= 0)
+#endif
         client_send_ctrl_msg(client, "226 File deleted.\r\n");
     else
         client_send_ctrl_msg(client, "550 Could not delete the file.\r\n");
 }
 
 static void cmd_DELE_func(ftppsp_client_info_t *client) {
-    char dest_path[512];
+    char dest_path[512] = {0};
     gen_ftp_fullpath(client, dest_path, sizeof(dest_path));
     delete_file(client, get_psp_path(dest_path));
 }
@@ -576,7 +630,12 @@ static void cmd_DELE_func(ftppsp_client_info_t *client) {
 static void delete_dir(ftppsp_client_info_t *client, const char *path) {
     unsigned int ret;
     DEBUG("Deleting: %s\n", path);
+#ifdef FS_DEBUG
     ret = sceIoRmdir(path);
+#else
+    ret = pspIoRemoveDir(path);
+#endif
+
     if (ret >= 0)
         client_send_ctrl_msg(client, "226 Directory deleted.\r\n");
     else if (ret == 0x8001005A) /* DIRECTORY_IS_NOT_EMPTY */
@@ -586,7 +645,7 @@ static void delete_dir(ftppsp_client_info_t *client, const char *path) {
 }
 
 static void cmd_RMD_func(ftppsp_client_info_t *client) {
-    char dest_path[512];
+    char dest_path[512] = {0};
     gen_ftp_fullpath(client, dest_path, sizeof(dest_path));
     delete_dir(client, get_psp_path(dest_path));
 }
@@ -594,27 +653,31 @@ static void cmd_RMD_func(ftppsp_client_info_t *client) {
 static void create_dir(ftppsp_client_info_t *client, const char *path) {
     DEBUG("Creating: %s\n", path);
     
+#ifdef FS_DEBUG
     if (sceIoMkdir(path, 0777) >= 0)
+#else
+    if (pspIoMakeDir(path, 0777) >= 0)
+#endif
         client_send_ctrl_msg(client, "226 Directory created.\r\n");
     else
         client_send_ctrl_msg(client, "550 Could not create the directory.\r\n");
 }
 
 static void cmd_MKD_func(ftppsp_client_info_t *client) {
-    char dest_path[512];
+    char dest_path[512] = {0};
     gen_ftp_fullpath(client, dest_path, sizeof(dest_path));
     create_dir(client, get_psp_path(dest_path));
 }
 
 static void cmd_RNFR_func(ftppsp_client_info_t *client) {
-    char path_src[512];
+    char path_src[512] = {0};
     const char *psp_path_src;
     /* Get the origin filename */
     gen_ftp_fullpath(client, path_src, sizeof(path_src));
     psp_path_src = get_psp_path(path_src);
     
     /* Check if the file exists */
-    if (!file_exists(psp_path_src)) {
+    if (!FS::FileExists(psp_path_src)) {
         client_send_ctrl_msg(client, "550 The file doesn't exist.\r\n");
         return;
     }
@@ -625,7 +688,7 @@ static void cmd_RNFR_func(ftppsp_client_info_t *client) {
 }
 
 static void cmd_RNTO_func(ftppsp_client_info_t *client) {
-    char path_dst[512];
+    char path_dst[512] = {0};
     const char *psp_path_dst;
     
     /* Get the destination filename */
@@ -634,7 +697,11 @@ static void cmd_RNTO_func(ftppsp_client_info_t *client) {
     
     DEBUG("Renaming: %s to %s\n", client->rename_path, psp_path_dst);
     
+#ifdef FS_DEBUG
     if (sceIoRename(client->rename_path, psp_path_dst) < 0)
+#else
+    if (pspIoRename(client->rename_path, psp_path_dst) < 0)
+#endif
         client_send_ctrl_msg(client, "550 Error renaming the file.\r\n");
         
     client_send_ctrl_msg(client, "226 Rename completed.\r\n");
@@ -642,13 +709,17 @@ static void cmd_RNTO_func(ftppsp_client_info_t *client) {
 
 static void cmd_SIZE_func(ftppsp_client_info_t *client) {
     SceIoStat stat;
-    char path[512];
-    char cmd[64];
+    char path[512] = {0};
+    char cmd[64] = {0};
     /* Get the filename to retrieve its size */
     gen_ftp_fullpath(client, path, sizeof(path));
     
     /* Check if the file exists */
+#ifdef FS_DEBUG
     if (sceIoGetstat(get_psp_path(path), &stat) < 0) {
+#else
+    if (pspIoGetstat(get_psp_path(path), &stat) < 0) {
+#endif
         client_send_ctrl_msg(client, "550 The file doesn't exist.\r\n");
         return;
     }
@@ -659,7 +730,7 @@ static void cmd_SIZE_func(ftppsp_client_info_t *client) {
 }
 
 static void cmd_REST_func(ftppsp_client_info_t *client) {
-    char cmd[64];
+    char cmd[64] = {0};
     std::sscanf(client->recv_buffer, "%*[^ ] %d", &client->restore_point);
     std::sprintf(cmd, "350 Resuming at %d\r\n", client->restore_point);
     client_send_ctrl_msg(client, cmd);
@@ -674,11 +745,11 @@ static void cmd_FEAT_func(ftppsp_client_info_t *client) {
 
 static void cmd_APPE_func(ftppsp_client_info_t *client) {
     /* set restore point to not 0
-    restore point numeric value only matters if we RETR file from vita.
+    restore point numeric value only matters if we RETR file from psp.
     If we STOR or APPE, it is only used to indicate that we want to resume
     a broken transfer */
     client->restore_point = -1;
-    char dest_path[512];
+    char dest_path[512] = {0};
     gen_ftp_fullpath(client, dest_path, sizeof(dest_path));
     receive_file(client, get_psp_path(dest_path));
 }
@@ -800,13 +871,13 @@ static void client_list_thread_end(void) {
 }
 
 static int client_thread(SceSize args, void *argp) {
-    char cmd[16];
+    char cmd[16] = {0};
     cmd_dispatch_func dispatch_func;
     ftppsp_client_info_t *client = *(ftppsp_client_info_t **)argp;
     
     DEBUG("Client thread %i started!\n", client->num);
     
-    client_send_ctrl_msg(client, "220 FTPVita Server ready.\r\n");
+    client_send_ctrl_msg(client, "220 FTPPSP Server ready.\r\n");
     
     while (true) {
         std::memset(client->recv_buffer, 0, sizeof(client->recv_buffer));
@@ -910,13 +981,13 @@ static int server_thread(SceSize args, void *argp) {
             DEBUG("New connection, client fd: 0x%08X\n", client_sockfd);
             
             /* Get the client's IP address */
-            char remote_ip[16];
+            char remote_ip[16] = {0};
             sceNetInetInetNtop(AF_INET, &clientaddr.sin_addr.s_addr, remote_ip, sizeof(remote_ip));
             
             INFO("Client %i connected, IP: %s port: %i\n", number_clients, remote_ip, clientaddr.sin_port);
             
             /* Create a new thread for the client */
-            char client_thread_name[64];
+            char client_thread_name[64] = {0};
             std::sprintf(client_thread_name, "FTPpsp_client_%i_thread", number_clients);
             
             SceUID client_thid = sceKernelCreateThread(client_thread_name, client_thread, 0x12, 0x2000, PSP_THREAD_ATTR_USBWLAN, nullptr);
@@ -965,7 +1036,7 @@ int ftppsp_init(char *psp_ip, unsigned short int *psp_port) {
         
     *psp_port = FTP_PORT;
     
-    /* Save the IP of PSVita to a global variable */
+    /* Save the IP of PSP to a global variable */
     if (sceNetInetInetPton(AF_INET, info.ip, &psp_addr) < 0)
         return -1;
         
@@ -1029,6 +1100,8 @@ int ftppsp_add_device(const char *devname) {
     for (int i = 0; i < MAX_DEVICES; i++) {
         if (!device_list[i].valid) {
             std::strcpy(device_list[i].name, devname);
+            Log::Error("ftppsp_add_device device_list.name: [%d]%s\n", i, device_list[i].name);
+            Log::Error("ftppsp_add_device devname: [%d]%s\n", i, devname);
             device_list[i].valid = 1;
             return 1;
         }

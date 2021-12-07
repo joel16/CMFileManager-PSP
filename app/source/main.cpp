@@ -41,7 +41,7 @@ namespace Services {
 
         // Font size cache
         for (int i = 0; i < 256; i++) {
-            char character[2];
+            char character[2] = {0};
             character[0] = i;
             character[1] = '\0';
             font_size_cache[i] = intraFontMeasureText(font, character);

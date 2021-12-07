@@ -24,7 +24,7 @@ namespace GUI {
             item->entries[item->selected].d_name);
         
         if (!(FIO_S_ISDIR(item->entries[item->selected].d_stat.st_mode))) {
-            char size[16];
+            char size[16] = {0};
             Utils::GetSizeString(size, item->entries[item->selected].d_stat.st_size);
             intraFontPrintf(font, 140, 92, "Size: %s", size);
             intraFontPrintf(font, 140, 110, "Created: %s", FS::GetFileTimestamp(item->entries[item->selected].d_stat, FileCreatedTime));

@@ -21,7 +21,11 @@ namespace FS {
     
     bool FileExists(const std::string &path) {
         SceIoStat stat;
+#ifdef FS_DEBUG
         return sceIoGetstat(path.c_str(), &stat) >= 0;
+#else
+        return pspIoGetstat(path.c_str(), &stat) >= 0;
+#endif
     }
     
     bool DirExists(const std::string &path) {	
@@ -30,8 +34,8 @@ namespace FS {
         if (R_SUCCEEDED(dir = sceIoDopen(path.c_str()))) {
             sceIoDclose(dir);
 #else
-        if (R_SUCCEEDED(dir = pspOpenDir(path.c_str()))) {
-            pspCloseDir(dir);
+        if (R_SUCCEEDED(dir = pspIoOpenDir(path.c_str()))) {
+            pspIoCloseDir(dir);
 #endif
             return true;
         }
@@ -41,9 +45,13 @@ namespace FS {
     
     int MakeDir(const std::string &path) {
         int ret = 0;
-        
+#ifdef FS_DEBUG
         if (R_FAILED(ret = sceIoMkdir(path.c_str(), 0777)))
             return ret;
+#else
+        if (R_FAILED(ret = pspIoMakeDir(path.c_str(), 0777)))
+            return ret;
+#endif
             
         return 0;
     }
@@ -70,11 +78,18 @@ namespace FS {
     
     int CreateFile(const std::string &path) {
         SceUID file = 0;
-        
+
+#ifdef FS_DEBUG
         if (R_SUCCEEDED(file = sceIoOpen(path.c_str(), PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777))) {
             sceIoClose(file);
             return 0;
         }
+#else
+        if (R_SUCCEEDED(file = pspIoOpenFile(path.c_str(), PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777))) {
+            pspIoCloseFile(file);
+            return 0;
+        }
+#endif
         
         return file;
     }
@@ -111,8 +126,13 @@ namespace FS {
         SceIoStat stat;
         std::memset(&stat, 0, sizeof(stat));
         
+#ifdef FS_DEBUG
         if (R_FAILED(ret = sceIoGetstat(path.c_str(), &stat)))
             return ret;
+#else
+        if (R_FAILED(ret = pspIoGetstat(path.c_str(), &stat)))
+            return ret;
+#endif
             
         return stat.st_size;
     }
@@ -153,12 +173,20 @@ namespace FS {
     
     int ReadFile(const std::string &path, void *buf, int size) {
         SceUID file = 0;
-        
+
+#ifdef FS_DEBUG
         if (R_SUCCEEDED(file = sceIoOpen(path.c_str(), PSP_O_RDONLY, 0))) {
             int read = sceIoRead(file, buf, size);
             sceIoClose(file);
             return read;
         }
+#else
+        if (R_SUCCEEDED(file = pspIoOpenFile(path.c_str(), PSP_O_RDONLY, 0))) {
+            int read = pspIoReadFile(file, buf, size);
+            pspIoCloseFile(file);
+            return read;
+        }
+#endif
         
         return file;
     }
@@ -166,11 +194,19 @@ namespace FS {
     int WriteFile(const std::string &path, void *buf, int size) {	
         SceUID file = 0;
         
+#ifdef FS_DEBUG
         if (R_SUCCEEDED(file = sceIoOpen(path.c_str(), PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777))) {
             int written = sceIoWrite(file, buf, size);
             sceIoClose(file);
             return written;
         }
+#else
+        if (R_SUCCEEDED(file = pspIoOpenFile(path.c_str(), PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777))) {
+            int written = pspIoWriteFile(file, buf, size);
+            pspIoCloseFile(file);
+            return written;
+        }
+#endif
         
         return file;
     }
@@ -221,8 +257,8 @@ namespace FS {
             return ret;
         }
 #else
-        if (R_FAILED(ret = dir = pspOpenDir(path.c_str()))) {
-            Log::Error("pspOpenDir(%s) failed: %08x\n", path.c_str(), ret);
+        if (R_FAILED(ret = dir = pspIoOpenDir(path.c_str()))) {
+            Log::Error("pspIoOpenDir(%s) failed: %08x\n", path.c_str(), ret);
             return ret;
         }
 #endif
@@ -233,7 +269,7 @@ namespace FS {
 #ifdef FS_DEBUG
             ret = sceIoDread(dir, &entry);
 #else
-            ret = pspReadDir(dir, &entry);
+            ret = pspIoReadDir(dir, &entry);
 #endif
             if (ret > 0) {
                 if ((std::strcmp(entry.d_name, ".") == 0) || (std::strcmp(entry.d_name, "..") == 0))
@@ -248,7 +284,7 @@ namespace FS {
 #ifdef FS_DEBUG
         sceIoDclose(dir);
 #else
-        pspCloseDir(dir);
+        pspIoCloseDir(dir);
 #endif
         return 0;
     }
@@ -291,27 +327,48 @@ namespace FS {
         int ret = 0;
         SceUID src_handle = 0, dest_handle = 0;
         scePowerLock(0);
-        
+
+#ifdef FS_DEBUG
         if (R_FAILED(ret = src_handle = sceIoOpen(src_path.c_str(), PSP_O_RDONLY, 0))) {
             Log::Error("sceIoOpen(%s) failed: 0x%x\n", src_path.c_str(), ret);
             scePowerUnlock(0);
             return ret;
         }
-        
+#else
+        if (R_FAILED(ret = src_handle = pspIoOpenFile(src_path.c_str(), PSP_O_RDONLY, 0))) {
+            Log::Error("pspIoOpenFile(%s) failed: 0x%x\n", src_path.c_str(), ret);
+            scePowerUnlock(0);
+            return ret;
+        }
+#endif
+
+#ifdef FS_DEBUG
         u64 size = sceIoLseek(src_handle, 0, PSP_SEEK_END);
         sceIoLseek(src_handle, 0, PSP_SEEK_SET);
+#else
+        u64 size = pspIoLseek(src_handle, 0, PSP_SEEK_END);
+        pspIoLseek(src_handle, 0, PSP_SEEK_SET);
+#endif
 
         // Make sure we have enough storage to carry out this operation
         if (Utils::GetFreeStorage() < size) {
             Log::Error("Not enough storage is available to process this command 0x%x\n", src_path.c_str(), ret);
+#ifdef FS_DEBUG
             sceIoClose(src_handle);
+#else
+            pspIoCloseFile(src_handle);
+#endif
             scePowerUnlock(0);
             return -1;
         }
 
         if (R_FAILED(ret = dest_handle = sceIoOpen(dest_path.c_str(), PSP_O_WRONLY | PSP_O_CREAT | PSP_O_APPEND, 0777))) {
             Log::Error("sceIoOpen(%s) failed: 0x%x\n", dest_path.c_str(), ret);
+#ifdef FS_DEBUG
             sceIoClose(src_handle);
+#else
+            pspIoCloseFile(src_handle);
+#endif
             scePowerUnlock(0);
             return ret;
         }
@@ -325,28 +382,53 @@ namespace FS {
         do {
             if (Utils::IsCancelButtonPressed()) {
                 delete[] buf;
+#ifdef FS_DEBUG
                 sceIoClose(src_handle);
                 sceIoClose(dest_handle);
+#else
+                pspIoCloseFile(src_handle);
+                pspIoCloseFile(dest_handle);
+#endif
                 scePowerUnlock(0);
                 return 0;
             }
             
             std::memset(buf, 0, buf_size);
-            
+
+#ifdef FS_DEBUG        
             if (R_FAILED(ret = bytes_read = sceIoRead(src_handle, buf, buf_size))) {
                 Log::Error("sceIoRead(%s) failed: 0x%x\n", src_path.c_str(), ret);
+#else
+            if (R_FAILED(ret = bytes_read = pspIoReadFile(src_handle, buf, buf_size))) {
+                Log::Error("pspIoReadFile(%s) failed: 0x%x\n", src_path.c_str(), ret);
+#endif
                 delete[] buf;
+#ifdef FS_DEBUG
                 sceIoClose(src_handle);
                 sceIoClose(dest_handle);
+#else
+                pspIoCloseFile(src_handle);
+                pspIoCloseFile(dest_handle);
+#endif
                 scePowerUnlock(0);
                 return ret;
             }
 
+#ifdef FS_DEBUG
             if (R_FAILED(ret = bytes_written = sceIoWrite(dest_handle, buf, bytes_read))) {
                 Log::Error("sceIoWrite(%s) failed: 0x%x\n", dest_path.c_str(), ret);
+#else
+            if (R_FAILED(ret = bytes_written = pspIoWriteFile(dest_handle, buf, bytes_read))) {
+                Log::Error("pspIoWriteFile(%s) failed: 0x%x\n", dest_path.c_str(), ret);
+#endif
                 delete[] buf;
+#ifdef FS_DEBUG
                 sceIoClose(src_handle);
                 sceIoClose(dest_handle);
+#else
+                pspIoCloseFile(src_handle);
+                pspIoCloseFile(dest_handle);
+#endif
                 scePowerUnlock(0);
                 return ret;
             }
@@ -356,8 +438,13 @@ namespace FS {
         } while(offset < size);
         
         delete[] buf;
+#ifdef FS_DEBUG
         sceIoClose(src_handle);
         sceIoClose(dest_handle);
+#else
+        pspIoCloseFile(src_handle);
+        pspIoCloseFile(dest_handle);
+#endif
         scePowerUnlock(0);
         return 0;
     }
@@ -372,14 +459,18 @@ namespace FS {
             return ret;
         }
 #else
-        if (R_FAILED(ret = dir = pspOpenDir(src_path.c_str()))) {
-            Log::Error("pspOpenDir(%s) failed: %08x\n", src_path.c_str(), ret);
+        if (R_FAILED(ret = dir = pspIoOpenDir(src_path.c_str()))) {
+            Log::Error("pspIoOpenDir(%s) failed: %08x\n", src_path.c_str(), ret);
             return dir;
         }
 #endif
         
         // This may fail or not, but we don't care -> make the dir if it doesn't exist, otherwise continue.
+#ifdef FS_DEBUG
         sceIoMkdir(dest_path.c_str(), 0777);
+#else
+        pspIoMakeDir(dest_path.c_str(), 0777);
+#endif
         
         do {
             SceIoDirent entry;
@@ -388,7 +479,7 @@ namespace FS {
 #ifdef FS_DEBUG
             ret = sceIoDread(dir, &entry);
 #else
-            ret = pspReadDir(dir, &entry);
+            ret = pspIoReadDir(dir, &entry);
 #endif
             if (ret > 0) {
                 if ((std::strcmp(entry.d_name, ".") == 0) || (std::strcmp(entry.d_name, "..") == 0))
@@ -407,7 +498,7 @@ namespace FS {
 #ifdef FS_DEBUG
         sceIoDclose(dir);
 #else
-        pspCloseDir(dir);
+        pspIoCloseDir(dir);
 #endif
         return 0;
     }
@@ -444,7 +535,7 @@ namespace FS {
     static int sceIoMove(const char *src, const char *dest) {
         int ret = 0;
         size_t i = 0;
-        char strage[32];
+        char strage[32] = {0};
         char *p1 = nullptr, *p2 = nullptr;
         p1 = std::strchr(src, ':');
         
@@ -470,15 +561,22 @@ namespace FS {
         
         strage[i] = '\0';
 
-        u32 data[2];
+        u32 data[2] = {0};
         data[0] = (u32)(p1 + 1);
         data[1] = (u32)(p2 + 1);
         
+#ifdef FS_DEBUG
         if (R_FAILED(ret = sceIoDevctl(strage, 0x02415830, &data, sizeof(data), nullptr, 0))) {
             Log::Error("sceIoDevctl() failed!", ret);
             return ret;
         }
-        
+#else
+        if (R_FAILED(ret = pspIoDevctl(strage, 0x02415830, &data, sizeof(data), nullptr, 0))) {
+            Log::Error("pspIoDevctl() failed!", ret);
+            return ret;
+        }
+#endif
+
         return 0;
     }
 
@@ -503,14 +601,16 @@ namespace FS {
 
 #ifdef FS_DEBUG
         if (R_FAILED(ret = dir = sceIoDopen(path.c_str()))) {
-            Log::Error("sceIoDopen(%s) failed: %08x\n", path.c_str(), ret);
-            scePowerUnlock(0);
-            return ret;
-        }
-#else
-        if (R_FAILED(ret = dir = pspOpenDir(path.c_str()))) {
             if (R_FAILED(ret = sceIoRemove(path.c_str()))) {
                 Log::Error("sceIoRemove(%s) failed: %08x\n", path.c_str(), ret);
+                scePowerUnlock(0);
+                return ret;
+            }
+        }
+#else
+        if (R_FAILED(ret = dir = pspIoOpenDir(path.c_str()))) {
+            if (R_FAILED(ret = pspIoRemoveFile(path.c_str()))) {
+                Log::Error("pspIoRemoveFile(%s) failed: %08x\n", path.c_str(), ret);
                 scePowerUnlock(0);
                 return ret;
             }
@@ -522,7 +622,7 @@ namespace FS {
 #ifdef FS_DEBUG
                 sceIoDclose(dir);
 #else
-                pspCloseDir(dir);
+                pspIoCloseDir(dir);
 #endif
                 scePowerUnlock(0);
                 return 0;
@@ -534,7 +634,7 @@ namespace FS {
 #ifdef FS_DEBUG
             ret = sceIoDread(dir, &entry);
 #else
-            ret = pspReadDir(dir, &entry);
+            ret = pspIoReadDir(dir, &entry);
 #endif
             if (ret > 0) {
                 if ((std::strcmp(entry.d_name, ".") == 0) || (std::strcmp(entry.d_name, "..") == 0))
@@ -549,20 +649,23 @@ namespace FS {
 #ifdef FS_DEBUG
                         sceIoDclose(dir);
 #else
-                        pspCloseDir(dir);
+                        pspIoCloseDir(dir);
 #endif
                         scePowerUnlock(0);
                         return ret;
                     }
                 }
                 else {
+#ifdef FS_DEBUG
                     int result = sceIoRemove(new_path.c_str());
                     if (R_FAILED(result)) {
                         Log::Error("sceIoRemove(%s) failed: %08x\n", path.c_str(), ret);
-#ifdef FS_DEBUG
                         sceIoDclose(dir);
 #else
-                        pspCloseDir(dir);
+                    int result = pspIoRemoveFile(new_path.c_str());
+                    if (R_FAILED(result)) {
+                        Log::Error("pspIoRemoveFile(%s) failed: %08x\n", path.c_str(), ret);
+                        pspIoCloseDir(dir);
 #endif
                         scePowerUnlock(0);
                         return ret;
@@ -574,14 +677,21 @@ namespace FS {
 #ifdef FS_DEBUG
         sceIoDclose(dir);
 #else
-        pspCloseDir(dir);
+        pspIoCloseDir(dir);
 #endif
         scePowerUnlock(0);
 
+#ifdef FS_DEBUG
         if (R_FAILED(ret = sceIoRmdir(path.c_str()))) {
             Log::Error("sceIoRmdir(%s) failed: %08x\n", path.c_str(), ret);
             return ret;
         }
+#else
+        if (R_FAILED(ret = pspIoRemoveDir(path.c_str()))) {
+            Log::Error("pspIoRemoveDir(%s) failed: %08x\n", path.c_str(), ret);
+            return ret;
+        }
+#endif
 
         return 1;
     }
@@ -597,10 +707,17 @@ namespace FS {
             }
         }
         else {
+#ifdef FS_DEBUG
             if (R_FAILED(ret = sceIoRemove(path.c_str()))) {
                 Log::Error("sceIoRemove(%s) failed: 0x%x\n", path.c_str(), ret);
                 return ret;
             }
+#else
+            if (R_FAILED(ret = pspIoRemoveFile(path.c_str()))) {
+                Log::Error("pspIoRemoveFile(%s) failed: 0x%x\n", path.c_str(), ret);
+                return ret;
+            }
+#endif
         }
 
         return 0;

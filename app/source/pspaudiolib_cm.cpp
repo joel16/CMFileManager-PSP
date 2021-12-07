@@ -87,7 +87,7 @@ static int AudioChannelThread(int args, void *argp) {
 int pspAudioInit(int format) {
     int ret = 0;
     bool failed = false;
-    char str[32];
+    char str[32] = {0};
     
     audio_terminate = false;
     audio_ready = false;

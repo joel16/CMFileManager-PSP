@@ -5,6 +5,7 @@
 #include "colours.h"
 #include "g2d.h"
 #include "gui.h"
+#include "kernel_functions.h"
 #include "textures.h"
 #include "utils.h"
 
@@ -65,7 +66,11 @@ namespace Options {
         std::string name = G2D::KeyboardGetText("Enter new name", filename);
         std::string dest_path = FS::BuildPath(cfg.cwd, name);
 
+#ifdef FS_DEBUG
         if (R_SUCCEEDED(sceIoRename(src_path.c_str(), dest_path.c_str()))) {
+#else
+        if (R_SUCCEEDED(pspIoRename(src_path.c_str(), dest_path.c_str()))) {
+#endif
             FS::GetDirList(cfg.cwd, item->entries);
             Options::ResetSelector();
             options_more = false;

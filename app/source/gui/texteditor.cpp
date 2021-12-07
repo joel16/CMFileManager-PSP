@@ -13,7 +13,7 @@
 #include "textures.h"
 #include "utils.h"
 
-char font_size_cache[256];
+char font_size_cache[256] = {0};
 
 /*
     This is a back-port of VITAShell's text editor by TheOfficialFloW.
@@ -50,7 +50,7 @@ namespace TextViewer {
         struct TextListEntry *previous;
         int line_number;
         int selected;
-        char line[MAX_LINE_CHARACTERS];
+        char line[MAX_LINE_CHARACTERS] = {0};
     } TextListEntry;
     
     typedef struct {
@@ -60,7 +60,7 @@ namespace TextViewer {
     } TextList;
     
     typedef struct CopyEntry {
-        char line[MAX_LINE_CHARACTERS];
+        char line[MAX_LINE_CHARACTERS] = {0};
     } CopyEntry;
     
     typedef struct TextEditorState {
@@ -69,13 +69,13 @@ namespace TextViewer {
         int size;
         int base_pos;
         int rel_pos;
-        int offset_list[MAX_LINES];
-        int selection_list[MAX_SELECTION];
+        int offset_list[MAX_LINES] = {0};
+        int selection_list[MAX_SELECTION] = {0};
         int n_selections;
         int n_copied_lines;
         int copy_reset;
         int modify_allowed;
-        CopyEntry copy_buffer[MAX_COPY_BUFFER_SIZE];
+        CopyEntry copy_buffer[MAX_COPY_BUFFER_SIZE] = {0};
         TextList list;
         int changed;
         int edit_line;
@@ -216,7 +216,7 @@ namespace TextViewer {
     static void DeleteLine(TextEditorState *state, int line_number) {
         // Get current line
         int line_start = state->offset_list[line_number];
-        char line[MAX_LINE_CHARACTERS];
+        char line[MAX_LINE_CHARACTERS] = {0};
         int length = TextViewer::ReadLine(state->buffer, line_start, state->size, line);
         
         // Remove line
@@ -483,7 +483,7 @@ namespace TextViewer {
                     if (s->edit_line <= 0 && Utils::IsButtonPressed(PSP_CTRL_ENTER)) {
                         int line_start = s->offset_list[s->base_pos + s->rel_pos];
                         
-                        char line[MAX_LINE_CHARACTERS];
+                        char line[MAX_LINE_CHARACTERS] = {0};
                         TextViewer::ReadLine(s->buffer, line_start, s->size, line);
                         
                         new_line = G2D::KeyboardGetText("Text editor", line);
@@ -513,7 +513,7 @@ namespace TextViewer {
                 if (!new_line.empty()) {
                     int line_start = s->offset_list[s->edit_line];
                     
-                    char line[MAX_LINE_CHARACTERS];
+                    char line[MAX_LINE_CHARACTERS] = {0};
                     int length = TextViewer::ReadLine(s->buffer, line_start, s->size, line);
                     
                     // Don't count newline
@@ -564,7 +564,7 @@ namespace TextViewer {
                 char *line = entry->line;
                 
                 if (entry->line_number < s->n_lines) {
-                    char line_str[5];
+                    char line_str[5] = {0};
                     snprintf(line_str, 5, "%04i", entry->line_number);
                     G2D::FontSetStyle(font, 1.f, (s->rel_pos == i)? TITLE_COLOUR : TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
                     G2D::DrawText(SHELL_MARGIN_X, START_Y + (i * FONT_Y_SPACE), line_str);

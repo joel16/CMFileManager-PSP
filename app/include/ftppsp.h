@@ -31,34 +31,34 @@ typedef enum {
 
 typedef struct ftppsp_client_info {
     /* Client number */
-    int num;
+    int num = 0;
     /* Thread UID */
-    SceUID thid;
+    SceUID thid = 0;
     /* Control connection socket FD */
-    int ctrl_sockfd;
+    int ctrl_sockfd = 0;
     /* Data connection attributes */
-    int data_sockfd;
-    DataConnectionType data_con_type;
+    int data_sockfd = 0;
+    DataConnectionType data_con_type = FTP_DATA_CONNECTION_NONE;
     struct sockaddr_in data_sockaddr;
     /* PASV mode client socket */
     struct sockaddr_in pasv_sockaddr;
-    int pasv_sockfd;
+    int pasv_sockfd = 0;
     /* Remote client net info */
     struct sockaddr_in addr;
     /* Receive buffer attributes */
-    int n_recv;
-    char recv_buffer[1024];
+    int n_recv = 0;
+    char recv_buffer[1024] = {0};
     /* Points to the character after the first space */
-    const char *recv_cmd_args;
+    const char *recv_cmd_args = nullptr;
     /* Current working directory */
-    char cur_path[1024];
+    char cur_path[1024] = {0};
     /* Rename path */
-    char rename_path[1024];
+    char rename_path[1024] = {0};
     /* Client list */
     struct ftppsp_client_info *next;
     struct ftppsp_client_info *prev;
     /* Offset for transfer resume */
-    unsigned int restore_point;
+    unsigned int restore_point = 0;
 } ftppsp_client_info_t;
 
 typedef void (*cmd_dispatch_func)(ftppsp_client_info_t *client); // Command handler
