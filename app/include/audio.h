@@ -8,7 +8,7 @@
 extern bool playing, paused;
 
 typedef struct {
-    bool has_meta;
+    bool has_meta = false;
     std::string title;
     std::string album;
     std::string artist;

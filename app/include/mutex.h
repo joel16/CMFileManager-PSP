@@ -9,9 +9,9 @@
 extern "C" {
 #endif
 
-int sceKernelCreateMutex(const char *name, uint attributes, int initial_count, void* options);
+int sceKernelCreateMutex(const char *name, uint attributes, int initial_count, void *options);
 int sceKernelDeleteMutex(int mutexId);
-int sceKernelLockMutex(int mutexId, int count, uint* timeout);
+int sceKernelLockMutex(int mutexId, int count, uint *timeout);
 int sceKernelTryLockMutex(int mutexId, int count);
 int sceKernelUnlockMutex(int mutexId, int count);
 
