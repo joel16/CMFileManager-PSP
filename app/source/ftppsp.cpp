@@ -17,7 +17,6 @@
 #include "fs.h"
 #include "ftppsp.h"
 #include "kernel_functions.h"
-#include "log.h"
 #include "mutex.h"
 
 #define UNUSED(x) (void)(x)
@@ -37,7 +36,7 @@ typedef struct {
 
 static struct {
     char name[512] = {0};
-    int valid = 0;
+    int valid = -1;
 } device_list[MAX_DEVICES];
 
 static struct {
@@ -73,9 +72,9 @@ static void log_func(ftppsp_log_cb_t log_cb, const char *s, ...) {
 #define INFO(...) log_func(info_log_cb, __VA_ARGS__)
 #define DEBUG(...) log_func(debug_log_cb, __VA_ARGS__)
 
-static int client_send_ctrl_msg(ftppsp_client_info_t *cl, const char *str) {
-    std::printf(str);
-    return sceNetInetSend(cl->ctrl_sockfd, str, std::strlen(str), 0);
+static int client_send_ctrl_msg(ftppsp_client_info_t *cl, const std::string &str) {
+    std::printf(str.c_str());
+    return sceNetInetSend(cl->ctrl_sockfd, str.c_str(), str.length(), 0);
 }
 
 // Missing prototypes in the PSPSDK
@@ -99,11 +98,11 @@ static inline u16 SCE_HTONS(u16 hostshort) {
     return sceAllegrexWsbh(hostshort);
 }
 
-static inline void client_send_data_msg(ftppsp_client_info_t *client, const char *str) {
+static inline void client_send_data_msg(ftppsp_client_info_t *client, const std::string &str) {
     if (client->data_con_type == FTP_DATA_CONNECTION_ACTIVE)
-        sceNetInetSend(client->data_sockfd, str, std::strlen(str), 0);
+        sceNetInetSend(client->data_sockfd, str.c_str(), str.length(), 0);
     else
-        sceNetInetSend(client->pasv_sockfd, str, std::strlen(str), 0);
+        sceNetInetSend(client->pasv_sockfd, str.c_str(), str.length(), 0);
 }
 
 static inline int client_recv_data_raw(ftppsp_client_info_t *client, void *buf, unsigned int len) {
@@ -167,7 +166,7 @@ static void cmd_PASV_func(ftppsp_client_info_t *client) {
     client->data_sockaddr.sin_port = SCE_HTONS(0);
     
     /* Bind the data socket address to the data socket */
-    ret = sceNetInetBind(client->data_sockfd, (struct sockaddr *)&client->data_sockaddr, sizeof(client->data_sockaddr));
+    ret = sceNetInetBind(client->data_sockfd, reinterpret_cast<struct sockaddr *>(&client->data_sockaddr), sizeof(client->data_sockaddr));
     DEBUG("sceNetInetBind(): 0x%08X\n", ret);
     
     /* Start listening */
@@ -176,7 +175,7 @@ static void cmd_PASV_func(ftppsp_client_info_t *client) {
     
     /* Get the port that the PSP has chosen */
     namelen = sizeof(picked);
-    sceNetInetGetsockname(client->data_sockfd, (struct sockaddr *)&picked, &namelen);
+    sceNetInetGetsockname(client->data_sockfd, reinterpret_cast<struct sockaddr *>(&picked), &namelen);
     
     DEBUG("PASV mode port: 0x%04X\n", picked.sin_port);
     
@@ -238,14 +237,14 @@ static void client_open_data_connection(ftppsp_client_info_t *client) {
     socklen_t addrlen;
     if (client->data_con_type == FTP_DATA_CONNECTION_ACTIVE) {
         /* Connect to the client using the data socket */
-        ret = sceNetInetConnect(client->data_sockfd, (struct sockaddr *)&client->data_sockaddr, sizeof(client->data_sockaddr));
+        ret = sceNetInetConnect(client->data_sockfd, reinterpret_cast<struct sockaddr *>(&client->data_sockaddr), sizeof(client->data_sockaddr));
         
         DEBUG("sceNetInetConnect(): 0x%08X\n", ret);
     }
     else {
         /* Listen to the client using the data socket */
         addrlen = sizeof(client->pasv_sockaddr);
-        client->pasv_sockfd = sceNetInetAccept(client->data_sockfd, (struct sockaddr *)&client->pasv_sockaddr, &addrlen);
+        client->pasv_sockfd = sceNetInetAccept(client->data_sockfd, reinterpret_cast<struct sockaddr *>(&client->pasv_sockaddr), &addrlen);
         DEBUG("PASV client fd: 0x%08X\n", client->pasv_sockfd);
     }
 }
@@ -273,8 +272,8 @@ static int gen_list_format(char *out, int n, int dir, const SceIoStat *stat, con
     else
         snprintf(yt, 11, "%04d", stat->st_mtime.year);
         
-    return snprintf(out, n, "%c%s 1 psp psp %u %s %-2d %s %s\r\n", dir ? 'd' : '-', dir ? "rwxr-xr-x" : "rw-r--r--",
-        (unsigned int) stat->st_size, num_to_month[stat->st_mtime.month<=0?0:(stat->st_mtime.month-1)%12], stat->st_mtime.day,
+    return snprintf(out, n, "%c%s 1 psp psp %llu %s %-2d %s %s\r\n", dir ? 'd' : '-', dir ? "rwxr-xr-x" : "rw-r--r--",
+        stat->st_size, num_to_month[stat->st_mtime.month<=0?0:(stat->st_mtime.month-1)%12], stat->st_mtime.day,
         yt, filename);
 }
 
@@ -311,7 +310,6 @@ static void send_LIST(ftppsp_client_info_t *client, const char *path) {
         for (int i = 0; i < MAX_DEVICES; i++) {
             if (device_list[i].valid) {
                 devname = device_list[i].name;
-                Log::Error("send_devices devname: [%d]%s\n", i, devname);
                 gen_list_format(buffer, sizeof(buffer), 1, &stat, devname);
                 client_send_data_msg(client, buffer);
             }
@@ -961,7 +959,7 @@ static int server_thread(SceSize args, void *argp) {
     serveraddr.sin_port = SCE_HTONS(FTP_PORT);
     
     /* Bind the server's address to the socket */
-    ret = sceNetInetBind(server_sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
+    ret = sceNetInetBind(server_sockfd, reinterpret_cast<struct sockaddr *>(&serveraddr), sizeof(serveraddr));
     DEBUG("sceNetInetBind(): 0x%08X\n", ret);
     
     /* Start listening */
@@ -976,7 +974,7 @@ static int server_thread(SceSize args, void *argp) {
         
         DEBUG("Waiting for incoming connections...\n");
         
-        client_sockfd = sceNetInetAccept(server_sockfd, (struct sockaddr *)&clientaddr, &addrlen);
+        client_sockfd = sceNetInetAccept(server_sockfd, reinterpret_cast<struct sockaddr *>(&clientaddr), &addrlen);
         if (client_sockfd >= 0) {
             DEBUG("New connection, client fd: 0x%08X\n", client_sockfd);
             
@@ -1100,8 +1098,6 @@ int ftppsp_add_device(const char *devname) {
     for (int i = 0; i < MAX_DEVICES; i++) {
         if (!device_list[i].valid) {
             std::strcpy(device_list[i].name, devname);
-            Log::Error("ftppsp_add_device device_list.name: [%d]%s\n", i, device_list[i].name);
-            Log::Error("ftppsp_add_device devname: [%d]%s\n", i, devname);
             device_list[i].valid = 1;
             return 1;
         }
