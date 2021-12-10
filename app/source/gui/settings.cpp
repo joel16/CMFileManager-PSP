@@ -19,11 +19,9 @@
 #include "utils.h"
 
 namespace FTP {
-    static bool running = 1;
-    
     static int DisplayNetDialog(void) {
-        running = 1;
-        bool done = 0;
+        int ret = 0;
+        bool done = false;
         
         pspUtilityNetconfData data;
         std::memset(&data, 0, sizeof(data));
@@ -41,39 +39,45 @@ namespace FTP {
         std::memset(&adhocparam, 0, sizeof(adhocparam));
         
         data.adhocparam = &adhocparam;
-        sceUtilityNetconfInitStart(&data);
+        if (R_FAILED(ret = sceUtilityNetconfInitStart(&data))) {
+            Log::Error("sceUtilityNetconfInitStart() failed: 0x%08x\n", ret);
+            return ret;
+        }
         
-        while(running) {
-            g2dClear(BLACK_BG);
-            g2dFlip(G2D_VSYNC);
+        while(!done) {
+            g2dClear(G2D_RGBA(39, 50, 56, 255));
+            sceGuFinish();
+            sceGuSync(0, 0);
             
             switch(sceUtilityNetconfGetStatus()) {
-                case PSP_UTILITY_DIALOG_NONE:
-                    running = 1;
+                case PSP_UTILITY_DIALOG_INIT:
                     break;
                     
                 case PSP_UTILITY_DIALOG_VISIBLE:
-                    sceUtilityNetconfUpdate(1);
-                    running = 1;
+                    if (R_FAILED(ret = sceUtilityNetconfUpdate(1))) {
+                        Log::Error("sceUtilityNetconfUpdate(1) failed: 0x%08x\n", ret);
+                        done = true;
+                    }
                     break;
                 
                 case PSP_UTILITY_DIALOG_QUIT:
-                    sceUtilityNetconfShutdownStart();
-                    //running = 0;
+                    if (R_FAILED(ret = sceUtilityNetconfShutdownStart())) {
+                        Log::Error("sceUtilityNetconfShutdownStart() failed: 0x%08x\n", ret);
+                        done = true;
+                    }
                     break;
                     
                 case PSP_UTILITY_DIALOG_FINISHED:
-                    done = 1;
                     break;
+                    
+                case PSP_UTILITY_DIALOG_NONE:
+                    done = true;
                     
                 default:
                     break;
             }
-            
-            if (done) {
-                running = true;
-                break;
-            }
+
+            g2dFlip(G2D_VSYNC);
         }
         
         return 1;
@@ -82,14 +86,20 @@ namespace FTP {
     static int InitNet(void) {
         int ret = 0;
         
-        if (R_FAILED(ret = sceNetInit(128 * 1024, 42, 4 * 1024, 42, 4 * 1024)))
+        if (R_FAILED(ret = sceNetInit(128 * 1024, 42, 4 * 1024, 42, 4 * 1024))) {
+            Log::Error("sceNetInit() failed: 0x%08x\n", ret);
             return ret;
+        }
             
-        if (R_FAILED(ret = sceNetInetInit()))
+        if (R_FAILED(ret = sceNetInetInit())) {
+            Log::Error("sceNetInetInit() failed: 0x%08x\n", ret);
             return ret;
+        }
             
-        if (R_FAILED(ret = sceNetApctlInit(0x8000, 48)))
+        if (R_FAILED(ret = sceNetApctlInit(0x8000, 48))) {
+            Log::Error("sceNetApctlInit() failed: 0x%08x\n", ret);
             return ret;
+        }
             
         return 0;
     }
