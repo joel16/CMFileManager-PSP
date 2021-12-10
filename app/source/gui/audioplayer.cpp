@@ -100,7 +100,7 @@ namespace AudioPlayer {
             g2dFlip(G2D_VSYNC);
             Utils::ReadControls();
             
-            if (Utils::IsButtonPressed(PSP_CTRL_START)) {
+            if (Utils::IsButtonPressed(PSP_CTRL_SELECT)) {
                 screen_disabled = !screen_disabled;
                 
                 if (screen_disabled)
