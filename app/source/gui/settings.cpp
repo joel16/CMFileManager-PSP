@@ -3,6 +3,7 @@
 #include "fs.h"
 #include "g2d.h"
 #include "gui.h"
+#include "kernel_functions.h"
 #include "net.h"
 #include "textures.h"
 #include "utils.h"
@@ -19,6 +20,7 @@ namespace GUI {
     static int selection = 0;
     static const int sel_dist = 44;
     static char ftp_text[48];
+    static bool screen_disabled = false;
 
     static void DisplayFTPSettings(void) {
         G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
@@ -39,6 +41,18 @@ namespace GUI {
         if (Utils::IsButtonPressed(PSP_CTRL_CANCEL)) {
             Net::ExitFTP();
             settings_state = GENERAL_SETTINGS;
+            
+            if (screen_disabled)
+                pspDisplayEnable();
+        }
+
+        if (Utils::IsButtonPressed(PSP_CTRL_SELECT)) {
+            screen_disabled = !screen_disabled;
+
+            if (screen_disabled)
+                pspDisplayDisable();
+            else
+                pspDisplayEnable();
         }
 
         Utils::SetBounds(selection, 0, 0);
