@@ -30,7 +30,7 @@ namespace CSO {
 
     constexpr SceOff SECTOR_SIZE = 0x800;
 
-    int Inflate(char *o_buff, int o_size, const char *i_buff, int i_size) {
+    int Inflate(char *o_buff, int o_size, char *i_buff, int i_size) {
         z_stream z;
         int size = 0;
         
@@ -43,9 +43,9 @@ namespace CSO {
         if (inflateInit2(&z, -15) != Z_OK)
             return -1;
             
-        z.next_in = (u8 *)i_buff;
+        z.next_in = reinterpret_cast<u8 *>(i_buff);
         z.avail_in = i_size;
-        z.next_out = (u8 *)o_buff;
+        z.next_out = reinterpret_cast<u8 *>(o_buff);
         z.avail_out = o_size;
         
         inflate(&z, Z_FINISH);

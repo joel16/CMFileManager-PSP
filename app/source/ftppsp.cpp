@@ -42,7 +42,7 @@ static struct {
 static struct {
     const char *cmd = nullptr;
     cmd_dispatch_func func;
-    int valid = 0;
+    int valid = -1;
 } custom_command_dispatchers[MAX_CUSTOM_COMMANDS];
 
 static void *net_memory = nullptr;
@@ -871,7 +871,7 @@ static void client_list_thread_end(void) {
 static int client_thread(SceSize args, void *argp) {
     char cmd[16] = {0};
     cmd_dispatch_func dispatch_func;
-    ftppsp_client_info_t *client = *(ftppsp_client_info_t **)argp;
+    ftppsp_client_info_t *client = *reinterpret_cast<ftppsp_client_info_t **>(argp);
     
     DEBUG("Client thread %i started!\n", client->num);
     
