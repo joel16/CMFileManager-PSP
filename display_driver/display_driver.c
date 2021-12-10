@@ -50,7 +50,12 @@ int pspDisplayDisable(void) {
 
 int module_start(SceSize args, void *argp) {
     int unk = 0;
-    sceDisplayGetBrightness(&old_brightness_level, &unk);
+    
+    if (sceKernelDevkitVersion() < 0x03070110)
+        sceDisplayGetBrightness(&old_brightness_level, &unk);
+    else
+        sceDisplayGetBrightness371(&old_brightness_level, &unk);
+    
     return 0;
 }
 
