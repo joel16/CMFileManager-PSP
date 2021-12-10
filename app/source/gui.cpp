@@ -2,8 +2,8 @@
 #include <sys/time.h>
 #include <psprtc.h>
 
-#include "config.h"
 #include "colours.h"
+#include "config.h"
 #include "fs.h"
 #include "g2d.h"
 #include "gui.h"

@@ -16,8 +16,10 @@
 
 #include "fs.h"
 #include "ftppsp.h"
+#include "log.h"
 #include "kernel_functions.h"
 #include "mutex.h"
+#include "utils.h"
 
 #define UNUSED(x) (void)(x)
 
@@ -296,7 +298,8 @@ static void send_LIST(ftppsp_client_info_t *client, const char *path) {
 #else
         dir = pspIoOpenDir(get_psp_path(path));
 #endif
-        if (dir < 0) {
+        if (R_FAILED(dir)) {
+            Log::Error("sceIoDopen() failed: 0x%08x\n", dir);
             client_send_ctrl_msg(client, "550 Invalid directory.\r\n");
             return;
         }
@@ -427,7 +430,8 @@ static void cmd_CWD_func(ftppsp_client_info_t *client) {
                 pd = pspIoOpenDir(get_psp_path(tmp_path));
 #endif
 
-                if (pd < 0) {
+                if (R_FAILED(pd)) {
+                    Log::Error("sceIoDopen() failed: 0x%08x\n", pd);
                     client_send_ctrl_msg(client, "550 Invalid directory.\r\n");
                     return;
                 }
@@ -686,6 +690,7 @@ static void cmd_RNFR_func(ftppsp_client_info_t *client) {
 }
 
 static void cmd_RNTO_func(ftppsp_client_info_t *client) {
+    int ret = 0;
     char path_dst[512] = {0};
     const char *psp_path_dst;
     
@@ -696,16 +701,20 @@ static void cmd_RNTO_func(ftppsp_client_info_t *client) {
     DEBUG("Renaming: %s to %s\n", client->rename_path, psp_path_dst);
     
 #ifdef FS_DEBUG
-    if (sceIoRename(client->rename_path, psp_path_dst) < 0)
+    if (R_FAILED(ret = sceIoRename(client->rename_path, psp_path_dst))) {
+        Log::Error("sceIoRename() failed: 0x%08x\n", ret);
 #else
-    if (pspIoRename(client->rename_path, psp_path_dst) < 0)
+    if (R_FAILED(ret = pspIoRename(client->rename_path, psp_path_dst))) {
+        Log::Error("pspIoRename() failed: 0x%08x\n", ret);
 #endif
         client_send_ctrl_msg(client, "550 Error renaming the file.\r\n");
+    }
         
     client_send_ctrl_msg(client, "226 Rename completed.\r\n");
 }
 
 static void cmd_SIZE_func(ftppsp_client_info_t *client) {
+    int ret = 0;
     SceIoStat stat;
     char path[512] = {0};
     char cmd[64] = {0};
@@ -714,9 +723,11 @@ static void cmd_SIZE_func(ftppsp_client_info_t *client) {
     
     /* Check if the file exists */
 #ifdef FS_DEBUG
-    if (sceIoGetstat(get_psp_path(path), &stat) < 0) {
+    if (R_FAILED(ret = sceIoGetstat(get_psp_path(path), &stat))) {
+        Log::Error("sceIoGetStat() failed: 0x%08x\n", ret);
 #else
-    if (pspIoGetstat(get_psp_path(path), &stat) < 0) {
+    if (R_FAILED(ret = pspIoGetstat(get_psp_path(path), &stat))) {
+        Log::Error("pspIoGetStat() failed: 0x%08x\n", ret);
 #endif
         client_send_ctrl_msg(client, "550 The file doesn't exist.\r\n");
         return;
@@ -1023,23 +1034,28 @@ static int server_thread(SceSize args, void *argp) {
 }
 
 int ftppsp_init(char *psp_ip, unsigned short int *psp_port) {
+    int ret = 0;
     if (ftp_initialized)
         return -1;
     
     union SceNetApctlInfo info;
-    if (sceNetApctlGetInfo(8, &info) < 0)
-        return -1;
+    if (R_FAILED(ret = sceNetApctlGetInfo(8, &info))) {
+        Log::Error("sceNetApctlGetInfo() failed: 0x%08x\n", ret);
+        return ret;
+    }
     else
         std::strcpy(psp_ip, info.ip);
         
     *psp_port = FTP_PORT;
     
     /* Save the IP of PSP to a global variable */
-    if (sceNetInetInetPton(AF_INET, info.ip, &psp_addr) < 0)
-        return -1;
+    if (R_FAILED(ret = sceNetInetInetPton(AF_INET, info.ip, &psp_addr))) {
+        Log::Error("sceNetApctlGetInfo() failed: 0x%08x\n", ret);
+        return ret;
+    }
         
     /* Create server thread */
-    server_thid = sceKernelCreateThread("FTPpsp_server_thread", server_thread, 0x20, 0x6000, PSP_THREAD_ATTR_USBWLAN, nullptr);
+    server_thid = sceKernelCreateThread("ftppsp_server_thread", server_thread, 0x20, 0x6000, PSP_THREAD_ATTR_USBWLAN, nullptr);
     DEBUG("Server thread UID: 0x%08X\n", server_thid);
     
     /* Create the client list mutex */
@@ -1054,7 +1070,11 @@ int ftppsp_init(char *psp_ip, unsigned short int *psp_port) {
         custom_command_dispatchers[i].valid = 0;
         
     /* Start the server thread */
-    sceKernelStartThread(server_thid, 0, nullptr);
+    if (R_FAILED(ret = sceKernelStartThread(server_thid, 0, nullptr))) {
+        Log::Error("sceKernelStartThread(server_thid) failed: 0x%08x\n", ret);
+        return ret;
+    }
+
     ftp_initialized = 1;
     return 0;
 }

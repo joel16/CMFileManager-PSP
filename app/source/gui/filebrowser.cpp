@@ -3,9 +3,9 @@
 
 #include "archive_helper.h"
 #include "audioplayer.h"
+#include "colours.h"
 #include "config.h"
 #include "fs.h"
-#include "colours.h"
 #include "g2d.h"
 #include "game_launcher.h"
 #include "gui.h"

@@ -4,8 +4,8 @@
 #include <pspiofilemgr.h>
 #include <pspthreadman.h>
 
-#include "config.h"
 #include "colours.h"
+#include "config.h"
 #include "fs.h"
 #include "g2d.h"
 #include "gui.h"

@@ -1,6 +1,6 @@
+#include "colours.h"
 #include "config.h"
 #include "fs.h"
-#include "colours.h"
 #include "g2d.h"
 #include "gui.h"
 #include "log.h"
