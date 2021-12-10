@@ -256,7 +256,7 @@ namespace Textures {
         unsigned char *data = new unsigned char[size];
 
         if (R_FAILED(ret = FS::ReadFile(path, data, size))) {
-            Log::Error("LoadImage FS::ReadFile failed %08x\n", ret);
+            Log::Error("LoadImage FS::ReadFile failed 0x%08x\n", ret);
             delete[] data;
             return nullptr;
         }

@@ -80,7 +80,7 @@ namespace FTP {
             g2dFlip(G2D_VSYNC);
         }
         
-        return 1;
+        return 0;
     }
     
     static int InitNet(void) {

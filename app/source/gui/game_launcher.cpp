@@ -143,7 +143,7 @@ namespace CSO {
         SceUID file = 0;
 
         if (R_FAILED(file = sceIoOpen(path.c_str(), PSP_O_RDONLY, 0))) {
-            Log::Error("CSO::Read sceIoOpen(%s) failed: %08x\n", path.c_str(), file);
+            Log::Error("CSO::Read sceIoOpen(%s) failed: 0x%08x\n", path.c_str(), file);
             return file;
         }
             
@@ -160,7 +160,7 @@ namespace ISO {
         SceUID file = 0;
 
         if (R_FAILED(file = sceIoOpen(path.c_str(), PSP_O_RDONLY, 0))) {
-            Log::Error("ISO::Read sceIoOpen(%s) failed: %08x\n", path.c_str(), file);
+            Log::Error("ISO::Read sceIoOpen(%s) failed: 0x%08x\n", path.c_str(), file);
             return file;
         }
             
@@ -402,14 +402,14 @@ namespace GameLauncher {
         
         // Read the SFO header
         if (R_FAILED(ret = sceIoRead(file, sfo_data, sizeof(SFO)))) {
-            Log::Error("GameLauncher::ReadSFOTitle sceIoRead sfo header failed: %08x\n", ret);
+            Log::Error("GameLauncher::ReadSFOTitle sceIoRead sfo header failed: 0x%08x\n", ret);
             return ret;
         }
         
         // Allocate memory to read the SFO block
         u8 *sfo_block = buffer + size;
         if (R_FAILED(ret = sceIoRead(file, sfo_block, size))) {
-            Log::Error("GameLauncher::ReadSFOTitle sceIoRead sfo block failed: %08x\n", ret);
+            Log::Error("GameLauncher::ReadSFOTitle sceIoRead sfo block failed: 0x%08x\n", ret);
             return ret;
         }
         
@@ -455,7 +455,7 @@ namespace GameLauncher {
         PBPHeader pbp_data = { { 0 } };
         
         if (R_FAILED(ret = file = sceIoOpen(path.c_str(), PSP_O_RDONLY, 0777))) {
-            Log::Error("GameLauncher::GetEbootMeta sceIoOpen(%s) failed: %08x\n", path.c_str(), ret);
+            Log::Error("GameLauncher::GetEbootMeta sceIoOpen(%s) failed: 0x%08x\n", path.c_str(), ret);
             return ret;
         }
             
@@ -475,7 +475,7 @@ namespace GameLauncher {
         if (meta->icon0_size) {
             meta->icon0_data = new u8[meta->icon0_size];
             if (R_FAILED(ret = sceIoRead(file, meta->icon0_data, meta->icon0_size))) {
-                Log::Error("GameLauncher::GetEbootMeta icon0 sceIoRead(%s) failed: %08x\n", path.c_str(), ret);
+                Log::Error("GameLauncher::GetEbootMeta icon0 sceIoRead(%s) failed: 0x%08x\n", path.c_str(), ret);
                 return ret;
             }
         }
@@ -486,7 +486,7 @@ namespace GameLauncher {
         if (meta->icon1_size) {
             meta->icon1_data = new u8[meta->icon1_size];
             if (R_FAILED(ret = sceIoRead(file, meta->icon1_data, meta->icon1_size))) {
-                Log::Error("GameLauncher::GetEbootMeta icon1 sceIoRead(%s) failed: %08x\n", path.c_str(), ret);
+                Log::Error("GameLauncher::GetEbootMeta icon1 sceIoRead(%s) failed: 0x%08x\n", path.c_str(), ret);
                 return ret;
             }
         }
@@ -497,7 +497,7 @@ namespace GameLauncher {
         if (meta->pic0_size) {
             meta->pic0_data = new u8[meta->pic0_size];
             if (R_FAILED(ret = sceIoRead(file, meta->pic0_data, meta->pic0_size))) {
-                Log::Error("GameLauncher::GetEbootMeta pic0 sceIoRead(%s) failed: %08x\n", path.c_str(), ret);
+                Log::Error("GameLauncher::GetEbootMeta pic0 sceIoRead(%s) failed: 0x%08x\n", path.c_str(), ret);
                 return ret;
             }
         }
@@ -508,7 +508,7 @@ namespace GameLauncher {
         if (meta->pic1_size) {
             meta->pic1_data = new u8[meta->pic1_size];
             if (R_FAILED(ret = sceIoRead(file, meta->pic1_data, meta->pic1_size))) {
-                Log::Error("GameLauncher::GetEbootMeta pic1 sceIoRead(%s) failed: %08x\n", path.c_str(), ret);
+                Log::Error("GameLauncher::GetEbootMeta pic1 sceIoRead(%s) failed: 0x%08x\n", path.c_str(), ret);
                 return ret;
             }
         }
@@ -519,7 +519,7 @@ namespace GameLauncher {
         if (meta->snd0_size) {
             meta->snd0_data = new u8[meta->snd0_size];
             if (R_FAILED(ret = sceIoRead(file, meta->snd0_data, meta->snd0_size))) {
-                Log::Error("GameLauncher::GetEbootMeta snd0 sceIoRead(%s) failed: %08x\n", path.c_str(), ret);
+                Log::Error("GameLauncher::GetEbootMeta snd0 sceIoRead(%s) failed: 0x%08x\n", path.c_str(), ret);
                 return ret;
             }
         }
@@ -545,7 +545,7 @@ namespace GameLauncher {
         SceIoStat stat;
         
         if (R_FAILED(ret = sceIoGetstat(path.c_str(), &stat))) {
-            Log::Error("DisplayLauncher sceIoGetstat(%s) failed: %08x\n", path.c_str(), ret);
+            Log::Error("DisplayLauncher sceIoGetstat(%s) failed: 0x%08x\n", path.c_str(), ret);
             return ret;
         }
 

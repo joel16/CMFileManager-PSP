@@ -253,12 +253,12 @@ namespace FS {
 
 #ifdef FS_DEBUG
         if (R_FAILED(ret = dir = sceIoDopen(path.c_str()))) {
-            Log::Error("sceIoDopen(%s) failed: %08x\n", path.c_str(), ret);
+            Log::Error("sceIoDopen(%s) failed: 0x%08x\n", path.c_str(), ret);
             return ret;
         }
 #else
         if (R_FAILED(ret = dir = pspIoOpenDir(path.c_str()))) {
-            Log::Error("pspIoOpenDir(%s) failed: %08x\n", path.c_str(), ret);
+            Log::Error("pspIoOpenDir(%s) failed: 0x%08x\n", path.c_str(), ret);
             return ret;
         }
 #endif
@@ -455,12 +455,12 @@ namespace FS {
 
 #ifdef FS_DEBUG
         if (R_FAILED(ret = dir = sceIoDopen(src_path.c_str()))) {
-            Log::Error("sceIoDopen(%s) failed: %08x\n", src_path.c_str(), ret);
+            Log::Error("sceIoDopen(%s) failed: 0x%08x\n", src_path.c_str(), ret);
             return ret;
         }
 #else
         if (R_FAILED(ret = dir = pspIoOpenDir(src_path.c_str()))) {
-            Log::Error("pspIoOpenDir(%s) failed: %08x\n", src_path.c_str(), ret);
+            Log::Error("pspIoOpenDir(%s) failed: 0x%08x\n", src_path.c_str(), ret);
             return dir;
         }
 #endif
@@ -602,7 +602,7 @@ namespace FS {
 #ifdef FS_DEBUG
         if (R_FAILED(ret = dir = sceIoDopen(path.c_str()))) {
             if (R_FAILED(ret = sceIoRemove(path.c_str()))) {
-                Log::Error("sceIoRemove(%s) failed: %08x\n", path.c_str(), ret);
+                Log::Error("sceIoRemove(%s) failed: 0x%08x\n", path.c_str(), ret);
                 scePowerUnlock(0);
                 return ret;
             }
@@ -610,7 +610,7 @@ namespace FS {
 #else
         if (R_FAILED(ret = dir = pspIoOpenDir(path.c_str()))) {
             if (R_FAILED(ret = pspIoRemoveFile(path.c_str()))) {
-                Log::Error("pspIoRemoveFile(%s) failed: %08x\n", path.c_str(), ret);
+                Log::Error("pspIoRemoveFile(%s) failed: 0x%08x\n", path.c_str(), ret);
                 scePowerUnlock(0);
                 return ret;
             }
@@ -645,7 +645,7 @@ namespace FS {
                 if (FIO_S_ISDIR(entry.d_stat.st_mode)) {
                     int result = FS::DeleteDirectoryRecursive(new_path);
                     if (result <= 0) {
-                        Log::Error("FS::DeleteDirectoryRecursive(%s) failed: %08x\n", path.c_str(), ret);
+                        Log::Error("FS::DeleteDirectoryRecursive(%s) failed: 0x%08x\n", path.c_str(), ret);
 #ifdef FS_DEBUG
                         sceIoDclose(dir);
 #else
@@ -659,12 +659,12 @@ namespace FS {
 #ifdef FS_DEBUG
                     int result = sceIoRemove(new_path.c_str());
                     if (R_FAILED(result)) {
-                        Log::Error("sceIoRemove(%s) failed: %08x\n", path.c_str(), ret);
+                        Log::Error("sceIoRemove(%s) failed: 0x%08x\n", path.c_str(), ret);
                         sceIoDclose(dir);
 #else
                     int result = pspIoRemoveFile(new_path.c_str());
                     if (R_FAILED(result)) {
-                        Log::Error("pspIoRemoveFile(%s) failed: %08x\n", path.c_str(), ret);
+                        Log::Error("pspIoRemoveFile(%s) failed: 0x%08x\n", path.c_str(), ret);
                         pspIoCloseDir(dir);
 #endif
                         scePowerUnlock(0);
@@ -683,12 +683,12 @@ namespace FS {
 
 #ifdef FS_DEBUG
         if (R_FAILED(ret = sceIoRmdir(path.c_str()))) {
-            Log::Error("sceIoRmdir(%s) failed: %08x\n", path.c_str(), ret);
+            Log::Error("sceIoRmdir(%s) failed: 0x%08x\n", path.c_str(), ret);
             return ret;
         }
 #else
         if (R_FAILED(ret = pspIoRemoveDir(path.c_str()))) {
-            Log::Error("pspIoRemoveDir(%s) failed: %08x\n", path.c_str(), ret);
+            Log::Error("pspIoRemoveDir(%s) failed: 0x%08x\n", path.c_str(), ret);
             return ret;
         }
 #endif

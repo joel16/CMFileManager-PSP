@@ -23,12 +23,12 @@ namespace Services {
 
         int ret = 0;
         if (R_FAILED(ret = Config::Load())) {
-			Log::Error("Config::Load failed: %08x\n", ret);
+			Log::Error("Config::Load failed: 0x%08x\n", ret);
 			return ret;
 		}
 
 		if (R_FAILED(ret = intraFontInit())) {
-			Log::Error("intraFontInit failed: %08x\n", ret);
+			Log::Error("intraFontInit failed: 0x%08x\n", ret);
 			return ret;
 		}
 
