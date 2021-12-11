@@ -212,14 +212,15 @@ namespace GUI {
                     }
                     else if (!is_psp_go) {
                         if (sceUmdCheckMedium() != 0) {
-                            sceUmdActivate(1, "disc0:");
-                            sceUmdWaitDriveStat(UMD_WAITFORINIT);
+                            if (R_FAILED(ret = sceUmdActivate(1, "disc0:")))
+                                Log::Error("sceUmdActivate(disc0) failed: 0x%x\n", ret);
                             
-                            cfg.cwd = "disc0:";
-                            device = BROWSE_STATE_UMD;
+                            if (R_FAILED(ret = sceUmdWaitDriveStat(PSP_UMD_READY)))
+                                Log::Error("sceUmdWaitDriveStat() failed: 0x%x\n", ret);
                         }
-                        else
-                            Log::Error("Cannot read UMD drive!\n");
+                        
+                        cfg.cwd = "disc0:/";
+                        device = BROWSE_STATE_UMD;
                     }
                     break;
             }

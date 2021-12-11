@@ -6,6 +6,7 @@
 #include <pspnet_apctl.h>
 #include <pspnet_inet.h>
 #include <psppower.h>
+#include <pspumd.h>
 #include <psputility.h>
 
 #include "config.h"
@@ -201,6 +202,16 @@ namespace Net {
             ftppsp_add_device("flash1:");
             ftppsp_add_device("flash2:");
             ftppsp_add_device("flash3:");
+            
+            if (sceUmdCheckMedium() != 0) {
+                if (R_FAILED(ret = sceUmdActivate(1, "disc0:")))
+                    Log::Error("sceUmdActivate(disc0) failed: 0x%x\n", ret);
+                
+                if (R_FAILED(ret = sceUmdWaitDriveStat(PSP_UMD_READY)))
+                    Log::Error("sceUmdWaitDriveStat() failed: 0x%x\n", ret);
+
+                ftppsp_add_device("disc0:");
+            }
         }
             
         if (ret < 0) {
@@ -225,11 +236,20 @@ namespace Net {
             ftppsp_del_device("ms0:");
 
         if (cfg.dev_options) {
-            Flash::Init();
+            Flash::Exit();
             ftppsp_del_device("flash0:");
             ftppsp_del_device("flash1:");
             ftppsp_del_device("flash2:");
             ftppsp_del_device("flash3:");
+
+            if (sceUmdCheckMedium() != 0) {
+                int ret = 0;
+
+                if (R_FAILED(ret = sceUmdDeactivate(1, "disc0:")))
+                    Log::Error("sceUmdDeactivate(disc0) failed: 0x%x\n", ret);
+
+                ftppsp_del_device("disc0:");
+            }
         }
         
         ftppsp_fini();
