@@ -351,7 +351,7 @@ static void cmd_LIST_func(ftppsp_client_info_t *client) {
     
     int n = std::sscanf(client->recv_cmd_args, "%[^\r\n\t]", list_path);
     
-    if (n > 0 && FS::FileExists(list_path))
+    if (n > 0 && FS::FileExists(get_psp_path(list_path)))
         list_cur_path = 0;
         
     if (list_cur_path)
@@ -748,8 +748,13 @@ static void cmd_REST_func(ftppsp_client_info_t *client) {
 static void cmd_FEAT_func(ftppsp_client_info_t *client) {
     /*So client would know that we support resume */
     client_send_ctrl_msg(client, "211-extensions\r\n");
-    client_send_ctrl_msg(client, "REST STREAM\r\n");
+    client_send_ctrl_msg(client, " REST STREAM\r\n");
+    client_send_ctrl_msg(client, " UTF8\r\n");
     client_send_ctrl_msg(client, "211 end\r\n");
+}
+
+static void cmd_OPTS_func(ftppsp_client_info_t *client) {
+    client_send_ctrl_msg(client, "501 bad OPTS\r\n");
 }
 
 static void cmd_APPE_func(ftppsp_client_info_t *client) {
@@ -787,6 +792,7 @@ static const cmd_dispatch_entry cmd_dispatch_table[] = {
     add_entry(SIZE),
     add_entry(REST),
     add_entry(FEAT),
+    add_entry(OPTS),
     add_entry(APPE),
     {nullptr, nullptr}
 };
