@@ -4,6 +4,7 @@
 #include <pspreg.h>
 #include <pspusb.h>
 #include <pspusbstor.h>
+#include <psputility_sysparam.h>
 #include <vector>
 
 #include "config.h"
@@ -318,38 +319,67 @@ namespace Utils {
     
     static int GetRegistryValue(const char *dir, const char *name, unsigned int *value) {
         int ret = 0;
-        struct RegParam reg;
-        REGHANDLE h;
+        struct RegParam reg_param;
+        REGHANDLE reg_handle = 0, reg_handle_cat = 0, reg_handle_key = 0;
+        unsigned int type = 0, size = 0;
         
-        std::memset(&reg, 0, sizeof(reg));
-        reg.regtype = 1;
-        reg.namelen = std::strlen("/system");
-        reg.unk2 = 1;
-        reg.unk3 = 1;
-        std::strcpy(reg.name, "/system");
-        
-        if (R_SUCCEEDED(sceRegOpenRegistry(&reg, 2, &h))) {
-            REGHANDLE hd;
-            
-            if (R_SUCCEEDED(sceRegOpenCategory(h, dir, 2, &hd))) {
-                REGHANDLE hk;
-                unsigned int type, size;
-                
-                if (R_SUCCEEDED(sceRegGetKeyInfo(hd, name, &hk, &type, &size))) {
-                    if (!sceRegGetKeyValue(hd, hk, value, 4)) {
-                        ret = 1;
-                        sceRegFlushCategory(hd);
-                    }
-                }
+        std::memset(&reg_param, 0, sizeof(RegParam));
+        reg_param.regtype = 1;
+        reg_param.namelen = std::strlen("/system");
+        reg_param.unk2 = 1;
+        reg_param.unk3 = 1;
+        std::strcpy(reg_param.name, "/system");
 
-                sceRegCloseCategory(hd);
-            }
-
-            sceRegFlushRegistry(h);
-            sceRegCloseRegistry(h);
+        if (R_FAILED(ret = sceRegOpenRegistry(&reg_param, 2, &reg_handle))) {
+            Log::Error("sceRegOpenRegistry() failed: 0x%08x\n", ret);
+            return ret;
         }
-        
-        return ret;
+
+        if (R_FAILED(ret = sceRegOpenCategory(reg_handle, dir, 2, &reg_handle_cat))) {
+            sceRegCloseRegistry(reg_handle);
+            Log::Error("sceRegOpenCategory() failed: 0x%08x\n", ret);
+            return ret;
+        }
+
+        if (R_FAILED(ret = sceRegGetKeyInfo(reg_handle_cat, name, &reg_handle_key, &type, &size))) {
+            sceRegCloseCategory(reg_handle_cat);
+            sceRegCloseRegistry(reg_handle);
+            Log::Error("sceRegGetKeyInfo() failed: 0x%08x\n", ret);
+            return ret;
+        }
+
+        if (R_FAILED(ret = sceRegGetKeyValue(reg_handle_cat, reg_handle_key, value, 4))) {
+            sceRegCloseCategory(reg_handle_cat);
+            sceRegCloseRegistry(reg_handle);
+            Log::Error("sceRegGetKeyValue() failed: 0x%08x\n", ret);
+            return ret;
+        }
+
+        if (R_FAILED(ret = sceRegFlushCategory(reg_handle_cat))) {
+            sceRegCloseCategory(reg_handle_cat);
+            sceRegCloseRegistry(reg_handle);
+            Log::Error("sceRegFlushCategory() failed: 0x%08x\n", ret);
+            return ret;
+        }
+
+        if (R_FAILED(ret = sceRegCloseCategory(reg_handle_cat))) {
+            sceRegCloseRegistry(reg_handle);
+            Log::Error("sceRegCloseCategory() failed: 0x%08x\n", ret);
+            return ret;
+        }
+
+        if (R_FAILED(ret = sceRegFlushRegistry(reg_handle))) {
+            sceRegCloseRegistry(reg_handle);
+            Log::Error("sceRegFlushRegistry() failed: 0x%08x\n", ret);
+            return ret;
+        }
+
+        if (R_FAILED(ret = sceRegCloseRegistry(reg_handle))) {
+            Log::Error("sceRegFlushRegistry() failed: 0x%08x\n", ret);
+            return ret;
+        }
+            
+        return 0;
     }
     
     int ReadControls(void) {
@@ -390,28 +420,45 @@ namespace Utils {
     }
     
     enum PspCtrlButtons GetEnterButton(void) {
-        unsigned int button = 0;
-        
-        if (R_SUCCEEDED(GetRegistryValue("/CONFIG/SYSTEM/XMB", "button_assign", &button))) {
-            if (button == 0)
-                return PSP_CTRL_CIRCLE; // PSP_CTRL_CIRCLE
-            else
-                return PSP_CTRL_CROSS; // PSP_CTRL_CROSS
+        int ret = 0, button = -1;
+
+        if (R_FAILED(ret = sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &button))) {
+            Log::Error("sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN) failed: 0x%08x\n", ret);
+
+            unsigned int reg_button = -1;
+            if (R_SUCCEEDED(Utils::GetRegistryValue("/CONFIG/SYSTEM/XMB", "button_assign", &reg_button))) {
+                if (reg_button == 0)
+                    return PSP_CTRL_CIRCLE;
+                
+                return PSP_CTRL_CROSS;
+            }
         }
-        
+
+        if (button == 0)
+            return PSP_CTRL_CIRCLE;
+            
         return PSP_CTRL_CROSS; // By default return PSP_CTRL_CROSS
     }
     
     // Basically the opposite of GetEnterButton()
     enum PspCtrlButtons GetCancelButton(void) {
-        unsigned int button = 0;
-        if (R_SUCCEEDED(GetRegistryValue("/CONFIG/SYSTEM/XMB", "button_assign", &button))) {
-            if (button == 0)
-                return PSP_CTRL_CROSS; // PSP_CTRL_CROSS
-            else
-                return PSP_CTRL_CIRCLE; // PSP_CTRL_CIRCLE
+        int ret = 0, button = -1;
+
+        if (R_FAILED(ret = sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &button))) {
+            Log::Error("sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN) failed: 0x%08x\n", ret);
+
+            unsigned int reg_button = -1;
+            if (R_SUCCEEDED(Utils::GetRegistryValue("/CONFIG/SYSTEM/XMB", "button_assign", &reg_button))) {
+                if (reg_button == 0)
+                    return PSP_CTRL_CROSS;
+                
+                return PSP_CTRL_CIRCLE;
+            }
         }
-        
+
+        if (button == 0)
+            return PSP_CTRL_CROSS;
+            
         return PSP_CTRL_CIRCLE; // By default return PSP_CTRL_CIRCLE
     }
     
