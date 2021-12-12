@@ -38,13 +38,13 @@ typedef struct {
 
 static struct {
     char name[512] = {0};
-    int valid = -1;
+    int valid = 0;
 } device_list[MAX_DEVICES];
 
 static struct {
     const char *cmd = nullptr;
     cmd_dispatch_func func;
-    int valid = -1;
+    int valid = 0;
 } custom_command_dispatchers[MAX_CUSTOM_COMMANDS];
 
 static void *net_memory = nullptr;
@@ -152,7 +152,7 @@ static void cmd_PASV_func(ftppsp_client_info_t *client) {
     int ret;
     UNUSED(ret);
     
-    char cmd[512] = {0};
+    char cmd[54] = {0};
     unsigned int namelen;
     struct sockaddr_in picked;
     
@@ -182,7 +182,7 @@ static void cmd_PASV_func(ftppsp_client_info_t *client) {
     DEBUG("PASV mode port: 0x%04X\n", picked.sin_port);
     
     /* Build the command */
-    std::sprintf(cmd, "227 Entering Passive Mode (%hhu,%hhu,%hhu,%hhu,%hhu,%hhu)\r\n",
+    snprintf(cmd, 54, "227 Entering Passive Mode (%hhu,%hhu,%hhu,%hhu,%hhu,%hhu)\r\n",
         (psp_addr.s_addr >> 0) & 0xFF,
         (psp_addr.s_addr >> 8) & 0xFF,
         (psp_addr.s_addr >> 16) & 0xFF,
@@ -200,7 +200,7 @@ static void cmd_PORT_func(ftppsp_client_info_t *client) {
     unsigned int data_ip[4] = {0};
     unsigned int porthi, portlo;
     unsigned short data_port;
-    char ip_str[16] = {0};
+    char ip_str[48] = {0};
     struct in_addr data_addr;
     
     /* Using ints because of newlibc's u8 std::sscanf bug */
@@ -209,7 +209,7 @@ static void cmd_PORT_func(ftppsp_client_info_t *client) {
     data_port = portlo + porthi*256;
     
     /* Convert to an X.X.X.X IP string */
-    std::sprintf(ip_str, "%d.%d.%d.%d", data_ip[0], data_ip[1], data_ip[2], data_ip[3]);
+    snprintf(ip_str, 48, "%d.%d.%d.%d", data_ip[0], data_ip[1], data_ip[2], data_ip[3]);
     
     /* Convert the IP to a SceNetInAddr */
     sceNetInetInetPton(AF_INET, ip_str, &data_addr);
@@ -717,7 +717,7 @@ static void cmd_SIZE_func(ftppsp_client_info_t *client) {
     int ret = 0;
     SceIoStat stat;
     char path[512] = {0};
-    char cmd[64] = {0};
+    char cmd[27] = {0};
     /* Get the filename to retrieve its size */
     gen_ftp_fullpath(client, path, sizeof(path));
     
@@ -734,14 +734,14 @@ static void cmd_SIZE_func(ftppsp_client_info_t *client) {
     }
     
     /* Send the size of the file */
-    std::sprintf(cmd, "213 %lld\r\n", stat.st_size);
+    snprintf(cmd, 27, "213 %lld\r\n", stat.st_size);
     client_send_ctrl_msg(client, cmd);
 }
 
 static void cmd_REST_func(ftppsp_client_info_t *client) {
-    char cmd[64] = {0};
+    char cmd[30] = {0};
     std::sscanf(client->recv_buffer, "%*[^ ] %d", &client->restore_point);
-    std::sprintf(cmd, "350 Resuming at %d\r\n", client->restore_point);
+    snprintf(cmd, 30, "350 Resuming at %d\r\n", client->restore_point);
     client_send_ctrl_msg(client, cmd);
 }
 
@@ -996,8 +996,8 @@ static int server_thread(SceSize args, void *argp) {
             INFO("Client %i connected, IP: %s port: %i\n", number_clients, remote_ip, clientaddr.sin_port);
             
             /* Create a new thread for the client */
-            char client_thread_name[64] = {0};
-            std::sprintf(client_thread_name, "FTPpsp_client_%i_thread", number_clients);
+            char client_thread_name[33] = {0};
+            snprintf(client_thread_name, 33, "FTPpsp_client_%i_thread", number_clients);
             
             SceUID client_thid = sceKernelCreateThread(client_thread_name, client_thread, 0x12, 0x2000, PSP_THREAD_ATTR_USBWLAN, nullptr);
             
@@ -1050,7 +1050,7 @@ int ftppsp_init(char *psp_ip, unsigned short int *psp_port) {
     
     /* Save the IP of PSP to a global variable */
     if (R_FAILED(ret = sceNetInetInetPton(AF_INET, info.ip, &psp_addr))) {
-        Log::Error("sceNetApctlGetInfo() failed: 0x%08x\n", ret);
+        Log::Error("sceNetInetInetPton() failed: 0x%08x\n", ret);
         return ret;
     }
         

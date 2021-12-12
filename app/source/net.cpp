@@ -175,14 +175,14 @@ namespace Net {
         sceUtilityLoadNetModule(PSP_NET_MODULE_INET);
 
         if (R_FAILED(ret = Net::Init())) {
-            std::sprintf(string, "Net initialization Failed.");
+            snprintf(string, 27, "Net initialization Failed.");
             return false;
         }
         
         Net::DisplayNetDialog();
 
         if (R_FAILED(ret = ftppsp_init(psp_ip, &psp_port))) {
-            std::sprintf(string, "FTP initialization Failed.");
+            snprintf(string, 27, "FTP initialization Failed.");
             return false;
         }
         if (is_psp_go) {
@@ -215,10 +215,10 @@ namespace Net {
         }
             
         if (ret < 0) {
-            std::sprintf(string, "Connection Failed.");
+            snprintf(string, 19, "Connection Failed.");
         }
         else
-            std::sprintf(string, "FTP Connected %s:%i", psp_ip, psp_port);
+            snprintf(string, 36, "FTP Connected %s:%i", psp_ip, psp_port);
 
         return true;
     }

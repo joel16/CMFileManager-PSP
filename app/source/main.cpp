@@ -1,5 +1,6 @@
 #include <pspctrl.h>
 #include <pspkernel.h>
+#include <pspumd.h>
 
 #include "config.h"
 #include "g2d.h"
@@ -56,6 +57,13 @@ namespace Services {
     }
 
     void Exit(void) {
+        if (sceUmdCheckMedium() != 0) {
+            int ret = 0;
+            
+            if (R_FAILED(ret = sceUmdDeactivate(1, "disc0:")))
+                Log::Error("sceUmdDeactivate(disc0) failed: 0x%x\n", ret);
+        }
+
         intraFontUnload(chn);
         intraFontUnload(jpn0);
         intraFontUnload(font);

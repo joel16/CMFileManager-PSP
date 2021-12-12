@@ -19,7 +19,7 @@ namespace GUI {
     static SETTINGS_STATE settings_state = GENERAL_SETTINGS;
     static int selection = 0;
     static const int sel_dist = 44;
-    static char ftp_text[48];
+    static char ftp_text[36];
     static bool screen_disabled = false;
 
     static void DisplayFTPSettings(void) {
