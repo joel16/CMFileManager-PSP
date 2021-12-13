@@ -17,29 +17,30 @@ bool g_running = true;
 
 namespace Services {
     int Init(void) {
+        int ret = 0;
+
         sceCtrlSetSamplingCycle(0);
         sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
         Utils::InitKernelDrivers();
         Textures::Load();
-
-        int ret = 0;
+        
         if (R_FAILED(ret = Config::Load())) {
-			Log::Error("Config::Load failed: 0x%08x\n", ret);
-			return ret;
-		}
-
-		if (R_FAILED(ret = intraFontInit())) {
-			Log::Error("intraFontInit failed: 0x%08x\n", ret);
-			return ret;
-		}
-
+            Log::Error("Config::Load failed: 0x%08x\n", ret);
+            return ret;
+        }
+        
+        if (R_FAILED(ret = intraFontInit())) {
+            Log::Error("intraFontInit failed: 0x%08x\n", ret);
+            return ret;
+        }
+        
         font = intraFontLoad("flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ALL);
         jpn0 = intraFontLoad("flash0:/font/jpn0.pgf", INTRAFONT_STRING_UTF8);
         chn = intraFontLoad("flash0:/font/gb3s1518.bwfon", 0);
         intraFontSetAltFont(font, jpn0);
         intraFontSetAltFont(jpn0, chn);
         intraFontSetEncoding(font, INTRAFONT_STRING_UTF8);
-
+        
         // Font size cache
         for (int i = 0; i < 256; i++) {
             char character[2] = {0};
@@ -47,16 +48,16 @@ namespace Services {
             character[1] = '\0';
             font_size_cache[i] = intraFontMeasureText(font, character);
         }
-
+        
         Utils::IsMemCardInserted(is_ms_inserted);
-		is_psp_go = Utils::IsModelPSPGo();
-		
-		PSP_CTRL_ENTER = Utils::GetEnterButton();
-		PSP_CTRL_CANCEL = Utils::GetCancelButton();
+        is_psp_go = Utils::IsModelPSPGo();
+        
+        PSP_CTRL_ENTER = Utils::GetEnterButton();
+        PSP_CTRL_CANCEL = Utils::GetCancelButton();
         g_psp_language = Utils::GetLanguage();
         return 0;
     }
-
+    
     void Exit(void) {
         if (sceUmdCheckMedium() != 0) {
             int ret = 0;
@@ -64,7 +65,7 @@ namespace Services {
             if (R_FAILED(ret = sceUmdDeactivate(1, "disc0:")))
                 Log::Error("sceUmdDeactivate(disc0) failed: 0x%x\n", ret);
         }
-
+        
         intraFontUnload(chn);
         intraFontUnload(jpn0);
         intraFontUnload(font);
@@ -88,10 +89,10 @@ namespace Services {
     
     int SetupCallbacks(void) {
         int thread = 0;
-
+        
         if (R_SUCCEEDED(thread = sceKernelCreateThread("CallbackThread", Services::CallbackThread, 0x11, 0xFA0, 0, nullptr)))
             sceKernelStartThread(thread, 0, 0);
-            
+        
         return thread;
     }
 }
