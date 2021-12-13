@@ -19,6 +19,7 @@
 bool psp_usb_cable_connection = false, is_ms_inserted = false, is_psp_go = false;
 enum PspCtrlButtons PSP_CTRL_ENTER, PSP_CTRL_CANCEL;
 BROWSE_STATE device = BROWSE_STATE_EXTERNAL;
+int g_psp_language = PSP_SYSTEMPARAM_LANGUAGE_ENGLISH;
 
 namespace Utils {
     constexpr unsigned int CTRL_DEADZONE_DELAY = 500000;
@@ -477,5 +478,17 @@ namespace Utils {
             return true;
             
         return false;
+    }
+
+    int GetLanguage(void) {
+        int ret = 0;
+        int language = 0;
+
+        if (R_FAILED(ret = sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &language))) {
+            Log::Error("sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE) failed: 0x%08x\n", ret);
+            return PSP_SYSTEMPARAM_LANGUAGE_ENGLISH;
+        }
+
+        return language;
     }
 }

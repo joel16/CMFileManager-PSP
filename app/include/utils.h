@@ -22,6 +22,7 @@ enum BROWSE_STATE {
 extern bool psp_usb_cable_connection, is_ms_inserted, is_psp_go;
 extern enum PspCtrlButtons PSP_CTRL_ENTER, PSP_CTRL_CANCEL;
 extern BROWSE_STATE device;
+extern int g_psp_language;
 
 namespace Utils {
     void SetBounds(int &set, int min, int max);
@@ -48,6 +49,7 @@ namespace Utils {
     float GetAnalogX(void);
     float GetAnalogY(void);
     bool IsCancelButtonPressed(void);
+    int GetLanguage(void);
 }
 
 #endif

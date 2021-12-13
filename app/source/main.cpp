@@ -53,6 +53,7 @@ namespace Services {
 		
 		PSP_CTRL_ENTER = Utils::GetEnterButton();
 		PSP_CTRL_CANCEL = Utils::GetCancelButton();
+        g_psp_language = Utils::GetLanguage();
         return 0;
     }
 
