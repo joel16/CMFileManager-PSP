@@ -40,9 +40,9 @@ namespace GUI {
         ImageViewer::Draw(item->texture, width, height, zoom_factor, degrees, pos_x, pos_y);
 
         if (properties) {
-            G2D::DrawRect(0, 0, 480, 272, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
+            G2D::DrawRect(0, 0, 480, 272, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50 : 80));
             G2D::DrawImage(properties_dialog[cfg.dark_theme], ((480 - (properties_dialog[0]->w)) / 2), ((272 - (properties_dialog[0]->h)) / 2));
-            G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
+            G2D::FontSetStyle(1.f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
             
             G2D::DrawText(((480 - (properties_dialog[0]->w)) / 2) + 10, ((272 - (properties_dialog[0]->h)) / 2) + 20, "Properties");
             
@@ -50,7 +50,7 @@ namespace GUI {
             G2D::DrawRect((340 - (ok_width)) - 5, (220 - (font->texYSize - 15)) - 5, ok_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
             G2D::DrawText(340 - (ok_width), (232 - (font->texYSize - 15)) - 3, "OK");
             
-            G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
+            G2D::FontSetStyle(1.f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
             intraFontPrintf(font, 140, 74, std::string(item->entries[item->selected].d_name).length() > 14? "Name: %.14s..." : "%s", 
                 item->entries[item->selected].d_name);
             intraFontPrintf(font, 140, 92, "Width: %dpx", item->texture->w);

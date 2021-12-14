@@ -24,10 +24,10 @@ namespace GUI {
     void DisplayMenubar(void) {
         G2D::DrawImage(bg_header, pos_x, 18);
         G2D::DrawRect(pos_x, 90, 180, 254, BG_COLOUR);
-        G2D::DrawRect(pos_x + 180, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
+        G2D::DrawRect(pos_x + 180, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50 : 80));
         G2D::DrawRect(pos_x, 90 + (30 * selection), 180, 30, SELECTOR_COLOUR);
 
-        G2D::FontSetStyle(font, 1.0f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
+        G2D::FontSetStyle(1.f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
         
         if (is_psp_go) {
             G2D::DrawImage(icon_sd[cfg.dark_theme], pos_x + 10, 92);

@@ -35,11 +35,7 @@ namespace Services {
         }
         
         font = intraFontLoad("flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ALL);
-        jpn0 = intraFontLoad("flash0:/font/jpn0.pgf", INTRAFONT_STRING_UTF8);
-        chn = intraFontLoad("flash0:/font/gb3s1518.bwfon", 0);
-        intraFontSetAltFont(font, jpn0);
-        intraFontSetAltFont(jpn0, chn);
-        intraFontSetEncoding(font, INTRAFONT_STRING_UTF8);
+        G2D::FontSetStyle(1.f, WHITE, INTRAFONT_ALIGN_LEFT);
         
         // Font size cache
         for (int i = 0; i < 256; i++) {
@@ -66,8 +62,6 @@ namespace Services {
                 Log::Error("sceUmdDeactivate(disc0) failed: 0x%x\n", ret);
         }
         
-        intraFontUnload(chn);
-        intraFontUnload(jpn0);
         intraFontUnload(font);
         Textures::Free();
         Utils::TermKernelDrivers();

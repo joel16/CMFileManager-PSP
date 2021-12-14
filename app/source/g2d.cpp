@@ -5,9 +5,10 @@
 #include <cstring>
 
 #include "g2d.h"
+#include "log.h"
 #include "utils.h"
 
-intraFont *font, *jpn0, *chn;
+intraFont *font;
 
 namespace G2D {
     void DrawRect(float x, float y, float width, float height, g2dColor colour) {
@@ -38,6 +39,7 @@ namespace G2D {
     }
 
     static int GetText(char *input, unsigned short *intext, unsigned short *desc) {
+        int ret = 0;
         bool done = false;
         unsigned short outtext[128] = { 0 };
         
@@ -55,11 +57,11 @@ namespace G2D {
         data.outtext = outtext;
         
         SceUtilityOskParams params;
-        std::memset(&params, 0, sizeof(params));
-        
-        params.base.size = sizeof(params);
-        sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_LANGUAGE, &params.base.language);
-        sceUtilityGetSystemParamInt(PSP_SYSTEMPARAM_ID_INT_UNKNOWN, &params.base.buttonSwap);
+        std::memset(&params, 0, sizeof(SceUtilityOskParams));
+
+        params.base.size = sizeof(SceUtilityOskParams);
+        params.base.language = g_psp_language;
+        params.base.buttonSwap = (PSP_CTRL_ENTER == PSP_CTRL_CROSS)? PSP_UTILITY_ACCEPT_CROSS : PSP_UTILITY_ACCEPT_CIRCLE;
         params.base.graphicsThread = 17;
         params.base.accessThread = 19;
         params.base.fontThread = 18;
@@ -67,9 +69,10 @@ namespace G2D {
         params.datacount = 1;
         params.data = &data;
         
-        int ret = 0;
-        if (R_FAILED(ret = sceUtilityOskInitStart(&params)))
+        if (R_FAILED(ret = sceUtilityOskInitStart(&params))) {
+            Log::Error("sceUtilityOskInitStart() failed: 0x%08x\n", ret);
             return ret;
+        }
             
         while(!done) {
             int i = 0, j = 0;
@@ -79,18 +82,18 @@ namespace G2D {
             sceGuSync(0, 0);
             
             switch(sceUtilityOskGetStatus()) {
-                case PSP_UTILITY_DIALOG_INIT:
-                    break;
-                    
                 case PSP_UTILITY_DIALOG_VISIBLE:
-                    sceUtilityOskUpdate(1);
+                    if (R_FAILED(ret = sceUtilityOskUpdate(1))) {
+                        Log::Error("sceUtilityOskUpdate(1) failed: 0x%08x\n", ret);
+                        done = true;
+                    }
                     break;
                     
                 case PSP_UTILITY_DIALOG_QUIT:
-                    sceUtilityOskShutdownStart();
-                    break;
-                    
-                case PSP_UTILITY_DIALOG_FINISHED:
+                    if (R_FAILED(ret = sceUtilityOskShutdownStart())) {
+                        Log::Error("sceUtilityOskShutdownStart() failed: 0x%08x\n", ret);
+                        done = true;
+                    }
                     break;
                     
                 case PSP_UTILITY_DIALOG_NONE:
@@ -137,15 +140,15 @@ namespace G2D {
         return 0;
     }
 
-    void FontSetStyle(intraFont *font, float size, unsigned int colour, unsigned int options) {
+    void FontSetStyle(float size, unsigned int colour, unsigned int options) {
         intraFontSetStyle(font, size, colour, G2D_RGBA(0, 0, 0, 0), 0.f, options);
     }
 
-    float GetTextHeight(intraFont *font) {
+    float GetTextHeight(void) {
         return font->advancey * font->size / 4.f + 2.f;
     }
 
-    float DrawText(float x, float y, const char *text) {
-        return intraFontPrintf(font, x, y, text);
+    float DrawText(float x, float y, const std::string &text) {
+        return intraFontPrintf(font, x, y, text.c_str());
     }
 }

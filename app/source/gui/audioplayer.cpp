@@ -40,7 +40,7 @@ namespace AudioPlayer {
         float length_time_width = 0;
         
         AudioPlayer::SecsToString(length_time, Audio::GetLengthSeconds());
-        G2D::FontSetStyle(font, 1.0f, WHITE, INTRAFONT_ALIGN_LEFT);
+        G2D::FontSetStyle(1.f, WHITE, INTRAFONT_ALIGN_LEFT);
         length_time_width = intraFontMeasureText(font, length_time);
         
         bool screen_disabled = false;

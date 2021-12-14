@@ -23,9 +23,9 @@ namespace GUI {
     static bool screen_disabled = false;
 
     static void DisplayFTPSettings(void) {
-        G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
+        G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50 : 80));
         G2D::DrawImage(dialog[cfg.dark_theme], ((480 - (dialog[0]->w)) / 2), ((272 - (dialog[0]->h)) / 2));
-        G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
+        G2D::FontSetStyle(1.f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
         G2D::DrawText(((480 - (dialog[0]->w)) / 2) + 10, ((272 - (dialog[0]->h)) / 2) + 20, "FTP");
 
         int ok_width = intraFontMeasureText(font, "OK");
@@ -33,7 +33,7 @@ namespace GUI {
         G2D::DrawText(409 - (ok_width), (192 - (font->texYSize - 15)) - 3, "OK");
         
         int text_width = intraFontMeasureText(font, ftp_text);
-        G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
+        G2D::FontSetStyle(1.f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
         G2D::DrawText(((480 - (text_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 60, ftp_text);
     }
 
@@ -61,7 +61,7 @@ namespace GUI {
     static void DisplaySortSettings(void) {
         G2D::DrawText(40, 40, "Sorting Options");
 
-        G2D::FontSetStyle(font, 1.0f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
+        G2D::FontSetStyle(1.f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
         G2D::DrawText(40, 72, "Alphabetical");
         G2D::DrawText(40, 86, "Sort alphabetically in ascending order.");
 
@@ -95,16 +95,16 @@ namespace GUI {
     }
 
     static void DisplayAboutSettings(void) {
-        G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
+        G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50 : 80));
         G2D::DrawImage(dialog[cfg.dark_theme], ((480 - (dialog[0]->w)) / 2), ((272 - (dialog[0]->h)) / 2));
-        G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
+        G2D::FontSetStyle(1.f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
         G2D::DrawText(((480 - (dialog[0]->w)) / 2) + 10, ((272 - (dialog[0]->h)) / 2) + 20, "About");
 
         int ok_width = intraFontMeasureText(font, "OK");
         G2D::DrawRect((409 - (ok_width)) - 5, (180 - (font->texYSize - 15)) - 5, ok_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
         G2D::DrawText(409 - (ok_width), (192 - (font->texYSize - 15)) - 3, "OK");
         
-        G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
+        G2D::FontSetStyle(1.f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
         int version_width = intraFontMeasureText(font, "CMFileManager-PSP version: v4.0.0");
         intraFontPrintf(font, ((480 - (version_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 50, "CMFileManager-PSP version: v%d.%d.%d", 
             VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO);
@@ -123,7 +123,7 @@ namespace GUI {
     static void DisplayGeneralSettings(void) {
         G2D::DrawText(40, 40, "Settings");
 
-        G2D::FontSetStyle(font, 1.0f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
+        G2D::FontSetStyle(1.f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
 
         G2D::DrawImage(ftp_icon[cfg.dark_theme], 15, 59);
         G2D::DrawText(60, 72, "FTP connection");
@@ -196,7 +196,7 @@ namespace GUI {
         G2D::DrawImage(icon_back, 5, 20);
 
         G2D::DrawRect(0, 52 + (selection * sel_dist), 480, sel_dist, SELECTOR_COLOUR);
-        G2D::FontSetStyle(font, 1.0f, WHITE, INTRAFONT_ALIGN_LEFT);
+        G2D::FontSetStyle(1.f, WHITE, INTRAFONT_ALIGN_LEFT);
 
         switch(settings_state) {
             case GENERAL_SETTINGS:

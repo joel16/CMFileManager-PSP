@@ -22,8 +22,8 @@ namespace GUI {
     static const std::string empty_dir = "This is an empty directory";
     
     void DisplayFileBrowser(MenuItem *item) {
-        G2D::FontSetStyle(font, 1.0f, WHITE, INTRAFONT_ALIGN_LEFT);
-        float height = G2D::GetTextHeight(font);
+        G2D::FontSetStyle(1.f, WHITE, INTRAFONT_ALIGN_LEFT);
+        float height = G2D::GetTextHeight();
         intraFontPrintf(font, 40, 36, cfg.cwd.length() > 42? "%.42s..." : "%s", cfg.cwd.c_str());
         G2D::DrawRect(40, 43, 400, 3, SELECTOR_COLOUR);
 
@@ -33,7 +33,7 @@ namespace GUI {
         }
         
         if (item->entries.empty()) {
-            G2D::FontSetStyle(font, 1.0f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_CENTER);
+            G2D::FontSetStyle(1.f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_CENTER);
             G2D::DrawText(240, 136, empty_dir.c_str());
         }
 
@@ -54,7 +54,7 @@ namespace GUI {
             else
                 G2D::DrawImageScale(file_icons[file_type], 20, start_y + (sel_dist * (i - start)), 18.f, 18.f);
 
-            G2D::FontSetStyle(font, 1.0f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
+            G2D::FontSetStyle(1.f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
             intraFontPrintf(font, 45, start_y + 10 + ((sel_dist - height) / 2) + (i - start) * sel_dist, filename.length() > 42? "%.42s..." : "%s", filename.c_str());
         }
     }

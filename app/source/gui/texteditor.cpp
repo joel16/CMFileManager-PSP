@@ -552,7 +552,7 @@ namespace TextViewer {
             G2D::DrawRect(0, 18, 480, 34, MENU_BAR_COLOUR);
             GUI::DisplayStatusBar();
             G2D::DrawImage(icon_back, 5, 20);
-            G2D::FontSetStyle(font, 1.f, WHITE, INTRAFONT_ALIGN_LEFT);
+            G2D::FontSetStyle(1.f, WHITE, INTRAFONT_ALIGN_LEFT);
             G2D::DrawText(40, 40, filename.c_str());
             
             TextViewer::DrawScrollbar(s->base_pos, s->n_lines);
@@ -566,7 +566,7 @@ namespace TextViewer {
                 if (entry->line_number < s->n_lines) {
                     char line_str[5] = {0};
                     snprintf(line_str, 5, "%04i", entry->line_number);
-                    G2D::FontSetStyle(font, 1.f, (s->rel_pos == i)? TITLE_COLOUR : TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
+                    G2D::FontSetStyle(1.f, (s->rel_pos == i)? TITLE_COLOUR : TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
                     G2D::DrawText(SHELL_MARGIN_X, START_Y + (i * FONT_Y_SPACE), line_str);
                 }
                 
@@ -583,7 +583,7 @@ namespace TextViewer {
                     if (p)
                         *p = '\0';
                     
-                    G2D::FontSetStyle(font, 1.f, (s->rel_pos == i)? TITLE_COLOUR : TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
+                    G2D::FontSetStyle(1.f, (s->rel_pos == i)? TITLE_COLOUR : TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
                     int width = G2D::DrawText(x, START_Y + (i * FONT_Y_SPACE), line);
                     line += std::strlen(line);
                     
@@ -598,9 +598,9 @@ namespace TextViewer {
             }
 
             if (state == STATE_DIALOG) {
-                G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
+                G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50 : 80));
                 G2D::DrawImage(dialog[cfg.dark_theme], ((480 - (dialog[0]->w)) / 2), ((272 - (dialog[0]->h)) / 2));
-                G2D::FontSetStyle(font, 1.f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
+                G2D::FontSetStyle(1.f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
                 G2D::DrawText(((480 - (dialog[0]->w)) / 2) + 10, ((272 - (dialog[0]->h)) / 2) + 20, "Save");
                 
                 int confirm_width = intraFontMeasureText(font, "YES");
@@ -615,7 +615,7 @@ namespace TextViewer {
                 G2D::DrawText(364 - cancel_width, (192 - (font->texYSize - 15)) - 3, "NO");
                 
                 int prompt_width = intraFontMeasureText(font, prompt.c_str());
-                G2D::FontSetStyle(font, 1.f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
+                G2D::FontSetStyle(1.f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
                 G2D::DrawText(((480 - (prompt_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 60, prompt.c_str());
             }
 

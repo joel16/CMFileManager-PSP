@@ -35,7 +35,7 @@ namespace GUI {
         if (R_SUCCEEDED(sceRtcGetCurrentClockLocalTime(&time)))
             snprintf(time_string, 30, "%2i:%02i %s", ((time.hour % 12) == 0)? 12 : time.hour % 12, time.minutes, (time.hour / 12)? "PM" : "AM");
 
-        G2D::FontSetStyle(font, 1.0f, WHITE, INTRAFONT_ALIGN_LEFT);
+        G2D::FontSetStyle(1.f, WHITE, INTRAFONT_ALIGN_LEFT);
         G2D::DrawText(5, 14, time_string);
 
         int state = scePowerIsBatteryCharging();
@@ -63,13 +63,13 @@ namespace GUI {
         GUI::DisplayStatusBar();
         GUI::DisplayFileBrowser(&item);
         
-        G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50: 80));
+        G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50 : 80));
         G2D::DrawImage(dialog[cfg.dark_theme], ((480 - (dialog[0]->w)) / 2), ((272 - (dialog[0]->h)) / 2));
-        G2D::FontSetStyle(font, 1.0f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
+        G2D::FontSetStyle(1.f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
         G2D::DrawText(((480 - (dialog[0]->w)) / 2) + 10, ((272 - (dialog[0]->h)) / 2) + 20, title.c_str());
 
         int text_width = intraFontMeasureText(font, message.c_str());
-        G2D::FontSetStyle(font, 1.0f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
+        G2D::FontSetStyle(1.f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
         G2D::DrawText(((480 - (text_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 60, message.c_str());
         
         G2D::DrawRect(((480 - dialog[0]->w) / 2) + 20, ((272 - dialog[0]->h) / 2) + 70, 318, 4, SELECTOR_COLOUR);
