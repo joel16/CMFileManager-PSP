@@ -79,21 +79,23 @@ namespace Net {
         bool done = false;
         
         pspUtilityNetconfData data;
-        std::memset(&data, 0, sizeof(data));
+        std::memset(&data, 0, sizeof(pspUtilityNetconfData));
         
-        data.base.size = sizeof(data);
-        data.base.language = PSP_SYSTEMPARAM_LANGUAGE_ENGLISH;
-        data.base.buttonSwap = PSP_UTILITY_ACCEPT_CROSS;
+        data.base.size = sizeof(pspUtilityNetconfData);
+        data.base.language = g_psp_language;
+        data.base.buttonSwap = (PSP_CTRL_ENTER == PSP_CTRL_CROSS)? PSP_UTILITY_ACCEPT_CROSS : PSP_UTILITY_ACCEPT_CIRCLE;
         data.base.graphicsThread = 17;
         data.base.accessThread = 19;
         data.base.fontThread = 18;
         data.base.soundThread = 16;
         data.action = PSP_NETCONF_ACTION_CONNECTAP;
+        data.hotspot = 0;
         
         struct pspUtilityNetconfAdhoc adhocparam;
         std::memset(&adhocparam, 0, sizeof(adhocparam));
         
         data.adhocparam = &adhocparam;
+        
         if (R_FAILED(ret = sceUtilityNetconfInitStart(&data))) {
             Log::Error("sceUtilityNetconfInitStart() failed: 0x%08x\n", ret);
             return ret;
@@ -105,9 +107,10 @@ namespace Net {
             sceGuSync(0, 0);
             
             switch(sceUtilityNetconfGetStatus()) {
-                case PSP_UTILITY_DIALOG_INIT:
+                case PSP_UTILITY_DIALOG_NONE:
+                    done = true;
                     break;
-                    
+
                 case PSP_UTILITY_DIALOG_VISIBLE:
                     if (R_FAILED(ret = sceUtilityNetconfUpdate(1))) {
                         Log::Error("sceUtilityNetconfUpdate(1) failed: 0x%08x\n", ret);
@@ -121,12 +124,10 @@ namespace Net {
                         done = true;
                     }
                     break;
-                    
+                
                 case PSP_UTILITY_DIALOG_FINISHED:
-                    break;
-                    
-                case PSP_UTILITY_DIALOG_NONE:
                     done = true;
+                    break;
                     
                 default:
                     break;
@@ -134,7 +135,7 @@ namespace Net {
 
             g2dFlip(G2D_VSYNC);
         }
-        
+
         return 0;
     }
     
@@ -163,6 +164,17 @@ namespace Net {
         sceNetApctlTerm();
         sceNetInetTerm();
         sceNetTerm();
+    }
+
+    bool IsConnected(void) {
+        int ret = 0, state = PSP_NET_APCTL_STATE_DISCONNECTED;
+
+        if (R_FAILED(ret  = sceNetApctlGetState(&state))) {
+            Log::Error("sceNetApctlGetState() failed: 0x%08x\n", ret);
+            return ret;
+        }
+
+        return (state == PSP_NET_APCTL_STATE_GOT_IP);
     }
 
     bool InitFTP(char *string) {
