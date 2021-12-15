@@ -15,7 +15,7 @@ ASFLAGS  := $(CFLAGS)
 
 LIBDIR  = ../libs/lib
 LDFLAGS =
-LIBS    = -lpspsdk -lpspsystemctrl_user
+LIBS    = -lpspsystemctrl_user
 
 EXTRA_TARGETS    = EBOOT.PBP
 PSP_EBOOT_TITLE  = CM File Manager PSP v$(VERSION_MAJOR).$(VERSION_MINOR)$(VERSION_MICRO)
