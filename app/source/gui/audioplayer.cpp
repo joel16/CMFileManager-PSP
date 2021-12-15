@@ -27,9 +27,9 @@ namespace AudioPlayer {
         s = (seconds - (3600 * h) - (m * 60));
         
         if (h > 0)
-            snprintf(string, 35, "%02d:%02d:%02d", h, m, s);
+            std::snprintf(string, 35, "%02d:%02d:%02d", h, m, s);
         else
-            snprintf(string, 35, "%02d:%02d", m, s);
+            std::snprintf(string, 35, "%02d:%02d", m, s);
     }
     
     void Play(const std::string &path) {

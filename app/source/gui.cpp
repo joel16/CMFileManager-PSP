@@ -33,7 +33,7 @@ namespace GUI {
         static char time_string[30];
 
         if (R_SUCCEEDED(sceRtcGetCurrentClockLocalTime(&time)))
-            snprintf(time_string, 30, "%2i:%02i %s", ((time.hour % 12) == 0)? 12 : time.hour % 12, time.minutes, (time.hour / 12)? "PM" : "AM");
+            std::snprintf(time_string, 30, "%2i:%02i %s", ((time.hour % 12) == 0)? 12 : time.hour % 12, time.minutes, (time.hour / 12)? "PM" : "AM");
 
         G2D::FontSetStyle(1.f, WHITE, INTRAFONT_ALIGN_LEFT);
         G2D::DrawText(5, 14, time_string);
@@ -43,7 +43,7 @@ namespace GUI {
         int battery_val = (percent / 20);
         
         static char percent_string[10];
-        snprintf(percent_string, 10, "%d", percent);
+        std::snprintf(percent_string, 10, "%d", percent);
         int percent_width = intraFontMeasureText(font, percent_string);
         intraFontPrintf(font, 475 - percent_width - 15, 14, "%s%%", percent_string);
 

@@ -13,7 +13,7 @@ namespace Config {
     int Save(config_t config) {
         int ret = 0;
         char *buf = new char[128];
-        int len = snprintf(buf, 128, config_file, config_version, cfg.sort, cfg.dark_theme, cfg.dev_options);
+        int len = std::snprintf(buf, 128, config_file, config_version, cfg.sort, cfg.dark_theme, cfg.dev_options);
         
         if (R_FAILED(ret = FS::WriteFile("config.json", buf, len))) {
             Log::Error("Read config failed in Config_Save 0x%08x\n", ret);

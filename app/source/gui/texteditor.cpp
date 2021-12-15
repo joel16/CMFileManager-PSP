@@ -565,7 +565,7 @@ namespace TextViewer {
                 
                 if (entry->line_number < s->n_lines) {
                     char line_str[5] = {0};
-                    snprintf(line_str, 5, "%04i", entry->line_number);
+                    std::snprintf(line_str, 5, "%04i", entry->line_number);
                     G2D::FontSetStyle(1.f, (s->rel_pos == i)? TITLE_COLOUR : TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
                     G2D::DrawText(SHELL_MARGIN_X, START_Y + (i * FONT_Y_SPACE), line_str);
                 }

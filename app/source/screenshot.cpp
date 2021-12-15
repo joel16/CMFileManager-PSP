@@ -106,7 +106,7 @@ namespace Screenshot {
             FS::RecursiveMakeDir(Utils::IsInternalStorage()? "ef0:/PSP/PHOTO/CMFileManager" : "ms0:/PSP/PHOTO/CMFileManager");
             
         static char path[128];
-        snprintf(path, 128, Utils::IsInternalStorage()? "ef0:/PSP/PHOTO/CMFileManager/screenshot_%02d%02d%02d-%i.bmp" : 
+        std::snprintf(path, 128, Utils::IsInternalStorage()? "ef0:/PSP/PHOTO/CMFileManager/screenshot_%02d%02d%02d-%i.bmp" : 
             "ms0:/PSP/PHOTO/CMFileManager/screenshot_%02d%02d%02d-%02d%02d%02d.png", time.year, time.month, time.day, time.hour, time.minutes, time.seconds);
         
         Screenshot::Save(path);

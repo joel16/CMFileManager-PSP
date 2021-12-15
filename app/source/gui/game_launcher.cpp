@@ -466,7 +466,7 @@ namespace GameLauncher {
         u8 *buffer = new u8[4096];
         meta->title = new char[128];
         GameLauncher::ReadSFOTitle(file, buffer, title_size, title_buf, sizeof(title_buf));
-        snprintf(meta->title, 128, title_buf);
+        std::snprintf(meta->title, 128, title_buf);
         delete[] buffer;
         
         // Get icon0
@@ -570,7 +570,7 @@ namespace GameLauncher {
         
         char install_date[128] = {0};
         const char *months[] = { "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov" };
-        snprintf(install_date, 128, "Installed %d %s %d", stat.sce_st_ctime.day, months[stat.sce_st_ctime.month], stat.sce_st_ctime.year);
+        std::snprintf(install_date, 128, "Installed %d %s %d", stat.sce_st_ctime.day, months[stat.sce_st_ctime.month], stat.sce_st_ctime.year);
 
         int selection = 0;
         const char *metadata_types[] = { "< ICON0.PNG >", "< ICON1.PMF >", "< PIC0.PNG >", "< PIC1.PNG >", "< SND0.AT3 >" };

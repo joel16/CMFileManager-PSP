@@ -182,7 +182,7 @@ static void cmd_PASV_func(ftppsp_client_info_t *client) {
     DEBUG("PASV mode port: 0x%04X\n", picked.sin_port);
     
     /* Build the command */
-    snprintf(cmd, 54, "227 Entering Passive Mode (%lu,%lu,%lu,%lu,%u,%u)\r\n",
+    std::snprintf(cmd, 54, "227 Entering Passive Mode (%lu,%lu,%lu,%lu,%u,%u)\r\n",
         (psp_addr.s_addr >> 0) & 0xFF,
         (psp_addr.s_addr >> 8) & 0xFF,
         (psp_addr.s_addr >> 16) & 0xFF,
@@ -209,7 +209,7 @@ static void cmd_PORT_func(ftppsp_client_info_t *client) {
     data_port = portlo + porthi*256;
     
     /* Convert to an X.X.X.X IP string */
-    snprintf(ip_str, 48, "%d.%d.%d.%d", data_ip[0], data_ip[1], data_ip[2], data_ip[3]);
+    std::snprintf(ip_str, 48, "%d.%d.%d.%d", data_ip[0], data_ip[1], data_ip[2], data_ip[3]);
     
     /* Convert the IP to a SceNetInAddr */
     sceNetInetInetPton(AF_INET, ip_str, &data_addr);
@@ -270,11 +270,11 @@ static int gen_list_format(char *out, int n, int dir, const SceIoStat *stat, con
     sceRtcGetCurrentClockLocalTime(&cdt);
     
     if (cdt.year == stat->sce_st_mtime.year)
-        snprintf(yt, 12, "%02d:%02d", stat->sce_st_mtime.hour, stat->sce_st_mtime.minute);
+        std::snprintf(yt, 12, "%02d:%02d", stat->sce_st_mtime.hour, stat->sce_st_mtime.minute);
     else
-        snprintf(yt, 11, "%04d", stat->sce_st_mtime.year);
+        std::snprintf(yt, 11, "%04d", stat->sce_st_mtime.year);
         
-    return snprintf(out, n, "%c%s 1 psp psp %llu %s %-2d %s %s\r\n", dir ? 'd' : '-', dir ? "rwxr-xr-x" : "rw-r--r--",
+    return std::snprintf(out, n, "%c%s 1 psp psp %llu %s %-2d %s %s\r\n", dir ? 'd' : '-', dir ? "rwxr-xr-x" : "rw-r--r--",
         stat->st_size, num_to_month[stat->sce_st_mtime.month<=0?0:(stat->sce_st_mtime.month-1)%12], stat->sce_st_mtime.day,
         yt, filename);
 }
@@ -362,7 +362,7 @@ static void cmd_LIST_func(ftppsp_client_info_t *client) {
 
 static void cmd_PWD_func(ftppsp_client_info_t *client) {
     char msg[1059] = {0};
-    snprintf(msg, 1058, "257 \"%s\" is the current directory.\r\n", client->cur_path);
+    std::snprintf(msg, 1058, "257 \"%s\" is the current directory.\r\n", client->cur_path);
     client_send_ctrl_msg(client, msg);
 }
 
@@ -412,9 +412,9 @@ static void cmd_CWD_func(ftppsp_client_info_t *client) {
                 /* If we are at the root of the device, don't add
                  * an slash to add new path */
                 if (path_is_at_root(client->cur_path))
-                    snprintf(tmp_path, 1535, "%s%s", client->cur_path, cmd_path);
+                    std::snprintf(tmp_path, 1535, "%s%s", client->cur_path, cmd_path);
                 else
-                    snprintf(tmp_path, 1536, "%s/%s", client->cur_path, cmd_path);
+                    std::snprintf(tmp_path, 1536, "%s/%s", client->cur_path, cmd_path);
             }
             
             /* If the path is like: /foo: add an slash */
@@ -530,11 +530,11 @@ static void gen_ftp_fullpath(ftppsp_client_info_t *client, char *path, size_t pa
         strncpy(path, cmd_path, path_size); /* Full path */
     else {
         if (std::strlen(cmd_path) >= 5 && cmd_path[3] == ':' && cmd_path[4] == '/')
-            snprintf(path, 513, "/%s", cmd_path); /* Case "ux0:/foo */
+            std::snprintf(path, 513, "/%s", cmd_path); /* Case "ux0:/foo */
         else {
             /* The file is relative to current dir, so
              * append the file to the current path */
-             snprintf(path, 1536, "%s/%s", client->cur_path, cmd_path);
+             std::snprintf(path, 1536, "%s/%s", client->cur_path, cmd_path);
         }
     }
 }
@@ -734,14 +734,14 @@ static void cmd_SIZE_func(ftppsp_client_info_t *client) {
     }
     
     /* Send the size of the file */
-    snprintf(cmd, 27, "213 %lld\r\n", stat.st_size);
+    std::snprintf(cmd, 27, "213 %lld\r\n", stat.st_size);
     client_send_ctrl_msg(client, cmd);
 }
 
 static void cmd_REST_func(ftppsp_client_info_t *client) {
     char cmd[30] = {0};
     std::sscanf(client->recv_buffer, "%*[^ ] %d", &client->restore_point);
-    snprintf(cmd, 30, "350 Resuming at %d\r\n", client->restore_point);
+    std::snprintf(cmd, 30, "350 Resuming at %d\r\n", client->restore_point);
     client_send_ctrl_msg(client, cmd);
 }
 
@@ -1003,7 +1003,7 @@ static int server_thread(SceSize args, void *argp) {
             
             /* Create a new thread for the client */
             char client_thread_name[33] = {0};
-            snprintf(client_thread_name, 33, "FTPpsp_client_%i_thread", number_clients);
+            std::snprintf(client_thread_name, 33, "FTPpsp_client_%i_thread", number_clients);
             
             SceUID client_thid = sceKernelCreateThread(client_thread_name, client_thread, 0x12, 0x2000, PSP_THREAD_ATTR_USBWLAN, nullptr);
             

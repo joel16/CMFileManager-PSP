@@ -142,17 +142,17 @@ namespace FS {
 
         switch(time) {
             case FileCreatedTime:
-                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat.sce_st_ctime.year, stat.sce_st_ctime.month, stat.sce_st_ctime.day, stat.sce_st_ctime.hour,
+                std::snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat.sce_st_ctime.year, stat.sce_st_ctime.month, stat.sce_st_ctime.day, stat.sce_st_ctime.hour,
                     stat.sce_st_ctime.minute);
                 break;
                 
             case FileAccessedTime:
-                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat.sce_st_atime.year, stat.sce_st_atime.month, stat.sce_st_atime.day, stat.sce_st_atime.hour,
+                std::snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat.sce_st_atime.year, stat.sce_st_atime.month, stat.sce_st_atime.day, stat.sce_st_atime.hour,
                     stat.sce_st_atime.minute);
                 break;
             
             case FileModifiedTime:
-                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat.sce_st_mtime.year, stat.sce_st_mtime.month, stat.sce_st_mtime.day, stat.sce_st_mtime.hour,
+                std::snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat.sce_st_mtime.year, stat.sce_st_mtime.month, stat.sce_st_mtime.day, stat.sce_st_mtime.hour,
                     stat.sce_st_mtime.minute);
                 break;
         }
@@ -163,7 +163,7 @@ namespace FS {
     char *GetFilePermission(SceIoStat &stat) {
         static char perms[11];
 
-        snprintf(perms, 11, "%s%s%s%s%s%s%s%s%s%s", (FIO_S_ISDIR(stat.st_mode)) ? "d" : "-", (stat.st_mode & FIO_S_IRUSR) ? "r" : "-",
+        std::snprintf(perms, 11, "%s%s%s%s%s%s%s%s%s%s", (FIO_S_ISDIR(stat.st_mode)) ? "d" : "-", (stat.st_mode & FIO_S_IRUSR) ? "r" : "-",
             (stat.st_mode & FIO_S_IWUSR) ? "w" : "-", (stat.st_mode & FIO_S_IXUSR) ? "x" : "-", (stat.st_mode & FIO_S_IRGRP) ? "r" : "-",
             (stat.st_mode & FIO_S_IWGRP) ? "w" : "-", (stat.st_mode & FIO_S_IXGRP) ? "x" : "-", (stat.st_mode & FIO_S_IROTH) ? "r" : "-",
             (stat.st_mode & FIO_S_IWOTH) ? "w" : "-", (stat.st_mode & FIO_S_IXOTH) ? "x" : "-");
