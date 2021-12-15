@@ -15,9 +15,9 @@ VERSION_MINOR :=  0
 VERSION_MICRO :=  1
 
 INCDIR   = ../libs/ ../libs/include ../libs/libnsbmp ../libs/libnsgif ../libs/include/opus include
-CFLAGS   = -Os -G0 -Wall -ffast-math -fno-exceptions -Wno-narrowing -Wno-unused-variable \
-           -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO) -DFS_DEBUG
-CXXFLAGS = $(CFLAGS) -fno-rtti -std=gnu++17
+CFLAGS   = -Os -Wall -ffast-math -Wno-narrowing -Wno-unused-variable \
+           -DVERSION_MAJOR=$(VERSION_MAJOR) -DVERSION_MINOR=$(VERSION_MINOR) -DVERSION_MICRO=$(VERSION_MICRO)
+CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti -std=gnu++17
 ASFLAGS  := $(CFLAGS)
 
 BUILD_PRX = 1
@@ -25,10 +25,10 @@ PSP_LARGE_MEMORY = 1
 
 LIBDIR  = ../libs/lib
 LDFLAGS =
-LIBS    = -lintrafont -lglib2d -lxmp-lite -lmpg123 -lvorbisfile -lvorbis -lopusfile -lopus -lFLAC -logg \
-          -larchive -llzma -lturbojpeg -ljpeg -lpng16 -lstdc++ -lm -lz \
+LIBS    = -lintrafont -lglib2d -lxmp -lmpg123 -lvorbisfile -lvorbis -lopusfile -lopus -lFLAC -logg \
+          -larchive -llzma -ljpeg -lpng16 -lstdc++ -lz \
           -lpspkubridge -lpspsystemctrl_user -lpspusbdevice \
-          -lpspgu -lpspvram -lpspaudio -lpsppower -lpsprtc -lpspreg -lpspusb -lpspusbstor -lpspumd
+          -lpspgu -lpspvram -lpspaudio -lpsppower -lpspreg -lpspusb -lpspusbstor -lpspumd
 
 EXTRA_TARGETS    = EBOOT.PBP
 PSP_EBOOT_TITLE  = CM File Manager PSP v$(VERSION_MAJOR).$(VERSION_MINOR)$(VERSION_MICRO)

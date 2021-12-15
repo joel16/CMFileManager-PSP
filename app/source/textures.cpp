@@ -1,5 +1,7 @@
 #include <assert.h>
+#include <cstdio>
 #include <cstring>
+#include <jpeglib.h>
 
 #include "fs.h"
 #include "libnsbmp.h"
@@ -7,7 +9,6 @@
 #include "libpng/png.h"
 #include "log.h"
 #include "textures.h"
-#include "turbojpeg/turbojpeg.h"
 #include "utils.h"
 
 #define BYTES_PER_PIXEL 4
@@ -192,27 +193,28 @@ namespace Textures {
     }
 
     g2dTexture *LoadImageBufferJPEG(unsigned char *data, int size) {
-        int width = 0; int height = 0;
-        unsigned char *buffer = nullptr;
-        tjhandle jpeg = tjInitDecompress();
-        int jpegsubsamp = 0;
+        struct jpeg_decompress_struct info;
+        struct jpeg_error_mgr err;
 
-        if (R_FAILED(tjDecompressHeader2(jpeg, data, size, &width, &height, &jpegsubsamp))) {
-            Log::Error("tjDecompressHeader2 failed: %s\n", tjGetErrorStr());
-            delete[] data;
-            return nullptr;
-        }
-        
-        buffer = new unsigned char[width * height * 4];
+        info.err = jpeg_std_error(&err);
+        jpeg_create_decompress(&info);
+        jpeg_mem_src(&info, data, size);
+        jpeg_read_header(&info, TRUE);
 
-        if (R_FAILED(tjDecompress2(jpeg, data, size, buffer, width, 0, height, TJPF_RGBA, TJFLAG_FASTDCT))) {
-            Log::Error("tjDecompress2 failed: %s\n", tjGetErrorStr());
-            delete[] buffer;
-            return nullptr;
-        }
+        info.out_color_space = JCS_EXT_RGBA;
+        jpeg_start_decompress(&info);
+
+        u8 *buffer = new u8[info.output_width * info.output_height * 4];
+        int stride = info.output_width * 4;
         
-        g2dTexture *tex = g2dTexLoad(buffer, width, height, G2D_SWIZZLE);
-        tjDestroy(jpeg);
+        while (info.output_scanline < info.output_height) {
+            u8 *ptr = &buffer[stride * info.output_scanline];
+            jpeg_read_scanlines(&info, &ptr, 1);
+        }
+
+        jpeg_finish_decompress(&info);
+        g2dTexture *tex = g2dTexLoad(buffer, info.output_width, info.output_height, G2D_SWIZZLE);
+        jpeg_destroy_decompress(&info);
         delete[] buffer;
         return tex;
     }

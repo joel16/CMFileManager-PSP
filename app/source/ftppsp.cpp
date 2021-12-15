@@ -153,7 +153,7 @@ static void cmd_PASV_func(ftppsp_client_info_t *client) {
     UNUSED(ret);
     
     char cmd[54] = {0};
-    unsigned int namelen;
+    socklen_t namelen = 0;
     struct sockaddr_in picked;
     
     /* Create the data socket */
@@ -182,7 +182,7 @@ static void cmd_PASV_func(ftppsp_client_info_t *client) {
     DEBUG("PASV mode port: 0x%04X\n", picked.sin_port);
     
     /* Build the command */
-    snprintf(cmd, 54, "227 Entering Passive Mode (%hhu,%hhu,%hhu,%hhu,%hhu,%hhu)\r\n",
+    snprintf(cmd, 54, "227 Entering Passive Mode (%lu,%lu,%lu,%lu,%u,%u)\r\n",
         (psp_addr.s_addr >> 0) & 0xFF,
         (psp_addr.s_addr >> 8) & 0xFF,
         (psp_addr.s_addr >> 16) & 0xFF,
@@ -269,13 +269,13 @@ static int gen_list_format(char *out, int n, int dir, const SceIoStat *stat, con
     pspTime cdt;
     sceRtcGetCurrentClockLocalTime(&cdt);
     
-    if (cdt.year == stat->st_mtime.year)
-        snprintf(yt, 12, "%02d:%02d", stat->st_mtime.hour, stat->st_mtime.minute);
+    if (cdt.year == stat->sce_st_mtime.year)
+        snprintf(yt, 12, "%02d:%02d", stat->sce_st_mtime.hour, stat->sce_st_mtime.minute);
     else
-        snprintf(yt, 11, "%04d", stat->st_mtime.year);
+        snprintf(yt, 11, "%04d", stat->sce_st_mtime.year);
         
     return snprintf(out, n, "%c%s 1 psp psp %llu %s %-2d %s %s\r\n", dir ? 'd' : '-', dir ? "rwxr-xr-x" : "rw-r--r--",
-        stat->st_size, num_to_month[stat->st_mtime.month<=0?0:(stat->st_mtime.month-1)%12], stat->st_mtime.day,
+        stat->st_size, num_to_month[stat->sce_st_mtime.month<=0?0:(stat->sce_st_mtime.month-1)%12], stat->sce_st_mtime.day,
         yt, filename);
 }
 

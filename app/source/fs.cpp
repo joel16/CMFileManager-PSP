@@ -142,18 +142,18 @@ namespace FS {
 
         switch(time) {
             case FileCreatedTime:
-                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat.st_ctime.year, stat.st_ctime.month, stat.st_ctime.day, stat.st_ctime.hour,
-                    stat.st_ctime.minute);
+                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat.sce_st_ctime.year, stat.sce_st_ctime.month, stat.sce_st_ctime.day, stat.sce_st_ctime.hour,
+                    stat.sce_st_ctime.minute);
                 break;
                 
             case FileAccessedTime:
-                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat.st_atime.year, stat.st_atime.month, stat.st_atime.day, stat.st_atime.hour,
-                    stat.st_atime.minute);
+                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat.sce_st_atime.year, stat.sce_st_atime.month, stat.sce_st_atime.day, stat.sce_st_atime.hour,
+                    stat.sce_st_atime.minute);
                 break;
             
             case FileModifiedTime:
-                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat.st_mtime.year, stat.st_mtime.month, stat.st_mtime.day, stat.st_mtime.hour,
-                    stat.st_mtime.minute);
+                snprintf(timestamp, 30, "%d/%d/%d %2i:%02i", stat.sce_st_mtime.year, stat.sce_st_mtime.month, stat.sce_st_mtime.day, stat.sce_st_mtime.hour,
+                    stat.sce_st_mtime.minute);
                 break;
         }
         

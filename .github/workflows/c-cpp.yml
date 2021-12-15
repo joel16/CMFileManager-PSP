@@ -8,26 +8,34 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    container: pspdev/pspdev:latest
     steps:
-    - uses: krystalgamer/setup-psptoolchain@1.0
     - uses: actions/checkout@v2
-    - name: Compile
+
+    - name: Install dependencies
+      run: |
+        apk add build-base git bash cmake
+    
+    - name: Compile project
       run: make
+    
     - uses: actions/upload-artifact@v2
       with:
         path: audio_driver/audio_driver.prx
+    
     - uses: actions/upload-artifact@v2
       with:
         path: display_driver/display_driver.prx
+    
     - uses: actions/upload-artifact@v2
       with:
         path: fs_driver/fs_driver.prx
+    
     - uses: actions/upload-artifact@v2
       with:
         path: input_driver/input_driver.prx
+    
     - uses: actions/upload-artifact@v2
       with:
         path: app/EBOOT.PBP
