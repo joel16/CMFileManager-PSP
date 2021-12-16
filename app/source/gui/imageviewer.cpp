@@ -60,7 +60,7 @@ namespace GUI {
 
     void ControlImageViewer(MenuItem *item, float *delta_time) {
         if (Utils::IsButtonPressed(PSP_CTRL_TRIANGLE))
-            properties = true;
+            properties = !properties;
         
         if (Utils::IsButtonPressed(PSP_CTRL_LTRIGGER)) {
             degrees -= 90;
