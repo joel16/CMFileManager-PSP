@@ -34,8 +34,4 @@ jobs:
     
     - uses: actions/upload-artifact@v2
       with:
-        path: input_driver/input_driver.prx
-    
-    - uses: actions/upload-artifact@v2
-      with:
         path: app/EBOOT.PBP

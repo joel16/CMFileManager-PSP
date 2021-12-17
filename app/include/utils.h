@@ -42,8 +42,6 @@ namespace Utils {
     int ReadControls(void);
     int IsButtonPressed(enum PspCtrlButtons buttons);
     int IsButtonHeld(enum PspCtrlButtons buttons);
-    int IsKButtonPressed(enum PspCtrlButtons buttons);
-    int IsKButtonHeld(enum PspCtrlButtons buttons);
     enum PspCtrlButtons GetEnterButton(void);
     enum PspCtrlButtons GetCancelButton(void);
     float GetAnalogX(void);

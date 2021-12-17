@@ -23,6 +23,3 @@ int pspIoGetstat(const char *file, SceIoStat *stat);
 int pspIoRename(const char *oldname, const char *newname);
 int pspIoRemoveFile(const char *file);
 int pspIoDevctl(const char *dev, unsigned int cmd, void *indata, int inlen, void *outdata, int outlen);
-
-// input_driver functions
-unsigned int pspGetButtons(void);

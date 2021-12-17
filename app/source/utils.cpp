@@ -25,7 +25,7 @@ namespace Utils {
     constexpr unsigned int CTRL_DEADZONE_DELAY = 500000;
     constexpr unsigned int CTRL_DELAY = 100000;
 
-    static SceCtrlData pad, kernel_pad, prev_pad;
+    static SceCtrlData pad, prev_pad;
     static unsigned int last_button = 0;
     static int last_button_tick = 0, deadzone_tick = 0;
     static bool usb_module_loaded = false;
@@ -39,8 +39,7 @@ namespace Utils {
     static std::vector<Module> kernel_modules {
         { "audio_driver.prx", -1, },
         { "display_driver.prx", -1, },
-        { "fs_driver.prx", -1, },
-        { "input_driver.prx", -1, }
+        { "fs_driver.prx", -1, }
     };
     
     static std::vector<Module> usb_modules {
@@ -385,7 +384,6 @@ namespace Utils {
     
     int ReadControls(void) {
         prev_pad = pad;
-        kernel_pad.Buttons = pspGetButtons();
         sceCtrlReadBufferPositive(&pad, 1);
         
         if (pad.Buttons == last_button) {
@@ -410,14 +408,6 @@ namespace Utils {
     
     int IsButtonHeld(enum PspCtrlButtons buttons) {
         return pad.Buttons & buttons;
-    }
-    
-    int IsKButtonPressed(enum PspCtrlButtons buttons) {
-        return ((kernel_pad.Buttons & buttons) == buttons) && ((prev_pad.Buttons & buttons) != buttons);
-    }
-    
-    int IsKButtonHeld(enum PspCtrlButtons buttons) {
-        return kernel_pad.Buttons & buttons;
     }
     
     enum PspCtrlButtons GetEnterButton(void) {

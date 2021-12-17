@@ -34,9 +34,6 @@ extern int pspIoRename(const char *oldname, const char *newname);
 extern int pspIoRemoveFile(const char *file);
 extern int pspIoDevctl(const char *dev, unsigned int cmd, void *indata, int inlen, void *outdata, int outlen);
 
-// input_driver functions
-extern unsigned int pspGetButtons(void);
-
 #if defined (__cplusplus)
 }
 #endif
