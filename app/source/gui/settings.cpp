@@ -80,11 +80,11 @@ namespace GUI {
         G2D::DrawImage(cfg.sort == 3? icon_radio_on[cfg.dark_theme] : icon_radio_off[cfg.dark_theme], 425, 192);
     }
 
-    static void ControlSortSettings(MenuItem *item) {
+    static void ControlSortSettings(MenuItem &item) {
         if (Utils::IsButtonPressed(PSP_CTRL_ENTER)) {
             cfg.sort = selection;
             Config::Save(cfg);
-            FS::GetDirList(cfg.cwd, item->entries);
+            FS::GetDirList(cfg.cwd, item.entries);
         }
         else if (Utils::IsButtonPressed(PSP_CTRL_CANCEL)) {
             selection = 0;
@@ -153,7 +153,7 @@ namespace GUI {
         G2D::DrawImage(cfg.dev_options? icon_toggle_on[cfg.dark_theme] : icon_toggle_off, 415, 187);
     }
     
-    static void ControlGeneralSettings(MenuItem *item, int *ctrl) {
+    static void ControlGeneralSettings(MenuItem &item, int &ctrl) {
         if (Utils::IsButtonPressed(PSP_CTRL_ENTER)) {
             switch(selection) {
                 case 0:
@@ -184,13 +184,13 @@ namespace GUI {
         }
         else if (Utils::IsButtonPressed(PSP_CTRL_CANCEL)) {
             selection = 0;
-            item->state = MENU_STATE_FILEBROWSER;
+            item.state = MENU_STATE_FILEBROWSER;
         }
 
         Utils::SetBounds(selection, 0, 4);
     }
 
-    void DisplaySettings(MenuItem *item) {
+    void DisplaySettings(MenuItem &item) {
         G2D::DrawRect(0, 18, 480, 34, MENU_BAR_COLOUR);
         G2D::DrawRect(0, 52, 480, 220, BG_COLOUR);
         G2D::DrawImage(icon_back, 5, 20);
@@ -219,10 +219,10 @@ namespace GUI {
         }
     }
 
-    void ControlSettings(MenuItem *item, int *ctrl) {
-        if (*ctrl & PSP_CTRL_UP)
+    void ControlSettings(MenuItem &item, int &ctrl) {
+        if (ctrl & PSP_CTRL_UP)
             selection--;
-        else if (*ctrl & PSP_CTRL_DOWN)
+        else if (ctrl & PSP_CTRL_DOWN)
             selection++;
         
         switch(settings_state) {

@@ -14,8 +14,8 @@ namespace GUI {
     static float pos_x = -180.f;
     static const float pos_x_bounds = 0.f;
 
-    void HandleMenubarAnim(float *delta_time) {
-        pos_x += 1000 * (*delta_time);
+    void HandleMenubarAnim(float &delta) {
+        pos_x += delta;
         
         if (pos_x > 0)
             pos_x = pos_x_bounds;
@@ -90,10 +90,10 @@ namespace GUI {
         }
     }
 
-    void ControlMenubar(MenuItem *item, int *ctrl) {
-        if (*ctrl & PSP_CTRL_UP)
+    void ControlMenubar(MenuItem &item, int &ctrl) {
+        if (ctrl & PSP_CTRL_UP)
             selection--;
-        else if (*ctrl & PSP_CTRL_DOWN)
+        else if (ctrl & PSP_CTRL_DOWN)
             selection++;
             
         if (is_psp_go) {
@@ -227,16 +227,16 @@ namespace GUI {
             
             pos_x -= 10.0;
             pos_x = -180;
-            FS::GetDirList(cfg.cwd, item->entries);
+            FS::GetDirList(cfg.cwd, item.entries);
             if ((device == BROWSE_STATE_FLASH0) || (device == BROWSE_STATE_FLASH1) || (device == BROWSE_STATE_FLASH2) || (device == BROWSE_STATE_FLASH3))
                 cfg.cwd.pop_back();
 
-            item->state = MENU_STATE_FILEBROWSER;
+            item.state = MENU_STATE_FILEBROWSER;
         }
         else if ((Utils::IsButtonPressed(PSP_CTRL_CANCEL)) || (Utils::IsButtonPressed(PSP_CTRL_SELECT))) {
             pos_x -= 10.0;
             pos_x = -180;
-            item->state = MENU_STATE_FILEBROWSER;
+            item.state = MENU_STATE_FILEBROWSER;
         }
     }
 }

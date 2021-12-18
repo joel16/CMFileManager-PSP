@@ -14,18 +14,18 @@
 namespace GUI {
     static MenuItem item;
 
-    void ResetCheckbox(MenuItem *item) {
-        item->checked.clear();
-        item->checked_copy.clear();
-        item->checked.resize(item->entries.size());
-        item->checked.assign(item->checked.size(), false);
-        item->checked_cwd.clear();
-        item->checked_count = 0;
+    void ResetCheckbox(MenuItem &itemitem) {
+        item.checked.clear();
+        item.checked_copy.clear();
+        item.checked.resize(item.entries.size());
+        item.checked.assign(item.checked.size(), false);
+        item.checked_cwd.clear();
+        item.checked_count = 0;
     };
 
-    void GetStorageSize(MenuItem *item) {
-        item->total_storage = Utils::GetTotalStorage();
-        item->used_storage = Utils::GetUsedStorage();
+    void GetStorageSize(MenuItem &itemitem) {
+        item.total_storage = Utils::GetTotalStorage();
+        item.used_storage = Utils::GetUsedStorage();
     }
 
     void DisplayStatusBar(void) {
@@ -61,7 +61,7 @@ namespace GUI {
         G2D::DrawRect(0, 18, 480, 34, MENU_BAR_COLOUR);
         G2D::DrawImageScale(icon_nav_drawer, 5, 24, 26.f, 26.f);
         GUI::DisplayStatusBar();
-        GUI::DisplayFileBrowser(&item);
+        GUI::DisplayFileBrowser(item);
         
         G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50 : 80));
         G2D::DrawImage(dialog[cfg.dark_theme], ((480 - (dialog[0]->w)) / 2), ((272 - (dialog[0]->h)) / 2));
@@ -84,21 +84,24 @@ namespace GUI {
         if (R_FAILED(ret = FS::GetDirList(cfg.cwd, item.entries)))
             return ret;
 
-        GUI::ResetCheckbox(&item);
-        GUI::GetStorageSize(&item);
-        
-        u64 last = 0;
-        u32 tick = sceRtcGetTickResolution();
-        sceRtcGetCurrentTick(&last);
+        GUI::ResetCheckbox(item);
+        GUI::GetStorageSize(item);
 
         Colours::Get();
+        
+        // Delta time
+        u64 last_tick = 0;
+        float resolution = sceRtcGetTickResolution() / 1000.f;
+        sceRtcGetCurrentTick(&last_tick);
 
         while(g_running) {
-            u64 current = 0;
-            sceRtcGetCurrentTick(&current);
-            
-            float delta_time = (current - last) / static_cast<float>(tick);
-            last = current;
+            u64 current_tick = 0;
+            sceRtcGetCurrentTick(&current_tick);
+            float delta = (current_tick - last_tick) / resolution;
+            last_tick = current_tick;
+
+            if (delta < 0.001f)
+                delta = 0.001f;
             
             int ctrl = Utils::ReadControls();
             
@@ -107,42 +110,42 @@ namespace GUI {
             G2D::DrawRect(0, 18, 480, 34, MENU_BAR_COLOUR);
             GUI::DisplayStatusBar();
             G2D::DrawImageScale(icon_nav_drawer, 5, 24, 26.f, 26.f);
-            GUI::DisplayFileBrowser(&item);
+            GUI::DisplayFileBrowser(item);
 
             switch(item.state) {
                 case MENU_STATE_MENUBAR:
-                    GUI::HandleMenubarAnim(&delta_time);
+                    GUI::HandleMenubarAnim(delta);
                     GUI::DisplayMenubar();
-                    GUI::ControlMenubar(&item, &ctrl);
+                    GUI::ControlMenubar(item, ctrl);
                     break;
                 
                 case MENU_STATE_FILEBROWSER:
-                    GUI::ControlFileBrowser(&item, &ctrl);
+                    GUI::ControlFileBrowser(item, ctrl);
                     break;
                 
                 case MENU_STATE_OPTIONS:
-                    GUI::DisplayFileOptions(&item);
-                    GUI::ControlFileOptions(&item, &ctrl);
+                    GUI::DisplayFileOptions(item);
+                    GUI::ControlFileOptions(item, ctrl);
                     break;
 
                 case MENU_STATE_PROPERTIES:
-                    GUI::DisplayFileProperties(&item);
-                    GUI::ControlFileProperties(&item);
+                    GUI::DisplayFileProperties(item);
+                    GUI::ControlFileProperties(item);
                     break;
 
                 case MENU_STATE_DELETE:
                     GUI::DisplayDeleteOptions();
-                    GUI::ControlDeleteOptions(&item, &ctrl);
+                    GUI::ControlDeleteOptions(item, ctrl);
                     break;
 
                 case MENU_STATE_SETTINGS:
-                    GUI::DisplaySettings(&item);
-                    GUI::ControlSettings(&item, &ctrl);
+                    GUI::DisplaySettings(item);
+                    GUI::ControlSettings(item, ctrl);
                     break;
 
                 case MENU_STATE_IMAGEVIEWER:
-                    GUI::DisplayImageViewer(&item);
-                    GUI::ControlImageViewer(&item, &delta_time);
+                    GUI::DisplayImageViewer(item);
+                    GUI::ControlImageViewer(item, delta);
                     break;
 
                 default:

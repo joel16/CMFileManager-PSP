@@ -18,51 +18,51 @@ namespace Options {
         column = 0;
     }
 
-    static void HandleMultipleCopy(MenuItem *item, int (*func)()) {
+    static void HandleMultipleCopy(MenuItem &item, int (*func)()) {
         int ret = 0;
         std::vector<SceIoDirent> entries;
         
-        if (R_FAILED(ret = FS::GetDirList(item->checked_cwd.data(), entries)))
+        if (R_FAILED(ret = FS::GetDirList(item.checked_cwd.data(), entries)))
             return;
             
-        for (u32 i = 0; i < item->checked_copy.size(); i++) {
-            if (item->checked_copy.at(i)) {
-                FS::Copy(entries[i], item->checked_cwd);
+        for (u32 i = 0; i < item.checked_copy.size(); i++) {
+            if (item.checked_copy.at(i)) {
+                FS::Copy(entries[i], item.checked_cwd);
                 if (R_FAILED((*func)())) {
-                    FS::GetDirList(cfg.cwd, item->entries);
+                    FS::GetDirList(cfg.cwd, item.entries);
                     GUI::ResetCheckbox(item);
                     break;
                 }
             }
         }
         
-        FS::GetDirList(cfg.cwd, item->entries);
+        FS::GetDirList(cfg.cwd, item.entries);
         GUI::ResetCheckbox(item);
         entries.clear();
     }
 
-    static void CreateFolder(MenuItem *item) {
+    static void CreateFolder(MenuItem &item) {
         std::string name = G2D::KeyboardGetText("Enter folder name", "New folder");
         std::string path = FS::BuildPath(cfg.cwd, name);
         
         if (R_SUCCEEDED(FS::MakeDir(path.c_str()))) {
-            FS::GetDirList(cfg.cwd, item->entries);
+            FS::GetDirList(cfg.cwd, item.entries);
             GUI::ResetCheckbox(item);
         }
     }
 
-    static void CreateFile(MenuItem *item) {
+    static void CreateFile(MenuItem &item) {
         std::string name = G2D::KeyboardGetText("Enter file name", "New File");
         std::string path = FS::BuildPath(cfg.cwd, name);
         
         if (R_SUCCEEDED(FS::CreateFile(path.c_str()))) {
-            FS::GetDirList(cfg.cwd, item->entries);
+            FS::GetDirList(cfg.cwd, item.entries);
             GUI::ResetCheckbox(item);
         }
     }
 
-    static void Rename(MenuItem *item, const std::string &filename) {
-        std::string src_path = FS::BuildPath(cfg.cwd, item->entries[item->selected].d_name);
+    static void Rename(MenuItem &item, const std::string &filename) {
+        std::string src_path = FS::BuildPath(cfg.cwd, item.entries[item.selected].d_name);
         std::string name = G2D::KeyboardGetText("Enter new name", filename);
         std::string dest_path = FS::BuildPath(cfg.cwd, name);
 
@@ -71,63 +71,63 @@ namespace Options {
 #else
         if (R_SUCCEEDED(pspIoRename(src_path.c_str(), dest_path.c_str()))) {
 #endif
-            FS::GetDirList(cfg.cwd, item->entries);
+            FS::GetDirList(cfg.cwd, item.entries);
             Options::ResetSelector();
             options_more = false;
-            item->state = MENU_STATE_FILEBROWSER;
+            item.state = MENU_STATE_FILEBROWSER;
         }
     }
 
-    static void Copy(MenuItem *item) {
+    static void Copy(MenuItem &item) {
         if (!copy) {
-            if ((item->checked_count >= 1) && (item->checked_cwd.compare(cfg.cwd) != 0))
+            if ((item.checked_count >= 1) && (item.checked_cwd.compare(cfg.cwd) != 0))
                 GUI::ResetCheckbox(item);
-            if (item->checked_count <= 1)
-                FS::Copy(item->entries[item->selected], cfg.cwd);
+            if (item.checked_count <= 1)
+                FS::Copy(item.entries[item.selected], cfg.cwd);
             
             copy = !copy;
-            item->state = MENU_STATE_FILEBROWSER;
+            item.state = MENU_STATE_FILEBROWSER;
         }
         else {
-            if ((item->checked_count > 1) && (item->checked_cwd.compare(cfg.cwd) != 0))
+            if ((item.checked_count > 1) && (item.checked_cwd.compare(cfg.cwd) != 0))
                 Options::HandleMultipleCopy(item, &FS::Paste);
             else {
                 if (R_SUCCEEDED(FS::Paste())) {
-                    FS::GetDirList(cfg.cwd, item->entries);
+                    FS::GetDirList(cfg.cwd, item.entries);
                     GUI::ResetCheckbox(item);
                 }
             }
             
             GUI::GetStorageSize(item);
             copy = !copy;
-            item->state = MENU_STATE_FILEBROWSER;
+            item.state = MENU_STATE_FILEBROWSER;
         }
     }
 
-    static void Move(MenuItem *item) {
+    static void Move(MenuItem &item) {
         if (!move) {
-            if ((item->checked_count >= 1) && (item->checked_cwd.compare(cfg.cwd) != 0))
+            if ((item.checked_count >= 1) && (item.checked_cwd.compare(cfg.cwd) != 0))
                 GUI::ResetCheckbox(item);
                 
-            if (item->checked_count <= 1)
-                FS::Copy(item->entries[item->selected], cfg.cwd);
+            if (item.checked_count <= 1)
+                FS::Copy(item.entries[item.selected], cfg.cwd);
         }
         else {
-            if ((item->checked_count > 1) && (item->checked_cwd.compare(cfg.cwd) != 0))
+            if ((item.checked_count > 1) && (item.checked_cwd.compare(cfg.cwd) != 0))
                 Options::HandleMultipleCopy(item, &FS::Move);
             else if (R_SUCCEEDED(FS::Move())) {
-                FS::GetDirList(cfg.cwd, item->entries);
+                FS::GetDirList(cfg.cwd, item.entries);
                 GUI::ResetCheckbox(item);
             }
         }
         
         move = !move;
-        item->state = MENU_STATE_FILEBROWSER;
+        item.state = MENU_STATE_FILEBROWSER;
     }
 }
 
 namespace GUI {
-    void DisplayFileOptions(MenuItem *item) {
+    void DisplayFileOptions(MenuItem &item) {
         G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50 : 80));
         G2D::DrawImage(options_dialog[cfg.dark_theme], (480 - options_dialog[0]->w) / 2, (272 - options_dialog[0]->h) / 2);
         G2D::FontSetStyle(1.f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
@@ -170,15 +170,15 @@ namespace GUI {
         }
     }
 
-    void ControlFileOptions(MenuItem *item, int *ctrl) {
-        if (*ctrl & PSP_CTRL_RIGHT)
+    void ControlFileOptions(MenuItem &item, int &ctrl) {
+        if (ctrl & PSP_CTRL_RIGHT)
             row++;
-        else if (*ctrl & PSP_CTRL_LEFT)
+        else if (ctrl & PSP_CTRL_LEFT)
             row--;
             
-        if (*ctrl & PSP_CTRL_DOWN)
+        if (ctrl & PSP_CTRL_DOWN)
             column++;
-        else if (*ctrl & PSP_CTRL_UP)
+        else if (ctrl & PSP_CTRL_UP)
             column--;
         
         if (!options_more) {
@@ -195,16 +195,16 @@ namespace GUI {
         }
 
         if (Utils::IsButtonPressed(PSP_CTRL_ENTER)) {
-            const std::string filename = item->entries[item->selected].d_name;
+            const std::string filename = item.entries[item.selected].d_name;
 
             if (row == 0) {
                 if (!options_more) {
                     if (column == 0)
-                        item->state = MENU_STATE_PROPERTIES;
+                        item.state = MENU_STATE_PROPERTIES;
                     else if (column == 1)
                         Options::Copy(item);
                     else if (column == 2)
-                        item->state = MENU_STATE_DELETE;
+                        item.state = MENU_STATE_DELETE;
                 }
                 else {
                     if (column == 0)
@@ -216,11 +216,11 @@ namespace GUI {
             else if (row == 1) {
                 if (!options_more) {
                     if (column == 0) {
-                        FS::GetDirList(cfg.cwd, item->entries);
+                        FS::GetDirList(cfg.cwd, item.entries);
                         Options::ResetSelector();
                         options_more = false;
-                        item->selected = 0;
-                        item->state = MENU_STATE_FILEBROWSER;
+                        item.selected = 0;
+                        item.state = MENU_STATE_FILEBROWSER;
                     }
                     else if (column == 1)
                         Options::Move(item);
@@ -239,14 +239,14 @@ namespace GUI {
                 move = false;
                 Options::ResetSelector();
                 options_more = false;
-                item->state = MENU_STATE_FILEBROWSER;
+                item.state = MENU_STATE_FILEBROWSER;
             }
         }
         if (Utils::IsButtonPressed(PSP_CTRL_CANCEL)) {
             Options::ResetSelector();
 
             if (!options_more)
-                item->state = MENU_STATE_FILEBROWSER;
+                item.state = MENU_STATE_FILEBROWSER;
             else
                 options_more = false;
         }

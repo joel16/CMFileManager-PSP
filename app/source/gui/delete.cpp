@@ -7,14 +7,14 @@
 #include "utils.h"
 
 namespace Options {
-    void Delete(MenuItem *item, int *selection) {
+    void Delete(MenuItem &item, int *selection) {
         int ret = 0;
         
-        if ((item->checked_count > 1) && (!item->checked_cwd.compare(cfg.cwd))) {
-            for (u32 i = 0; i < item->checked.size(); i++) {
-                if (item->checked.at(i)) {
-                    if (R_FAILED(ret = FS::Delete(item->entries[i]))) {
-                        FS::GetDirList(cfg.cwd, item->entries);
+        if ((item.checked_count > 1) && (!item.checked_cwd.compare(cfg.cwd))) {
+            for (u32 i = 0; i < item.checked.size(); i++) {
+                if (item.checked.at(i)) {
+                    if (R_FAILED(ret = FS::Delete(item.entries[i]))) {
+                        FS::GetDirList(cfg.cwd, item.entries);
                         GUI::ResetCheckbox(item);
                         break;
                     }
@@ -22,17 +22,17 @@ namespace Options {
             }
         }
         else
-            ret = FS::Delete(item->entries[item->selected]);
+            ret = FS::Delete(item.entries[item.selected]);
         
         if (R_SUCCEEDED(ret)) {
-            FS::GetDirList(cfg.cwd, item->entries);
+            FS::GetDirList(cfg.cwd, item.entries);
             GUI::ResetCheckbox(item);
         }
         
         GUI::GetStorageSize(item);
         *selection = 0;
-        item->selected = 0;
-        item->state = MENU_STATE_FILEBROWSER;
+        item.selected = 0;
+        item.state = MENU_STATE_FILEBROWSER;
     }
 }
 
@@ -62,21 +62,21 @@ namespace GUI {
         G2D::DrawText(((480 - (prompt_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 60, prompt.c_str());
     }
 
-    void ControlDeleteOptions(MenuItem *item, int *ctrl) {
-        if (*ctrl & PSP_CTRL_RIGHT)
+    void ControlDeleteOptions(MenuItem &item, int &ctrl) {
+        if (ctrl & PSP_CTRL_RIGHT)
             selection++;
-        else if (*ctrl & PSP_CTRL_LEFT)
+        else if (ctrl & PSP_CTRL_LEFT)
             selection--;
 
         if (Utils::IsButtonPressed(PSP_CTRL_ENTER)) {
             if (selection == 1)
                 Options::Delete(item, &selection);
             else
-                item->state = MENU_STATE_OPTIONS;
+                item.state = MENU_STATE_OPTIONS;
 
         }
         else if (Utils::IsButtonPressed(PSP_CTRL_CANCEL))
-            item->state = MENU_STATE_OPTIONS;
+            item.state = MENU_STATE_OPTIONS;
         
         Utils::SetBounds(selection, 0, 1);
     }
