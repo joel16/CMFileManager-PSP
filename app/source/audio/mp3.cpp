@@ -198,14 +198,6 @@ namespace MP3 {
     
     void Exit(void) {
         frames_read = 0;
-        
-        if (metadata.has_meta) {
-            metadata.has_meta = false;
-            
-            if (metadata.cover_image)
-                g2dTexFree(&metadata.cover_image);
-        }
-        
         mpg123_close(mp3);
         mpg123_delete(mp3);
         mpg123_exit();

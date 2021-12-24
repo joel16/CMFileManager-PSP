@@ -7,7 +7,7 @@
 #include "audio.h"
 #include "pspaudiolib_cm.h"
 
-AudioMetadata metadata;
+AudioMetadata metadata = { 0 };
 bool playing = true, paused = false;
 
 namespace Audio {
@@ -33,8 +33,7 @@ namespace Audio {
     } Decoder;
     
     static enum AudioFileType file_type = FILE_TYPE_NONE;
-    static AudioMetadata empty_metadata;
-    static Decoder decoder, empty_decoder;
+    static Decoder decoder = { 0 };
     
     static void Decode(void *buf, unsigned int length, void *userdata) {
         if ((!playing) || (paused)) {
@@ -181,7 +180,12 @@ namespace Audio {
         (* decoder.term)();
         
         // Clear metadata struct
-        metadata = empty_metadata;
-        decoder = empty_decoder;
+        if (metadata.has_meta) {
+            if (metadata.cover_image)
+                g2dTexFree(&metadata.cover_image);
+        }
+        
+        metadata = { 0 };
+        decoder =  { 0 };
     }
 }

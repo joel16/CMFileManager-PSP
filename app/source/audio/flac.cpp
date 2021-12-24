@@ -1,12 +1,8 @@
-#include <cassert>
-#include <cstring>
 #include <FLAC/stream_decoder.h>
 
 #include "audio.h"
 #include "log.h"
 #include "textures.h"
-
-#define FLACDECODE_IMAGE_BYTES_MAX (100 * 1024 * 1024) 
 
 namespace FLAC {
     typedef struct {

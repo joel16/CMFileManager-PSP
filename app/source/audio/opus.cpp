@@ -109,14 +109,6 @@ namespace OPUS {
     
     void Exit(void) {
         samples_read = 0;
-        
-        if (metadata.has_meta) {
-            metadata.has_meta = false;
-            
-            if (metadata.cover_image)
-                g2dTexFree(&metadata.cover_image);
-        }
-        
         op_free(opus);
     }
 }

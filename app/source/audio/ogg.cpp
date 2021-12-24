@@ -132,10 +132,6 @@ namespace OGG {
     
     void Exit(void) {
         samples_read = 0;
-        
-        if (metadata.has_meta)
-            metadata.has_meta = false;
-            
         ov_clear(&ogg);
         sceIoClose(ogg_file);
     }
