@@ -168,6 +168,10 @@ namespace Audio {
     u64 GetLengthSeconds(void) {
         return (Audio::GetLength() / (* decoder.rate)());
     }
+
+    u64 Seek(u64 index) {
+        return (* decoder.seek)(index);
+    }
     
     void Exit(void) {
         playing = true;

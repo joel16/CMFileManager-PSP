@@ -47,6 +47,8 @@ namespace AudioPlayer {
         
         std::string filename = FS::GetFilename(path);
         std::transform(filename.begin(), filename.end(), filename.begin(), ::toupper);
+
+        int seek_index = 0;
         
         while(playing) {
             g2dClear(cfg.dark_theme? BLACK_BG : WHITE);
@@ -98,7 +100,7 @@ namespace AudioPlayer {
             G2D::DrawRect(230, 245, ((static_cast<double>(Audio::GetPosition())/static_cast<double>(Audio::GetLength())) * 225.0), 2, WHITE);
             
             g2dFlip(G2D_VSYNC);
-            Utils::ReadControls();
+            int ctrl = Utils::ReadControls();
             
             if (Utils::IsButtonPressed(PSP_CTRL_SELECT)) {
                 screen_disabled = !screen_disabled;
@@ -107,6 +109,25 @@ namespace AudioPlayer {
                     pspDisplayDisable();
                 else
                     pspDisplayEnable();
+            }
+
+            Utils::SetBounds(seek_index, 0, 225);
+
+            if (ctrl & PSP_CTRL_LEFT) {
+                if (!Audio::IsPaused())
+                    Audio::Pause();
+
+                seek_index -= 5;
+                Audio::Seek(seek_index);
+                Audio::Pause();
+            }
+            else if (ctrl & PSP_CTRL_RIGHT) {
+                if (!Audio::IsPaused())
+                    Audio::Pause();
+
+                seek_index += 5;
+                Audio::Seek(seek_index);
+                Audio::Pause();
             }
             
             if (Utils::IsButtonPressed(PSP_CTRL_ENTER))

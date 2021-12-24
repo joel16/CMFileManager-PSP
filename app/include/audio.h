@@ -95,6 +95,7 @@ namespace Audio {
     u64 GetLength(void);
     u64 GetPositionSeconds(void);
     u64 GetLengthSeconds(void);
+    u64 Seek(u64 index);
     void Exit(void);
 }
 

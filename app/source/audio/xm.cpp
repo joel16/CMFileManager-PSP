@@ -52,7 +52,7 @@ namespace XM {
     u64 Seek(u64 index) {
         int seek_sample = (total_samples * (index / 225.0));
         
-        if (xmp_seek_time(xmp, seek_sample/44.1) >= 0) {
+        if (xmp_seek_time(xmp, (seek_sample / 44.1)) >= 0) {
             samples_read = seek_sample;
             return samples_read;
         }

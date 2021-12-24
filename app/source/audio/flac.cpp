@@ -219,7 +219,14 @@ namespace FLAC {
     }
     
     u64 Seek(u64 index) {
-        return 0;
+        FLAC__uint64 seek_sample = (cb_info.total_samples * (index / 225.0));
+        
+        if (FLAC__stream_decoder_seek_absolute(flac, seek_sample) >= 0) {
+            cb_info.samples_read = seek_sample;
+            return cb_info.samples_read;
+        }
+        
+        return -1;
     }
     
     void Exit(void) {
