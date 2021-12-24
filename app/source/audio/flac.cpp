@@ -1,3 +1,4 @@
+#include <cstring>
 #include <FLAC/stream_decoder.h>
 
 #include "audio.h"
@@ -12,6 +13,7 @@ namespace FLAC {
         FLAC__uint32 sample_rate = 0;
         FLAC__uint32 bps = 0;
         FLAC__uint64 position = 0;
+        FLAC__uint64 samples_read = 0;
         FLAC__uint64 total_samples = 0;
     } FLACInfo;
     
@@ -22,17 +24,18 @@ namespace FLAC {
         FLACInfo *info = reinterpret_cast<FLACInfo *>(client_data);
 
         if (info->total_samples == 0) {
-            std::printf("No samples to decode!\n");
+            Log::Error("No samples to decode!\n");
             return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
         }
         if ((info->channels != 2) || (info->bps != 16)) {
-            std::printf("Not stereo 16-bit!\n");
+            Log::Error("Not stereo 16-bit!\n");
             return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
         }
         
         info->frame = frame;
         info->buffer = buffer;
         info->position = 0;
+        info->samples_read = frame->header.number.sample_number;
         return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
     }
     
@@ -126,13 +129,15 @@ namespace FLAC {
                 break;
                 
             default:
-                error = "???";
+                break;
         }
         
-        std::printf("error: %s\n", error.c_str());
+        Log::Error("error: %s\n", error.c_str());
     }
     
     int Init(const std::string &path) {
+        FLAC__StreamDecoderInitStatus ret = FLAC__STREAM_DECODER_INIT_STATUS_OK;
+
         if ((flac = FLAC__stream_decoder_new()) == nullptr)
             return -1;
 
@@ -149,8 +154,7 @@ namespace FLAC {
 
         if (FLAC__stream_decoder_set_metadata_respond(flac, FLAC__METADATA_TYPE_PICTURE) == false)
             Log::Error("FLAC__METADATA_TYPE_PICTURE response failed\n");
-
-        FLAC__StreamDecoderInitStatus ret;	
+        
         if ((ret = FLAC__stream_decoder_init_file(flac, path.c_str(), write_cb, metadata_cb, error_cb, &cb_info)) != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
             Log::Error("FLAC__stream_decoder_init_file failed: %s\n", FLAC__StreamDecoderInitStatusString[ret]);
             return ret;
@@ -181,7 +185,7 @@ namespace FLAC {
             return;
             
         while(decoded < length) {
-            if (cb_info.frame == nullptr || cb_info.position == cb_info.frame->header.blocksize) {
+            if ((cb_info.frame == nullptr) || (cb_info.position == cb_info.frame->header.blocksize)) {
                 ret = FLAC__stream_decoder_process_single(flac);
                 
                 if (ret == false) {
@@ -191,7 +195,7 @@ namespace FLAC {
                 
                 state = FLAC__stream_decoder_get_state(flac);
                 
-                if (state == FLAC__STREAM_DECODER_END_OF_STREAM || state == FLAC__STREAM_DECODER_ABORTED) {
+                if ((state == FLAC__STREAM_DECODER_END_OF_STREAM) || (state == FLAC__STREAM_DECODER_ABORTED)) {
                     playing = false;
                     return;
                 }
@@ -207,9 +211,7 @@ namespace FLAC {
     }
     
     u64 GetPosition(void) {
-        FLAC__uint64 position = 0;
-        FLAC__stream_decoder_get_decode_position(flac, &position);
-        return position;
+        return cb_info.samples_read;
     }
     
     u64 GetLength(void) {
