@@ -19,8 +19,11 @@ namespace AudioPlayer {
     } AudioState;
     
     static AudioState state = STATE_NONE;
-    
-    static void SecsToString(char *string, u64 seconds) {
+    static char *position_time = nullptr, *length_time = nullptr;
+    static float length_time_width = 0;
+    static std::string filename = std::string();
+
+    static void SecondsToString(char *string, u64 seconds) {
         int h = 0, m = 0, s = 0;
         h = (seconds / 3600);
         m = (seconds - (3600 * h)) / 60;
@@ -31,24 +34,80 @@ namespace AudioPlayer {
         else
             std::snprintf(string, 35, "%02d:%02d", m, s);
     }
-    
-    void Play(const std::string &path) {
+
+    static void InitPlayback(MenuItem &item) {
+        position_time = new char[35];
+        length_time = new char[35];
+        std::string path = FS::BuildPath(cfg.cwd, item.entries[item.selected].d_name);
+        
         Audio::Init(path);
-        
-        char *position_time = new char[35];
-        char *length_time = new char[35];
-        float length_time_width = 0;
-        
-        AudioPlayer::SecsToString(length_time, Audio::GetLengthSeconds());
+        AudioPlayer::SecondsToString(length_time, Audio::GetLengthSeconds());
         G2D::FontSetStyle(1.f, WHITE, INTRAFONT_ALIGN_LEFT);
         length_time_width = intraFontMeasureText(font, length_time);
         
-        bool screen_disabled = false;
-        
-        std::string filename = FS::GetFilename(path);
+        filename = FS::GetFilename(item.entries[item.selected].d_name);
         std::transform(filename.begin(), filename.end(), filename.begin(), ::toupper);
+    }
 
+    static void StopPlayback(void) {
+        delete[] length_time;
+        delete[] position_time;
+        Audio::Exit();
+    }
+
+    static bool HandleScroll(MenuItem &item, int index) {
+        if (FIO_S_ISDIR(item.entries[index].d_stat.st_mode))
+            return false;
+        else {
+            item.selected = index;
+            AudioPlayer::InitPlayback(item);
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool HandlePrev(MenuItem &item) {
+        bool ret = false;
+
+        for (int i = item.selected - 1; i > 0; i--) {
+            std::string filename = item.entries[i].d_name;
+            if (filename.empty())
+                continue;
+
+            if (FS::GetFileType(filename) != FileTypeAudio)
+                continue;
+                
+            if (!(ret = AudioPlayer::HandleScroll(item, i)))
+                continue;
+            else
+                break;
+        }
+
+        return ret;
+    }
+
+    static bool HandleNext(MenuItem &item) {
+        bool ret = false;
+
+        if (static_cast<unsigned int>(item.selected) == item.entries.size())
+            return ret;
+        
+        for (unsigned int i = item.selected + 1; i < item.entries.size(); i++) {
+            if (!(ret = AudioPlayer::HandleScroll(item, i)))
+                continue;
+            else
+                break;
+        }
+
+        return ret;
+    }
+    
+    void Play(MenuItem &item) {
+        bool screen_disabled = false;
         int seek_index = 0;
+
+        AudioPlayer::InitPlayback(item);
         
         while(playing) {
             g2dClear(cfg.dark_theme? BLACK_BG : WHITE);
@@ -92,7 +151,7 @@ namespace AudioPlayer {
             G2D::DrawImage(state == STATE_SHUFFLE? btn_shuffle_overlay : btn_shuffle, 205 + ((275 - btn_shuffle->w) / 2) - 45, 62 + ((200 - btn_shuffle->h) / 2) + 50);
             G2D::DrawImage(state == STATE_REPEAT? btn_repeat_overlay : btn_repeat, 205 + ((275 - btn_repeat->w) / 2) + 45, 62 + ((200 - btn_repeat->h) / 2) + 50);
             
-            AudioPlayer::SecsToString(position_time, Audio::GetPositionSeconds());
+            AudioPlayer::SecondsToString(position_time, Audio::GetPositionSeconds());
             G2D::DrawText(230, 240, position_time);
             G2D::DrawText(455 - length_time_width, 240, length_time);
             
@@ -129,6 +188,21 @@ namespace AudioPlayer {
                 Audio::Seek(seek_index);
                 Audio::Pause();
             }
+
+            if (Utils::IsButtonPressed(PSP_CTRL_LTRIGGER)) {
+                Audio::Stop();
+                AudioPlayer::StopPlayback();
+
+                if (!AudioPlayer::HandlePrev(item))
+                    return;
+            }
+            else if (Utils::IsButtonPressed(PSP_CTRL_RTRIGGER)) {
+                Audio::Stop();
+                AudioPlayer::StopPlayback();
+
+                if (!AudioPlayer::HandleNext(item))
+                    return;
+            }
             
             if (Utils::IsButtonPressed(PSP_CTRL_ENTER))
                 Audio::Pause();
@@ -137,9 +211,7 @@ namespace AudioPlayer {
                 Audio::Stop();
         }
         
-        delete[] length_time;
-        delete[] position_time;
-        Audio::Exit();
+        AudioPlayer::StopPlayback();
         
         // If user tries to exit with screen disabled, enable it.
         if (screen_disabled)

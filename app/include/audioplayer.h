@@ -1,8 +1,10 @@
 #ifndef _CMFILEMANAGER_AUDIOPLAYER_H_
 #define _CMFILEMANAGER_AUDIOPLAYER_H_
 
+#include "gui.h"
+
 namespace AudioPlayer {
-    int Play(const std::string &path);
+    int Play(MenuItem &item);
 }
 
 #endif

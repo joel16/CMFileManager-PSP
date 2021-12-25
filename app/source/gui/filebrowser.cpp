@@ -120,7 +120,7 @@ namespace GUI {
                         break;
                     
                     case FileTypeAudio:
-                        AudioPlayer::Play(path);
+                        AudioPlayer::Play(item);
                         break;
 
                     case FileTypeArchive:

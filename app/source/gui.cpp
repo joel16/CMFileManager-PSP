@@ -14,7 +14,7 @@
 namespace GUI {
     static MenuItem item;
 
-    void ResetCheckbox(MenuItem &itemitem) {
+    void ResetCheckbox(MenuItem &item) {
         item.checked.clear();
         item.checked_copy.clear();
         item.checked.resize(item.entries.size());
@@ -23,7 +23,7 @@ namespace GUI {
         item.checked_count = 0;
     };
 
-    void GetStorageSize(MenuItem &itemitem) {
+    void GetStorageSize(MenuItem &item) {
         item.total_storage = Utils::GetTotalStorage();
         item.used_storage = Utils::GetUsedStorage();
     }

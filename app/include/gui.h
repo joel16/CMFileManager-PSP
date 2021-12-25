@@ -34,33 +34,33 @@ typedef struct {
 extern bool g_running;
 
 namespace GUI {
-    void ResetCheckbox(MenuItem &itemitem);
-    void GetStorageSize(MenuItem &itemitem);
+    void ResetCheckbox(MenuItem &item);
+    void GetStorageSize(MenuItem &item);
     void DisplayStatusBar(void);
     void ProgressBar(const std::string &title, std::string message, u64 offset, u64 size);
     int RenderLoop(void);
 
     void HandleMenubarAnim(float &delta);
     void DisplayMenubar(void);
-    void ControlMenubar(MenuItem &itemitem, int &ctrl);
+    void ControlMenubar(MenuItem &item, int &ctrl);
 
-    void DisplayFileBrowser(MenuItem &itemitem);
-    void ControlFileBrowser(MenuItem &itemitem, int &ctrl);
+    void DisplayFileBrowser(MenuItem &item);
+    void ControlFileBrowser(MenuItem &item, int &ctrl);
 
-    void DisplayFileOptions(MenuItem &itemitem);
-    void ControlFileOptions(MenuItem &itemitem, int &ctrl);
+    void DisplayFileOptions(MenuItem &item);
+    void ControlFileOptions(MenuItem &item, int &ctrl);
 
-    void DisplayFileProperties(MenuItem &itemitem);
-    void ControlFileProperties(MenuItem &itemitem);
+    void DisplayFileProperties(MenuItem &item);
+    void ControlFileProperties(MenuItem &item);
 
     void DisplayDeleteOptions(void);
-    void ControlDeleteOptions(MenuItem &itemitem, int &ctrl);
+    void ControlDeleteOptions(MenuItem &item, int &ctrl);
 
-    void DisplaySettings(MenuItem &itemitem);
-    void ControlSettings(MenuItem &itemitem, int &ctrl);
+    void DisplaySettings(MenuItem &item);
+    void ControlSettings(MenuItem &item, int &ctrl);
 
-    void DisplayImageViewer(MenuItem &itemitem);
-    void ControlImageViewer(MenuItem &itemitem, float &delta);
+    void DisplayImageViewer(MenuItem &item);
+    void ControlImageViewer(MenuItem &item, float &delta);
 }
 
 #endif
