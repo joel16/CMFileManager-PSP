@@ -11,8 +11,8 @@ OBJS := $(addsuffix .o,$(BINFILES)) \
         $(CFILES:.c=.o) $(SFILES:.S=.o) $(CPPFILES:.cpp=.o) $(GFXFILES:.png=.o) $(FONTFILES:.pgf=.o)
 
 VERSION_MAJOR :=  4
-VERSION_MINOR :=  0
-VERSION_MICRO :=  1
+VERSION_MINOR :=  1
+VERSION_MICRO :=  0
 
 INCDIR   = ../libs/ ../libs/include ../libs/libnsbmp ../libs/libnsgif ../libs/include/opus include
 CFLAGS   = -Os -Wall -ffast-math -Wno-narrowing -Wno-unused-variable \
