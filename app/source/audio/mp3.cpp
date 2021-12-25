@@ -98,16 +98,40 @@ namespace MP3 {
             return error;
         }
 
-        error = mpg123_param(mp3, MPG123_FLAGS, MPG123_FORCE_SEEKABLE | MPG123_FUZZY | MPG123_SEEKBUFFER | MPG123_GAPLESS, 0.0);
-        if (error != MPG123_OK)
+        error = mpg123_param(mp3, MPG123_FLAGS, MPG123_FORCE_SEEKABLE, 0);
+        if (error != MPG123_OK) {
+            Log::Error("mpg123_param(%s) MPG123_FLAGS failed: ", path.c_str(), mpg123_strerror(mp3));
             return error;
-            
-        // Let the seek index auto-grow and contain an entry for every frame
-        error = mpg123_param(mp3, MPG123_INDEX_SIZE, -1, 0.0);
-        if (error != MPG123_OK)
+        }
+
+        error = mpg123_param(mp3, MPG123_FLAGS, MPG123_QUIET, 0);
+        if (error != MPG123_OK) {
+            Log::Error("mpg123_param(%s) MPG123_FLAGS failed: ", path.c_str(), mpg123_strerror(mp3));
             return error;
+        }
+
+        // Built-in mpg123 support for gapless decoding is disabled for now, since it does not work well with seeking.
+        error = mpg123_param(mp3, MPG123_REMOVE_FLAGS, MPG123_GAPLESS, 0);
+        if (error != MPG123_OK) {
+            Log::Error("mpg123_param(%s) MPG123_REMOVE_FLAGS failed: ", path.c_str(), mpg123_strerror(mp3));
+            return error;
+        }
+        
+        // Tells mpg123 to use a small read-ahead buffer for better MPEG sync; essential for MP3 radio streams.
+        error = mpg123_param(mp3, MPG123_ADD_FLAGS, MPG123_SEEKBUFFER, 0);
+        if (error != MPG123_OK) {
+            Log::Error("mpg123_param(%s) MPG123_ADD_FLAGS failed: ", path.c_str(), mpg123_strerror(mp3));
+            return error;
+        }
+
+        // Sets the resync limit to the end of the stream (e.g. don't give up prematurely).
+        error = mpg123_param(mp3, MPG123_RESYNC_LIMIT, -1, 0);
+        if (error != MPG123_OK) {
+            Log::Error("mpg123_param(%s) MPG123_RESYNC_LIMIT failed: ", path.c_str(), mpg123_strerror(mp3));
+            return error;
+        }
             
-        error = mpg123_param(mp3, MPG123_ADD_FLAGS, MPG123_PICTURE, 0.);
+        error = mpg123_param(mp3, MPG123_ADD_FLAGS, MPG123_PICTURE, 0);
         if (error != MPG123_OK) {
             Log::Error("mpg123_param(%s) MPG123_ADD_FLAGS failed: ", path.c_str(), mpg123_strerror(mp3));
             return error;
@@ -151,8 +175,9 @@ namespace MP3 {
                 }
             }
         }
-        
-        mpg123_getformat(mp3, &sample_rate, &channels, nullptr);
+
+        mpg123_getformat(mp3, &sample_rate, &channels, 0);
+        mpg123_format_none(mp3);
         mpg123_format(mp3, sample_rate, channels, MPG123_ENC_SIGNED_16);
         total_samples = mpg123_length(mp3);
         return 0;
@@ -173,7 +198,7 @@ namespace MP3 {
         ret = mpg123_read(mp3, static_cast<unsigned char *>(buf), length * (sizeof(s16) * MP3::GetChannels()), &done);
         
         frames_read = mpg123_tell(mp3);
-        if (frames_read >= total_samples || ret == MPG123_DONE)
+        if ((frames_read >= total_samples) || (ret == MPG123_DONE))
             playing = false;
     }
     
