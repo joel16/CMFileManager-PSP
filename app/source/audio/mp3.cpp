@@ -7,8 +7,8 @@
 #include "textures.h"
 
 namespace MP3 {
-    static mpg123_handle *mp3;
-    static u64 frames_read = 0, total_samples = 0;
+    static mpg123_handle *mp3 = nullptr;
+    static u64 samples_read = 0, total_samples = 0;
     static int channels = 0;
     static long sample_rate = 0;
     
@@ -197,13 +197,13 @@ namespace MP3 {
         
         ret = mpg123_read(mp3, static_cast<unsigned char *>(buf), length * (sizeof(s16) * MP3::GetChannels()), &done);
         
-        frames_read = mpg123_tell(mp3);
-        if ((frames_read >= total_samples) || (ret == MPG123_DONE))
+        samples_read = mpg123_tell(mp3);
+        if ((samples_read >= total_samples) || (ret == MPG123_DONE))
             playing = false;
     }
     
     u64 GetPosition(void) {
-        return frames_read;
+        return samples_read;
     }
     
     u64 GetLength(void) {
@@ -214,15 +214,15 @@ namespace MP3 {
         off_t seek_frame = (total_samples * (index / 225.0));
         
         if (mpg123_seek(mp3, seek_frame, SEEK_SET) >= 0) {
-            frames_read = seek_frame;
-            return frames_read;
+            samples_read = seek_frame;
+            return samples_read;
         }
         
         return -1;
     }
     
     void Exit(void) {
-        frames_read = 0;
+        samples_read = 0;
         mpg123_close(mp3);
         mpg123_delete(mp3);
         mpg123_exit();

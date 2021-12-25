@@ -20,7 +20,7 @@ namespace FLAC {
     static FLAC__StreamDecoder *flac = nullptr;
     static FLACInfo cb_info { 0 };
     
-    static FLAC__StreamDecoderWriteStatus write_cb(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client_data) {
+    static FLAC__StreamDecoderWriteStatus WriteCB(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client_data) {
         FLACInfo *info = reinterpret_cast<FLACInfo *>(client_data);
 
         if (info->total_samples == 0) {
@@ -39,7 +39,7 @@ namespace FLAC {
         return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
     }
     
-    static void metadata_cb(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *stream, void *client_data) {
+    static void MetadataCB(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *stream, void *client_data) {
         FLACInfo *info = reinterpret_cast<FLACInfo *>(client_data);
 
         switch (stream->type) {
@@ -108,7 +108,7 @@ namespace FLAC {
         }
     }
     
-    static void error_cb(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data) {
+    static void ErrorCB(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data) {
         std::string error;
 
         switch(status) {
@@ -155,7 +155,7 @@ namespace FLAC {
         if (FLAC__stream_decoder_set_metadata_respond(flac, FLAC__METADATA_TYPE_PICTURE) == false)
             Log::Error("FLAC__METADATA_TYPE_PICTURE response failed\n");
         
-        if ((ret = FLAC__stream_decoder_init_file(flac, path.c_str(), write_cb, metadata_cb, error_cb, &cb_info)) != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
+        if ((ret = FLAC__stream_decoder_init_file(flac, path.c_str(), FLAC::WriteCB, FLAC::MetadataCB, FLAC::ErrorCB, &cb_info)) != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
             Log::Error("FLAC__stream_decoder_init_file failed: %s\n", FLAC__StreamDecoderInitStatusString[ret]);
             return ret;
         }
@@ -220,13 +220,7 @@ namespace FLAC {
     
     u64 Seek(u64 index) {
         FLAC__uint64 seek_sample = (cb_info.total_samples * (index / 225.0));
-        
-        if (FLAC__stream_decoder_seek_absolute(flac, seek_sample) >= 0) {
-            cb_info.samples_read = seek_sample;
-            return cb_info.samples_read;
-        }
-        
-        return -1;
+        return FLAC__stream_decoder_seek_absolute(flac, seek_sample);
     }
     
     void Exit(void) {
