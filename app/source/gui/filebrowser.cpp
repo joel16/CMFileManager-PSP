@@ -77,7 +77,7 @@ namespace GUI {
         }
         else if (ctrl & PSP_CTRL_DOWN) {
             item.selected++;
-            if(static_cast<u32>(item.selected) > size)
+            if (static_cast<u32>(item.selected) > size)
                 item.selected = 0;
 
             if ((static_cast<u32>(item.selected) > (start + (max_entries - 1))) && ((start + (max_entries - 1)) < size))
