@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cstdio>
+#include <time.h>
 
 #include "audio.h"
 #include "colours.h"
@@ -87,13 +88,24 @@ namespace AudioPlayer {
         return ret;
     }
 
-    static bool HandleNext(MenuItem &item) {
+    static bool HandleNext(MenuItem &item, AudioState state) {
         bool ret = false;
 
         if (static_cast<unsigned int>(item.selected) == item.entries.size())
             return ret;
         
-        for (unsigned int i = item.selected + 1; i < item.entries.size(); i++) {
+        unsigned int i = 0;
+
+        if (state == STATE_NONE)
+            i = item.selected + 1;
+        else if (state == STATE_REPEAT)
+            i = item.selected;
+        else {
+            std::srand(time(nullptr));
+            i = std::rand() % (item.entries.size());
+        }
+
+        for (; i < item.entries.size(); i++) {
             if (!(ret = AudioPlayer::HandleScroll(item, i)))
                 continue;
             else
@@ -109,7 +121,7 @@ namespace AudioPlayer {
 
         AudioPlayer::InitPlayback(item);
         
-        while(playing) {
+        while(true) {
             g2dClear(cfg.dark_theme? BLACK_BG : WHITE);
             G2D::DrawImage(default_artwork_blur, 0, 0);
             G2D::DrawRect(0, 0, 480, 20, G2D_RGBA(97, 97, 97, 255));
@@ -161,6 +173,26 @@ namespace AudioPlayer {
             g2dFlip(G2D_VSYNC);
             int ctrl = Utils::ReadControls();
             
+            if (!playing) {
+                seek_index = 0;
+                Audio::Stop();
+                AudioPlayer::StopPlayback();
+                AudioPlayer::HandleNext(item, state);
+            }
+
+            if (Utils::IsButtonPressed(PSP_CTRL_TRIANGLE)) {
+                if (state != STATE_REPEAT)
+                    state = STATE_REPEAT;
+                else
+                    state = STATE_NONE;
+            }
+            else if (Utils::IsButtonPressed(PSP_CTRL_SQUARE)) {
+                if (state != STATE_SHUFFLE)
+                    state = STATE_SHUFFLE;
+                else
+                    state = STATE_NONE;
+            }
+            
             if (Utils::IsButtonPressed(PSP_CTRL_SELECT)) {
                 screen_disabled = !screen_disabled;
                 
@@ -175,7 +207,7 @@ namespace AudioPlayer {
             if (ctrl & PSP_CTRL_LEFT) {
                 if (!Audio::IsPaused())
                     Audio::Pause();
-
+                
                 seek_index -= 5;
                 Audio::Seek(seek_index);
                 Audio::Pause();
@@ -200,15 +232,17 @@ namespace AudioPlayer {
                 Audio::Stop();
                 AudioPlayer::StopPlayback();
 
-                if (!AudioPlayer::HandleNext(item))
+                if (!AudioPlayer::HandleNext(item, STATE_NONE))
                     return;
             }
             
             if (Utils::IsButtonPressed(PSP_CTRL_ENTER))
                 Audio::Pause();
                 
-            if (Utils::IsButtonPressed(PSP_CTRL_CANCEL))
+            if (Utils::IsButtonPressed(PSP_CTRL_CANCEL)) {
                 Audio::Stop();
+                break;
+            }
         }
         
         AudioPlayer::StopPlayback();
