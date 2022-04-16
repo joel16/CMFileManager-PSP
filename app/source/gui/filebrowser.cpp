@@ -28,7 +28,7 @@ namespace GUI {
         G2D::DrawRect(40, 43, 400, 3, SELECTOR_COLOUR);
 
         if ((device == BROWSE_STATE_INTERNAL) || (device == BROWSE_STATE_EXTERNAL)) {
-            float fill = (static_cast<double>(item.used_storage)/static_cast<double>(item.total_storage)) * 400.f;
+            float fill = (static_cast<float>(item.used_storage)/static_cast<float>(item.total_storage)) * 400.f;
             G2D::DrawRect(40, 43, fill, 3, TITLE_COLOUR);
         }
         

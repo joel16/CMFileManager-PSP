@@ -1,4 +1,3 @@
-#include <pspkernel.h>
 #include <pspsdk.h>
 #include <stdio.h>
 #include <string.h>

@@ -168,7 +168,7 @@ namespace AudioPlayer {
             G2D::DrawText(455 - length_time_width, 240, length_time);
             
             G2D::DrawRect(230, 245, 225, 2, G2D_RGBA(97, 97, 97, 150));
-            G2D::DrawRect(230, 245, ((static_cast<double>(Audio::GetPosition())/static_cast<double>(Audio::GetLength())) * 225.0), 2, WHITE);
+            G2D::DrawRect(230, 245, ((static_cast<float>(Audio::GetPosition())/static_cast<float>(Audio::GetLength())) * 225.0), 2, WHITE);
             
             g2dFlip(G2D_VSYNC);
             int ctrl = Utils::ReadControls();

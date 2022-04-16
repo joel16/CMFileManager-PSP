@@ -38,9 +38,12 @@ namespace GUI {
         G2D::FontSetStyle(1.f, WHITE, INTRAFONT_ALIGN_LEFT);
         G2D::DrawText(5, 14, time_string);
 
-        int state = scePowerIsBatteryCharging();
-        int percent = scePowerGetBatteryLifePercent();
-        int battery_val = (percent / 20);
+        int state = 0, percent = 0, battery_val = 0;
+        if (scePowerIsBatteryExist()) {
+            state = scePowerIsBatteryCharging();
+            percent = scePowerGetBatteryLifePercent();
+            battery_val = (percent / 20);
+        }
         
         static char percent_string[10];
         std::snprintf(percent_string, 10, "%d", percent);
