@@ -5,7 +5,6 @@
 extern "C" {
 #endif
 
-#include <sys/time.h>
 #include <pspsdk.h>
 #include <pspkernel.h>
 #include <psploadexec_kernel.h>
