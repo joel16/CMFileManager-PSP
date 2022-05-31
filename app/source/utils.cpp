@@ -21,6 +21,9 @@ enum PspCtrlButtons PSP_CTRL_ENTER, PSP_CTRL_CANCEL;
 BROWSE_STATE device = BROWSE_STATE_EXTERNAL;
 int g_psp_language = PSP_SYSTEMPARAM_LANGUAGE_ENGLISH;
 
+extern unsigned char audio_driver_prx_start[], display_driver_prx_start[], fs_driver_prx_start[];
+extern unsigned int audio_driver_prx_size, display_driver_prx_size, fs_driver_prx_size;
+
 namespace Utils {
     constexpr unsigned int CTRL_DEADZONE_DELAY = 500000;
     constexpr unsigned int CTRL_DELAY = 100000;
@@ -34,12 +37,14 @@ namespace Utils {
     typedef struct {
         const char *path = nullptr;
         int id = 0;
+        unsigned char *data = nullptr;
+        unsigned int size = 0;
     } Module;
     
     static std::vector<Module> kernel_modules {
-        { "audio_driver.prx", -1, },
-        { "display_driver.prx", -1, },
-        { "fs_driver.prx", -1, }
+        { "audio_driver.prx", -1, audio_driver_prx_start, audio_driver_prx_size },
+        { "display_driver.prx", -1, display_driver_prx_start, display_driver_prx_size },
+        { "fs_driver.prx", -1, fs_driver_prx_start, fs_driver_prx_size }
     };
     
     static std::vector<Module> usb_modules {
@@ -108,6 +113,31 @@ namespace Utils {
         }
         
         return ret;
+    }
+
+    // Basically removes and re-creates prx from memory -> then remove it after inital load
+    static int LoadStartModuleMem(const char *path, const void *buf, SceSize size) {
+        int ret = 0;
+        SceUID modID = 0;
+        
+        // Don't care if this passes or fails
+        sceIoRemove(path);
+        SceUID file = sceIoOpen(path, PSP_O_WRONLY | PSP_O_CREAT, 0777);
+        sceIoWrite(file, buf, size);
+        sceIoClose(file);
+        
+        if (R_FAILED(ret = modID = kuKernelLoadModule(path, 0, nullptr))) {
+            Log::Error("kuKernelLoadModule(%s) failed: 0x%08x\n", path, ret);
+            return ret;
+        }
+        
+        if (R_FAILED(ret = sceKernelStartModule(modID, 0, nullptr, nullptr, nullptr))) {
+            Log::Error("sceKernelStartModule(%s) failed: 0x%08x\n", path, ret);
+            return ret;
+        }
+        
+        sceIoRemove(path);
+        return 0;
     }
 
     static void StopUnloadModules(SceUID modID) {
@@ -216,7 +246,7 @@ namespace Utils {
 
     void InitKernelDrivers(void) {
         for (unsigned int i = 0; i < kernel_modules.size(); ++i)
-            kernel_modules[i].id = Utils::LoadStartModule(kernel_modules[i].path);
+            kernel_modules[i].id = Utils::LoadStartModuleMem(kernel_modules[i].path, kernel_modules[i].data, kernel_modules[i].size);
         
         Utils::InitUSB();
     }
