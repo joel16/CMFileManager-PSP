@@ -20,6 +20,7 @@ jobs:
     - name: Compile project
       run: make
     
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
+        name: CMFileManager-PSP
         path: app/EBOOT.PBP
