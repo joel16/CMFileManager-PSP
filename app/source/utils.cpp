@@ -21,8 +21,8 @@ enum PspCtrlButtons PSP_CTRL_ENTER, PSP_CTRL_CANCEL;
 BROWSE_STATE device = BROWSE_STATE_EXTERNAL;
 int g_psp_language = PSP_SYSTEMPARAM_LANGUAGE_ENGLISH;
 
-extern unsigned char audio_driver_prx_start[], display_driver_prx_start[], fs_driver_prx_start[];
-extern unsigned int audio_driver_prx_size, display_driver_prx_size, fs_driver_prx_size;
+extern unsigned char audio_driver_prx_start[], display_driver_prx_start[], fs_driver_prx_start[], module_driver_prx_start[];
+extern unsigned int audio_driver_prx_size, display_driver_prx_size, fs_driver_prx_size, module_driver_prx_size;
 
 namespace Utils {
     constexpr unsigned int CTRL_DEADZONE_DELAY = 500000;
@@ -33,6 +33,7 @@ namespace Utils {
     static int last_button_tick = 0, deadzone_tick = 0;
     static bool usb_module_loaded = false;
     static bool usb_actived = false;
+    static SceUID module_driver_id = 0;
     
     typedef struct {
         const char *path = nullptr;
@@ -116,7 +117,7 @@ namespace Utils {
     }
 
     // Basically removes and re-creates prx from memory -> then remove it after inital load
-    static int LoadStartModuleMem(const char *path, const void *buf, SceSize size) {
+    static int LoadStartModuleMemInitial(const char *path, const void *buf, SceSize size) {
         int ret = 0;
         SceUID modID = 0;
         
@@ -137,6 +138,23 @@ namespace Utils {
         }
         
         sceIoRemove(path);
+        return 0;
+    }
+
+    static int LoadStartModuleMem(const char *path, void *buf, SceSize size) {
+        int ret = 0;
+        SceUID modID = 0;
+        
+        if (R_FAILED(ret = modID = pspKernelLoadModuleBuffer(size, buf, 0, nullptr))) {
+            Log::Error("kuKernelLoadModule(%s) failed: 0x%08x\n", path, ret);
+            return ret;
+        }
+        
+        if (R_FAILED(ret = sceKernelStartModule(modID, 0, nullptr, nullptr, nullptr))) {
+            Log::Error("sceKernelStartModule(%s) failed: 0x%08x\n", path, ret);
+            return ret;
+        }
+
         return 0;
     }
 
@@ -245,6 +263,8 @@ namespace Utils {
     }
 
     void InitKernelDrivers(void) {
+        module_driver_id = LoadStartModuleMemInitial("module_driver.prx", module_driver_prx_start, module_driver_prx_size);
+
         for (unsigned int i = 0; i < kernel_modules.size(); ++i)
             kernel_modules[i].id = Utils::LoadStartModuleMem(kernel_modules[i].path, kernel_modules[i].data, kernel_modules[i].size);
         
@@ -252,12 +272,14 @@ namespace Utils {
     }
 
     void TermKernelDrivers(void) {
+        Utils::ExitUSB();
+
         for (int i = kernel_modules.size() - 1; i >= 0; --i) {
             Utils::StopUnloadModules(kernel_modules[i].id);
             kernel_modules[i].id = -1;
         }
         
-        Utils::ExitUSB();
+        Utils::StopUnloadModules(module_driver_id);
     }
     
     void UpdateUSB(void) {
