@@ -21,8 +21,8 @@ enum PspCtrlButtons PSP_CTRL_ENTER, PSP_CTRL_CANCEL;
 BROWSE_STATE device = BROWSE_STATE_EXTERNAL;
 int g_psp_language = PSP_SYSTEMPARAM_LANGUAGE_ENGLISH;
 
-extern unsigned char audio_driver_prx_start[], display_driver_prx_start[], fs_driver_prx_start[], module_driver_prx_start[];
-extern unsigned int audio_driver_prx_size, display_driver_prx_size, fs_driver_prx_size, module_driver_prx_size;
+extern unsigned char display_driver_prx_start[], fs_driver_prx_start[], module_driver_prx_start[];
+extern unsigned int display_driver_prx_size, fs_driver_prx_size, module_driver_prx_size;
 
 namespace Utils {
     constexpr unsigned int CTRL_DEADZONE_DELAY = 500000;
@@ -43,7 +43,6 @@ namespace Utils {
     } Module;
     
     static std::vector<Module> kernel_modules {
-        { "audio_driver.prx", -1, audio_driver_prx_start, audio_driver_prx_size },
         { "display_driver.prx", -1, display_driver_prx_start, display_driver_prx_size },
         { "fs_driver.prx", -1, fs_driver_prx_start, fs_driver_prx_size }
     };
