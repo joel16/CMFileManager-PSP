@@ -12,13 +12,13 @@ int pspAudioSetFrequency(int frequency) {
     void *func_addr = nullptr;
     int ret = 0;
     
-    func_addr = (void*)sctrlHENFindFunction("sceAudio_driver", "sceAudio_driver", 0xA2BEAA6C);
+    func_addr = (void *)sctrlHENFindFunction("sceAudio_driver", "sceAudio_driver", 0xA2BEAA6C);
     args.arg1 = static_cast<u32>(frequency);
 
     if (R_FAILED(ret = kuKernelCall(func_addr, &args)))
         Log::Error("%s: pspAudioSetFrequency returns 0x%08X\n", __func__, args.ret1);
-
-	return args.ret1;
+        
+    return args.ret1;
 }
 
 // display driver functions
