@@ -2,9 +2,9 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [ next ]
+    branches: [ next, font-fix ]
   pull_request:
-    branches: [ next ]
+    branches: [ next, font-fix ]
 
 jobs:
   build:
