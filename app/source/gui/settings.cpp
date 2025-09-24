@@ -28,11 +28,11 @@ namespace GUI {
         G2D::FontSetStyle(1.f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
         G2D::DrawText(((480 - (dialog[0]->w)) / 2) + 10, ((272 - (dialog[0]->h)) / 2) + 20, "FTP");
 
-        int ok_width = intraFontMeasureText(font, "OK");
-        G2D::DrawRect((409 - (ok_width)) - 5, (180 - (font->texYSize - 15)) - 5, ok_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
-        G2D::DrawText(409 - (ok_width), (192 - (font->texYSize - 15)) - 3, "OK");
+        int ok_width = intraFontMeasureText(fonts[FONT_DEFAULT], "OK");
+        G2D::DrawRect((409 - (ok_width)) - 5, (180 - (fonts[FONT_DEFAULT]->texYSize - 15)) - 5, ok_width + 10, (fonts[FONT_DEFAULT]->texYSize - 5) + 10, SELECTOR_COLOUR);
+        G2D::DrawText(409 - (ok_width), (192 - (fonts[FONT_DEFAULT]->texYSize - 15)) - 3, "OK");
         
-        int text_width = intraFontMeasureText(font, ftpText);
+        int text_width = intraFontMeasureText(fonts[FONT_DEFAULT], ftpText);
         G2D::FontSetStyle(1.f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
         G2D::DrawText(((480 - (text_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 60, ftpText);
     }
@@ -103,16 +103,16 @@ namespace GUI {
         G2D::FontSetStyle(1.f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
         G2D::DrawText(((480 - (dialog[0]->w)) / 2) + 10, ((272 - (dialog[0]->h)) / 2) + 20, "About");
 
-        int ok_width = intraFontMeasureText(font, "OK");
-        G2D::DrawRect((409 - (ok_width)) - 5, (180 - (font->texYSize - 15)) - 5, ok_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
-        G2D::DrawText(409 - (ok_width), (192 - (font->texYSize - 15)) - 3, "OK");
+        int ok_width = intraFontMeasureText(fonts[FONT_DEFAULT], "OK");
+        G2D::DrawRect((409 - (ok_width)) - 5, (180 - (fonts[FONT_DEFAULT]->texYSize - 15)) - 5, ok_width + 10, (fonts[FONT_DEFAULT]->texYSize - 5) + 10, SELECTOR_COLOUR);
+        G2D::DrawText(409 - (ok_width), (192 - (fonts[FONT_DEFAULT]->texYSize - 15)) - 3, "OK");
         
         G2D::FontSetStyle(1.f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
-        int version_width = intraFontMeasureText(font, "CMFileManager-PSP version: v4.0.0");
-        intraFontPrintf(font, ((480 - (version_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 50, "CMFileManager-PSP version: v%d.%d.%d", 
+        int version_width = intraFontMeasureText(fonts[FONT_DEFAULT], "CMFileManager-PSP version: v4.0.0");
+        intraFontPrintf(fonts[FONT_DEFAULT], ((480 - (version_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 50, "CMFileManager-PSP version: v%d.%d.%d", 
             VERSION_MAJOR, VERSION_MINOR, VERSION_MICRO);
 
-        int author_width = intraFontMeasureText(font, "Author: Joel16");
+        int author_width = intraFontMeasureText(fonts[FONT_DEFAULT], "Author: Joel16");
         G2D::DrawText(((480 - (author_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 68, "Author: Joel16");
     }
 

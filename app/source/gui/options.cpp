@@ -138,7 +138,7 @@ namespace Options {
 
 namespace GUI {
     void DisplayFileOptions(MenuItem &item) {
-        int cancelWidth = intraFontMeasureText(font, "CANCEL");
+        int cancelWidth = intraFontMeasureText(fonts[FONT_DEFAULT], "CANCEL");
 
         G2D::DrawRect(0, 18, 480, 254, G2D_RGBA(0, 0, 0, cfg.dark_theme? 50 : 80));
         G2D::DrawImage(options_dialog[cfg.dark_theme], (480 - options_dialog[0]->w) / 2, (272 - options_dialog[0]->h) / 2);
@@ -164,15 +164,15 @@ namespace GUI {
             G2D::DrawRect(241, 148, 107, 38, SELECTOR_COLOUR);
         }
         else if (column == 3 && !moreOptions) {
-            G2D::DrawRect((340 - cancelWidth) - 5, (230 - (font->texYSize - 6)) - 5, cancelWidth + 10,
-                (font->texYSize - 6) + 10, SELECTOR_COLOUR);
+            G2D::DrawRect((340 - cancelWidth) - 5, (230 - (fonts[FONT_DEFAULT]->texYSize - 6)) - 5, cancelWidth + 10,
+                (fonts[FONT_DEFAULT]->texYSize - 6) + 10, SELECTOR_COLOUR);
         }
         else if (column == 2 && moreOptions) {
-            G2D::DrawRect((340 - cancelWidth) - 5, (230 - (font->texYSize - 6)) - 5, cancelWidth + 10, 
-                (font->texYSize - 6) + 10, SELECTOR_COLOUR);
+            G2D::DrawRect((340 - cancelWidth) - 5, (230 - (fonts[FONT_DEFAULT]->texYSize - 6)) - 5, cancelWidth + 10, 
+                (fonts[FONT_DEFAULT]->texYSize - 6) + 10, SELECTOR_COLOUR);
         }
                 
-        G2D::DrawText(340 - cancelWidth, 230 - (font->texYSize - 15), "CANCEL");
+        G2D::DrawText(340 - cancelWidth, 230 - (fonts[FONT_DEFAULT]->texYSize - 15), "CANCEL");
         G2D::FontSetStyle(1.f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
         
         if (!moreOptions) {

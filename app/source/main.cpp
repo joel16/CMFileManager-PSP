@@ -33,21 +33,7 @@ namespace Services {
             return ret;
         }
         
-        if (R_FAILED(ret = intraFontInit())) {
-            Log::Error("intraFontInit failed: 0x%08x\n", ret);
-            return ret;
-        }
-        
-        font = intraFontLoad("flash0:/font/ltn8.pgf", INTRAFONT_CACHE_ALL);
-        G2D::FontSetStyle(1.f, WHITE, INTRAFONT_ALIGN_LEFT);
-        
-        // Font size cache
-        for (int i = 0; i < 256; i++) {
-            char character[2] = {0};
-            character[0] = i;
-            character[1] = '\0';
-            font_size_cache[i] = intraFontMeasureText(font, character);
-        }
+        G2D::LoadFonts();
         
         PSP_CTRL_ENTER = Utils::GetEnterButton();
         PSP_CTRL_CANCEL = Utils::GetCancelButton();
@@ -59,11 +45,12 @@ namespace Services {
         if (sceUmdCheckMedium() != 0) {
             int ret = 0;
             
-            if (R_FAILED(ret = sceUmdDeactivate(1, "disc0:")))
+            if (R_FAILED(ret = sceUmdDeactivate(1, "disc0:"))) {
                 Log::Error("sceUmdDeactivate(disc0) failed: 0x%x\n", ret);
+            }
         }
         
-        intraFontUnload(font);
+        G2D::UnloadFonts();
         Textures::Free();
         Utils::TermKernelDrivers();
         sceKernelExitGame();
@@ -85,8 +72,9 @@ namespace Services {
     int SetupCallbacks(void) {
         int thread = 0;
         
-        if (R_SUCCEEDED(thread = sceKernelCreateThread("CallbackThread", Services::CallbackThread, 0x11, 0xFA0, 0, nullptr)))
+        if (R_SUCCEEDED(thread = sceKernelCreateThread("CallbackThread", Services::CallbackThread, 0x11, 0xFA0, 0, nullptr))) {
             sceKernelStartThread(thread, 0, 0);
+        }
         
         return thread;
     }

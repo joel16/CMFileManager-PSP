@@ -8,9 +8,22 @@
 #include "log.h"
 #include "utils.h"
 
-intraFont *font;
+intraFont *fonts[NUM_FONTS];
 
 namespace G2D {
+    struct FontInfo {
+        const char *filename;
+        int encodingFlag;
+    };
+    
+    const FontInfo fontInfo[NUM_FONTS] = {
+        { "flash0:/font/ltn8.pgf",       INTRAFONT_STRING_UTF8 },
+        { "flash0:/font/jpn0.pgf",       INTRAFONT_STRING_SJIS },
+        { "flash0:/font/gb3s1518.bwfon", INTRAFONT_STRING_GBK },
+        { "flash0:/font/kr0.pgf",        INTRAFONT_STRING_KOR },
+        { "flash0:/font/arib.pgf",       INTRAFONT_STRING_UTF8 }
+    };
+
     void DrawRect(float x, float y, float width, float height, g2dColor colour) {
         g2dBeginRects(nullptr); {
             g2dSetColor(colour);
@@ -117,16 +130,16 @@ namespace G2D {
         return 0;
     }
 
-    char *KeyboardGetText(const std::string &desc_msg, const std::string &initial_msg) {
+    char *KeyboardGetText(const std::string &desc_msg, const std::string &initialMsg) {
         int ret = 0;
         size_t i = 0;
         static char str[128];
         unsigned short initial[128]  = { 0 };
         unsigned short desc[128]  = { 0 };
         
-        if (initial_msg.c_str()[0] != 0) {
-            for (i = 0; i <= initial_msg.length(); i++)
-                initial[i] = static_cast<unsigned short>(initial_msg.c_str()[i]);
+        if (initialMsg.c_str()[0] != 0) {
+            for (i = 0; i <= initialMsg.length(); i++)
+                initial[i] = static_cast<unsigned short>(initialMsg.c_str()[i]);
         }
         
         if (desc_msg.c_str()[0] != 0) {
@@ -140,15 +153,67 @@ namespace G2D {
         return 0;
     }
 
+    int LoadFonts(void) {
+        int ret = 0;
+
+        if (R_FAILED(ret = intraFontInit())) {
+            Log::Error("intraFontInit failed: 0x%08x\n", ret);
+            return ret;
+        }
+
+        for (int i = 0; i < NUM_FONTS; i++) {
+            fonts[i] = intraFontLoad(fontInfo[i].filename, fontInfo[i].encodingFlag);
+            if (!fonts[i]) {
+                Log::Error("intraFontLoad() failed: %s\n", fontInfo[i].filename);
+            }
+        }
+
+        for (int i = 0; i < NUM_FONTS - 1; i++) {
+            if (fonts[i] && fonts[i + 1]) {
+                intraFontSetAltFont(fonts[i], fonts[i + 1]);
+            }
+        }
+
+        G2D::FontSetStyle(1.f, WHITE, INTRAFONT_ALIGN_LEFT);
+
+        // Font size cache
+        for (int i = 0; i < 256; i++) {
+            char character[2] = {0};
+            character[0] = i;
+            character[1] = '\0';
+            font_size_cache[i] = intraFontMeasureText(fonts[FONT_DEFAULT], character);
+        }
+
+        return 0;
+    }
+
+    void UnloadFonts(void) {
+        for (int i = 0; i < NUM_FONTS; i++) {
+            if (fonts[i]) {
+                intraFontUnload(fonts[i]);
+            }
+        }
+        
+        intraFontShutdown();
+    }
+
     void FontSetStyle(float size, unsigned int colour, unsigned int options) {
-        intraFontSetStyle(font, size, colour, G2D_RGBA(0, 0, 0, 0), 0.f, options);
+        for (int i = 0; i < NUM_FONTS; i++) {
+            if (!fonts[i]) {
+                continue;
+            }
+
+            // If it's the default font, use the full size, else use 80% of the size.
+            float scaleSize = (i == FONT_DEFAULT) ? size : size * 0.8f;
+            intraFontSetStyle(fonts[i], scaleSize, colour, G2D_RGBA(0, 0, 0, 0), 0.f, options);
+        }
     }
 
     float GetTextHeight(void) {
-        return font->advancey * font->size / 4.f + 2.f;
+        return fonts[FONT_DEFAULT]->advancey * fonts[FONT_DEFAULT]->size / 4.f + 2.f;
     }
 
     float DrawText(float x, float y, const std::string &text) {
-        return intraFontPrintf(font, x, y, text.c_str());
+        return intraFontPrintf(fonts[FONT_DEFAULT], x, y, text.c_str());
     }
 }

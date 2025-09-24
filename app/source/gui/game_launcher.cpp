@@ -617,18 +617,18 @@ namespace GameLauncher {
             else {
                 G2D::DrawRect(50, 56, 144, 80, G2D_RGBA(46, 46, 50, 255));
                 G2D::FontSetStyle(0.75f, G2D_RGBA(232, 234, 238, 255), INTRAFONT_ALIGN_LEFT);
-                G2D::DrawText(50 + ((144 - intraFontMeasureText(font, "ICON0 not found")) / 2), 96, "ICON0 not found");
+                G2D::DrawText(50 + ((144 - intraFontMeasureText(fonts[FONT_DEFAULT], "ICON0 not found")) / 2), 96, "ICON0 not found");
             }
             
             G2D::DrawRect(260, 190, 200, 50, G2D_RGBA(46, 46, 50, 255));
             
             G2D::FontSetStyle(0.9f, G2D_RGBA(232, 234, 238, 255), INTRAFONT_ALIGN_LEFT);
-            G2D::DrawText(242 + ((238 - intraFontMeasureText(font, meta.title)) / 2), 56, meta.title);
+            G2D::DrawText(242 + ((238 - intraFontMeasureText(fonts[FONT_DEFAULT], meta.title)) / 2), 56, meta.title);
             G2D::FontSetStyle(0.75f, G2D_RGBA(232, 234, 238, 255), INTRAFONT_ALIGN_LEFT);
-            G2D::DrawText(242 + ((238 - intraFontMeasureText(font, install_date)) / 2), 76, install_date);
+            G2D::DrawText(242 + ((238 - intraFontMeasureText(fonts[FONT_DEFAULT], install_date)) / 2), 76, install_date);
 
-            G2D::DrawText(242 + ((238 - intraFontMeasureText(font, "Press Square to save:")) / 2), 210, "Press Square to save:");
-            G2D::DrawText(242 + ((238 - intraFontMeasureText(font, metadata_types[selection])) / 2), 230, metadata_types[selection]);
+            G2D::DrawText(242 + ((238 - intraFontMeasureText(fonts[FONT_DEFAULT], "Press Square to save:")) / 2), 210, "Press Square to save:");
+            G2D::DrawText(242 + ((238 - intraFontMeasureText(fonts[FONT_DEFAULT], metadata_types[selection])) / 2), 230, metadata_types[selection]);
             g2dFlip(G2D_VSYNC);
 
             int ctrl = Utils::ReadControls();

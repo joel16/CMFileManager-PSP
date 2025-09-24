@@ -603,18 +603,18 @@ namespace TextViewer {
                 G2D::FontSetStyle(1.f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
                 G2D::DrawText(((480 - (dialog[0]->w)) / 2) + 10, ((272 - (dialog[0]->h)) / 2) + 20, "Save");
                 
-                int confirm_width = intraFontMeasureText(font, "YES");
-                int cancel_width = intraFontMeasureText(font, "NO");
+                int confirm_width = intraFontMeasureText(fonts[FONT_DEFAULT], "YES");
+                int cancel_width = intraFontMeasureText(fonts[FONT_DEFAULT], "NO");
                 
                 if (selection == 0)
-                    G2D::DrawRect((364 - cancel_width) - 5, (180 - (font->texYSize - 15)) - 5, cancel_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
+                    G2D::DrawRect((364 - cancel_width) - 5, (180 - (fonts[FONT_DEFAULT]->texYSize - 15)) - 5, cancel_width + 10, (fonts[FONT_DEFAULT]->texYSize - 5) + 10, SELECTOR_COLOUR);
                 else
-                    G2D::DrawRect((409 - (confirm_width)) - 5, (180 - (font->texYSize - 15)) - 5, confirm_width + 10, (font->texYSize - 5) + 10, SELECTOR_COLOUR);
+                    G2D::DrawRect((409 - (confirm_width)) - 5, (180 - (fonts[FONT_DEFAULT]->texYSize - 15)) - 5, confirm_width + 10, (fonts[FONT_DEFAULT]->texYSize - 5) + 10, SELECTOR_COLOUR);
                     
-                G2D::DrawText(409 - (confirm_width), (192 - (font->texYSize - 15)) - 3, "YES");
-                G2D::DrawText(364 - cancel_width, (192 - (font->texYSize - 15)) - 3, "NO");
+                G2D::DrawText(409 - (confirm_width), (192 - (fonts[FONT_DEFAULT]->texYSize - 15)) - 3, "YES");
+                G2D::DrawText(364 - cancel_width, (192 - (fonts[FONT_DEFAULT]->texYSize - 15)) - 3, "NO");
                 
-                int prompt_width = intraFontMeasureText(font, prompt.c_str());
+                int prompt_width = intraFontMeasureText(fonts[FONT_DEFAULT], prompt.c_str());
                 G2D::FontSetStyle(1.f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
                 G2D::DrawText(((480 - (prompt_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 60, prompt.c_str());
             }

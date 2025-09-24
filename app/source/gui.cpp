@@ -46,8 +46,8 @@ namespace GUI {
         
         static char percent_string[10];
         std::snprintf(percent_string, 10, "%d", percent);
-        int percent_width = intraFontMeasureText(font, percent_string);
-        intraFontPrintf(font, 475 - percent_width - 15, 14, "%s%%", percent_string);
+        int percent_width = intraFontMeasureText(fonts[FONT_DEFAULT], percent_string);
+        intraFontPrintf(fonts[FONT_DEFAULT], 475 - percent_width - 15, 14, "%s%%", percent_string);
 
         G2D::DrawImage(state != 0? battery_charging[battery_val] : battery[battery_val], 475 - percent_width - battery[battery_val]->w - 15, 2);
     }
@@ -70,7 +70,7 @@ namespace GUI {
         G2D::FontSetStyle(1.f, TITLE_COLOUR, INTRAFONT_ALIGN_LEFT);
         G2D::DrawText(((480 - (dialog[0]->w)) / 2) + 10, ((272 - (dialog[0]->h)) / 2) + 20, title.c_str());
 
-        int text_width = intraFontMeasureText(font, message.c_str());
+        int text_width = intraFontMeasureText(fonts[FONT_DEFAULT], message.c_str());
         G2D::FontSetStyle(1.f, TEXT_COLOUR, INTRAFONT_ALIGN_LEFT);
         G2D::DrawText(((480 - (text_width)) / 2), ((272 - (dialog[0]->h)) / 2) + 60, message.c_str());
         

@@ -20,8 +20,8 @@ namespace AudioPlayer {
     } AudioState;
     
     static AudioState state = STATE_NONE;
-    static char *position_time = nullptr, *length_time = nullptr;
-    static float length_time_width = 0;
+    static char *positionTime = nullptr, *lengthTime = nullptr;
+    static float lengthTimeWidth = 0;
     static std::string filename = std::string();
 
     static void SecondsToString(char *string, u64 seconds) {
@@ -30,35 +30,38 @@ namespace AudioPlayer {
         m = (seconds - (3600 * h)) / 60;
         s = (seconds - (3600 * h) - (m * 60));
         
-        if (h > 0)
+        if (h > 0) {
             std::snprintf(string, 35, "%02d:%02d:%02d", h, m, s);
-        else
+        }
+        else {
             std::snprintf(string, 35, "%02d:%02d", m, s);
+        }
     }
 
     static void InitPlayback(MenuItem &item) {
-        position_time = new char[35];
-        length_time = new char[35];
+        positionTime = new char[35];
+        lengthTime = new char[35];
         std::string path = FS::BuildPath(cfg.cwd, item.entries[item.selected].d_name);
         
         Audio::Init(path);
-        AudioPlayer::SecondsToString(length_time, Audio::GetLengthSeconds());
+        AudioPlayer::SecondsToString(lengthTime, Audio::GetLengthSeconds());
         G2D::FontSetStyle(1.f, WHITE, INTRAFONT_ALIGN_LEFT);
-        length_time_width = intraFontMeasureText(font, length_time);
+        lengthTimeWidth = intraFontMeasureText(fonts[FONT_DEFAULT], lengthTime);
         
         filename = FS::GetFilename(item.entries[item.selected].d_name);
         std::transform(filename.begin(), filename.end(), filename.begin(), ::toupper);
     }
 
     static void StopPlayback(void) {
-        delete[] length_time;
-        delete[] position_time;
+        delete[] lengthTime;
+        delete[] positionTime;
         Audio::Exit();
     }
 
     static bool HandleScroll(MenuItem &item, int index) {
-        if (FIO_S_ISDIR(item.entries[index].d_stat.st_mode))
+        if (FIO_S_ISDIR(item.entries[index].d_stat.st_mode)) {
             return false;
+        }
         else {
             item.selected = index;
             AudioPlayer::InitPlayback(item);
@@ -73,16 +76,20 @@ namespace AudioPlayer {
 
         for (int i = item.selected - 1; i > 0; i--) {
             std::string filename = item.entries[i].d_name;
-            if (filename.empty())
+            if (filename.empty()) {
                 continue;
+            }
 
-            if (FS::GetFileType(filename) != FileTypeAudio)
+            if (FS::GetFileType(filename) != FileTypeAudio) {
                 continue;
+            }
                 
-            if (!(ret = AudioPlayer::HandleScroll(item, i)))
+            if (!(ret = AudioPlayer::HandleScroll(item, i))) {
                 continue;
-            else
+            }
+            else {
                 break;
+            }
         }
 
         return ret;
@@ -91,33 +98,38 @@ namespace AudioPlayer {
     static bool HandleNext(MenuItem &item, AudioState state) {
         bool ret = false;
 
-        if (static_cast<unsigned int>(item.selected) == item.entries.size())
+        if (static_cast<unsigned int>(item.selected) == item.entries.size()) {
             return ret;
+        }
         
         unsigned int i = 0;
 
-        if (state == STATE_NONE)
+        if (state == STATE_NONE) {
             i = item.selected + 1;
-        else if (state == STATE_REPEAT)
+        }
+        else if (state == STATE_REPEAT) {
             i = item.selected;
+        }
         else {
             std::srand(time(nullptr));
             i = std::rand() % (item.entries.size());
         }
 
         for (; i < item.entries.size(); i++) {
-            if (!(ret = AudioPlayer::HandleScroll(item, i)))
+            if (!(ret = AudioPlayer::HandleScroll(item, i))) {
                 continue;
-            else
+            }
+            else {
                 break;
+            }
         }
 
         return ret;
     }
     
     void Play(MenuItem &item) {
-        bool screen_disabled = false;
-        int seek_index = 0;
+        bool screenDisabled = false;
+        int seekIndex = 0;
 
         AudioPlayer::InitPlayback(item);
         
@@ -131,31 +143,36 @@ namespace AudioPlayer {
             
             if ((metadata.has_meta) && (metadata.title.c_str()[0] != '\0') && (metadata.artist.c_str()[0] != '\0')) {
                 std::transform(metadata.title.begin(), metadata.title.end(), metadata.title.begin(), ::toupper);
-                G2D::DrawText(40, 10 + ((40 - (font->texYSize - 30)) / 2), metadata.title.c_str());
+                G2D::DrawText(40, 10 + ((40 - (fonts[FONT_DEFAULT]->texYSize - 30)) / 2), metadata.title.c_str());
                 std::transform(metadata.artist.begin(), metadata.artist.end(), metadata.artist.begin(), ::toupper);
-                G2D::DrawText(40, 25 + ((40 - (font->texYSize - 30)) / 2), metadata.artist.c_str());
+                G2D::DrawText(40, 25 + ((40 - (fonts[FONT_DEFAULT]->texYSize - 30)) / 2), metadata.artist.c_str());
             }
             else if ((metadata.has_meta) && (metadata.title.c_str()[0] != '\0')) {
                 std::transform(metadata.title.begin(), metadata.title.end(), metadata.title.begin(), ::toupper);
-                G2D::DrawText(40, 16 + ((40 - (font->texYSize - 30)) / 2), metadata.title.c_str());
+                G2D::DrawText(40, 16 + ((40 - (fonts[FONT_DEFAULT]->texYSize - 30)) / 2), metadata.title.c_str());
             }
-            else
-                G2D::DrawText(40, 16 + ((40 - (font->texYSize - 30)) / 2), filename.c_str());
+            else {
+                G2D::DrawText(40, 16 + ((40 - (fonts[FONT_DEFAULT]->texYSize - 30)) / 2), filename.c_str());
+            }
                 
             G2D::DrawRect(0, 62, 200, 200, G2D_RGBA(97, 97, 97, 255));
             
-            if ((metadata.has_meta) && (metadata.cover_image))
+            if ((metadata.has_meta) && (metadata.cover_image)) {
                 G2D::DrawImageScale(metadata.cover_image, 0, 62, 200, 200);
-            else
+            }
+            else {
                 G2D::DrawImage(default_artwork, 0, 62); // Default album art
+            }
                 
             G2D::DrawRect(205, 62, 275, 200, G2D_RGBA(45, 48, 50, 255)); // Draw info box (outer)
             G2D::DrawRect(210, 67, 265, 190, G2D_RGBA(46, 49, 51, 255)); // Draw info box (inner)
             
-            if (!Audio::IsPaused())
+            if (!Audio::IsPaused()) {
                 G2D::DrawImage(btn_pause, 205 + ((275 - btn_pause->w) / 2), 62 + ((200 - btn_pause->h) / 2)); // Playing
-            else
+            }
+            else {
                 G2D::DrawImage(btn_play, 205 + ((275 - btn_play->w) / 2), 62 + ((200 - btn_play->h) / 2)); // Paused
+            }
                 
             G2D::DrawImage(btn_rewind, 205 + ((275 - btn_rewind->w) / 2) - 68, 62 + ((200 - btn_rewind->h) / 2));
             G2D::DrawImage(btn_forward, 205 + ((275 - btn_forward->w) / 2) + 68, 62 + ((200 - btn_forward->h) / 2));
@@ -163,9 +180,9 @@ namespace AudioPlayer {
             G2D::DrawImage(state == STATE_SHUFFLE? btn_shuffle_overlay : btn_shuffle, 205 + ((275 - btn_shuffle->w) / 2) - 45, 62 + ((200 - btn_shuffle->h) / 2) + 50);
             G2D::DrawImage(state == STATE_REPEAT? btn_repeat_overlay : btn_repeat, 205 + ((275 - btn_repeat->w) / 2) + 45, 62 + ((200 - btn_repeat->h) / 2) + 50);
             
-            AudioPlayer::SecondsToString(position_time, Audio::GetPositionSeconds());
-            G2D::DrawText(230, 240, position_time);
-            G2D::DrawText(455 - length_time_width, 240, length_time);
+            AudioPlayer::SecondsToString(positionTime, Audio::GetPositionSeconds());
+            G2D::DrawText(230, 240, positionTime);
+            G2D::DrawText(455 - lengthTimeWidth, 240, lengthTime);
             
             G2D::DrawRect(230, 245, 225, 2, G2D_RGBA(97, 97, 97, 150));
             G2D::DrawRect(230, 245, ((static_cast<float>(Audio::GetPosition())/static_cast<float>(Audio::GetLength())) * 225.0), 2, WHITE);
@@ -174,50 +191,58 @@ namespace AudioPlayer {
             int ctrl = Utils::ReadControls();
             
             if (!playing) {
-                seek_index = 0;
+                seekIndex = 0;
                 Audio::Stop();
                 AudioPlayer::StopPlayback();
                 AudioPlayer::HandleNext(item, state);
             }
 
             if (Utils::IsButtonPressed(PSP_CTRL_TRIANGLE)) {
-                if (state != STATE_REPEAT)
+                if (state != STATE_REPEAT) {
                     state = STATE_REPEAT;
-                else
+                }
+                else {
                     state = STATE_NONE;
+                }
             }
             else if (Utils::IsButtonPressed(PSP_CTRL_SQUARE)) {
-                if (state != STATE_SHUFFLE)
+                if (state != STATE_SHUFFLE) {
                     state = STATE_SHUFFLE;
-                else
+                }
+                else {
                     state = STATE_NONE;
+                }
             }
             
             if (Utils::IsButtonPressed(PSP_CTRL_SELECT)) {
-                screen_disabled = !screen_disabled;
+                screenDisabled = !screenDisabled;
                 
-                if (screen_disabled)
+                if (screenDisabled) {
                     pspDisplayDisable();
-                else
+                }
+                else {
                     pspDisplayEnable();
+                }
             }
 
-            Utils::SetBounds(seek_index, 0, 225);
+            Utils::SetBounds(seekIndex, 0, 225);
 
             if (ctrl & PSP_CTRL_LEFT) {
-                if (!Audio::IsPaused())
+                if (!Audio::IsPaused()) {
                     Audio::Pause();
+                }
                 
-                seek_index -= 5;
-                Audio::Seek(seek_index);
+                seekIndex -= 5;
+                Audio::Seek(seekIndex);
                 Audio::Pause();
             }
             else if (ctrl & PSP_CTRL_RIGHT) {
-                if (!Audio::IsPaused())
+                if (!Audio::IsPaused()) {
                     Audio::Pause();
+                }
 
-                seek_index += 5;
-                Audio::Seek(seek_index);
+                seekIndex += 5;
+                Audio::Seek(seekIndex);
                 Audio::Pause();
             }
 
@@ -225,19 +250,22 @@ namespace AudioPlayer {
                 Audio::Stop();
                 AudioPlayer::StopPlayback();
 
-                if (!AudioPlayer::HandlePrev(item))
+                if (!AudioPlayer::HandlePrev(item)) {
                     return;
+                }
             }
             else if (Utils::IsButtonPressed(PSP_CTRL_RTRIGGER)) {
                 Audio::Stop();
                 AudioPlayer::StopPlayback();
 
-                if (!AudioPlayer::HandleNext(item, STATE_NONE))
+                if (!AudioPlayer::HandleNext(item, STATE_NONE)) {
                     return;
+                }
             }
             
-            if (Utils::IsButtonPressed(PSP_CTRL_ENTER))
+            if (Utils::IsButtonPressed(PSP_CTRL_ENTER)) {
                 Audio::Pause();
+            }
                 
             if (Utils::IsButtonPressed(PSP_CTRL_CANCEL)) {
                 Audio::Stop();
@@ -248,7 +276,8 @@ namespace AudioPlayer {
         AudioPlayer::StopPlayback();
         
         // If user tries to exit with screen disabled, enable it.
-        if (screen_disabled)
+        if (screenDisabled) {
             pspDisplayEnable();
+        }
     }
 }
