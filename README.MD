@@ -12,7 +12,7 @@ CMFileManager PSP is a PSP application built using the unofficial PSPSDK and [gl
 - Move files/folders.
 - Delete files/folders.
 - Multi file handling functions for copy/move/delete.
-- Edit text files. (Supported extensiosn include .JSON, .INI, .CFG, .LOG, .TXT and .MD)
+- Edit text files. (Supported extensions include .JSON, .INI, .CFG, .LOG, .TXT and .MD)
 - File properties. (File size, creation time, modification time, access times, permissions)
 - Creating directories.
 - Renaming files/folders.
