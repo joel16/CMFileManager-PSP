@@ -133,6 +133,5 @@ namespace OGG {
     void Exit(void) {
         samples_read = 0;
         ov_clear(&ogg);
-        sceIoClose(ogg_file);
     }
 }
