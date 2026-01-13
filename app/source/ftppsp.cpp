@@ -6,7 +6,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <pspkernel.h>
 #include <pspiofilemgr.h>
 #include <pspnet_inet.h>
 #include <pspnet_apctl.h>

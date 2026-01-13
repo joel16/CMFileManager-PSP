@@ -1,6 +1,6 @@
 #include <pspctrl.h>
-#include <pspkernel.h>
 #include <pspumd.h>
+#include <pspuser.h>
 
 #include "config.h"
 #include "g2d.h"

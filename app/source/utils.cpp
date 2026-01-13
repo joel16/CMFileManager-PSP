@@ -1,6 +1,5 @@
 #include <cstdio>
 #include <cstring>
-#include <pspkernel.h>
 #include <pspreg.h>
 #include <pspusb.h>
 #include <pspusbstor.h>
