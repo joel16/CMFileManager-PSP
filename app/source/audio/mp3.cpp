@@ -144,11 +144,11 @@ namespace MP3 {
         }
 
         mpg123_seek(mp3, 0, SEEK_SET);
-        metadata.has_meta = mpg123_meta_check(mp3);
+        metadata.hasMeta = mpg123_meta_check(mp3);
         
         mpg123_id3v1 *id3v1;
         mpg123_id3v2 *id3v2;
-        if (metadata.has_meta & MPG123_ID3 && mpg123_id3(mp3, &id3v1, &id3v2) == MPG123_OK) {
+        if (metadata.hasMeta & MPG123_ID3 && mpg123_id3(mp3, &id3v1, &id3v2) == MPG123_OK) {
             if (id3v1)
                 MP3::ProcessID3v1(metadata, id3v1);
             if (id3v2)
@@ -160,15 +160,15 @@ namespace MP3 {
                 // Front cover or other
                 if ((pic->type == 3)) {
                     if ((!strcasecmp(pic->mime_type.p, "image/jpeg")) || (!strcasecmp(pic->mime_type.p, "image/jpg"))) {
-                        metadata.cover_image = Textures::LoadImageBufferJPEG(pic->data, pic->size);
+                        metadata.image = Textures::LoadImageBufferJPEG(pic->data, pic->size);
                         break;
                     }
                     else if (!strcasecmp(pic->mime_type.p, "image/png")) {
-                        metadata.cover_image = Textures::LoadImageBufferPNG(pic->data, pic->size);
+                        metadata.image = Textures::LoadImageBufferPNG(pic->data, pic->size);
                         
                         // I have trust issues
-                        if (!metadata.cover_image)
-                            metadata.cover_image = Textures::LoadImageBufferJPEG(pic->data, pic->size);
+                        if (!metadata.image)
+                            metadata.image = Textures::LoadImageBufferJPEG(pic->data, pic->size);
                         
                         break;
                     }

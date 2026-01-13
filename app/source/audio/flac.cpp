@@ -10,32 +10,44 @@ namespace FLAC {
         const FLAC__Frame *frame = nullptr;
         const FLAC__int32 * const *buffer = nullptr;
         FLAC__uint8 channels = 0;
-        FLAC__uint32 sample_rate = 0;
+        FLAC__uint32 rate = 0;
         FLAC__uint32 bps = 0;
         FLAC__uint64 position = 0;
-        FLAC__uint64 samples_read = 0;
-        FLAC__uint64 total_samples = 0;
+        FLAC__uint64 samples = 0;
+        FLAC__uint64 totalSamples = 0;
     } FLACInfo;
     
     static FLAC__StreamDecoder *flac = nullptr;
-    static FLACInfo cb_info { 0 };
+    static FLACInfo info { 0 };
     
-    static FLAC__StreamDecoderWriteStatus WriteCB(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client_data) {
+    static FLAC__StreamDecoderWriteStatus WriteCB(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 *const buffer[], void *client_data) {
         FLACInfo *info = reinterpret_cast<FLACInfo *>(client_data);
 
-        if (info->total_samples == 0) {
-            Log::Error("No samples to decode!\n");
+        if (info->totalSamples == 0) {
+            Log::Error("This decoder only works for FLAC files that have a total_samples count in STREAMINFO\n");
             return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
         }
         if ((info->channels != 2) || (info->bps != 16)) {
-            Log::Error("Not stereo 16-bit!\n");
+            Log::Error("This decoder only supports 16bit stereo streams\n");
+            return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
+        }
+        if (frame->header.channels != 2) {
+            Log::Error("This frame contains %u channels (should be 2)\n", frame->header.channels);
+            return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
+        }
+        if (buffer[0] == NULL) {
+            Log::Error("buffer [0] is NULL\n");
+            return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
+        }
+        if (buffer[1] == NULL) {
+            Log::Error("buffer [1] is NULL\n");
             return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
         }
         
         info->frame = frame;
         info->buffer = buffer;
         info->position = 0;
-        info->samples_read = frame->header.number.sample_number;
+        info->samples = frame->header.number.sample_number;
         return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
     }
     
@@ -44,8 +56,8 @@ namespace FLAC {
 
         switch (stream->type) {
             case FLAC__METADATA_TYPE_STREAMINFO:
-                info->total_samples = stream->data.stream_info.total_samples;
-                info->sample_rate = stream->data.stream_info.sample_rate;
+                info->totalSamples = stream->data.stream_info.total_samples;
+                info->rate = stream->data.stream_info.sample_rate;
                 info->channels = stream->data.stream_info.channels;
                 info->bps = stream->data.stream_info.bits_per_sample;
                 break;
@@ -53,34 +65,31 @@ namespace FLAC {
             case FLAC__METADATA_TYPE_VORBIS_COMMENT:
                 for (FLAC__uint32 i = 0; i < stream->data.vorbis_comment.num_comments; i++) {
                     char *tag = reinterpret_cast<char *>(stream->data.vorbis_comment.comments[i].entry);
+                    if (tag != nullptr) {
+                        metadata.hasMeta = true;
+                    }
                     
                     if (!strncasecmp("TITLE=", tag, 6)) {
-                        metadata.has_meta = true;
                         metadata.title = tag + 6;
                     }
                     
                     if (!strncasecmp("ALBUM=", tag, 6)) {
-                        metadata.has_meta = true;
                         metadata.album = tag + 6;
                     }
                     
                     if (!strncasecmp("ARTIST=", tag, 7)) {
-                        metadata.has_meta = true;
                         metadata.artist = tag + 7;
                     }
                     
                     if (!strncasecmp("DATE=", tag, 5)) {
-                        metadata.has_meta = true;
                         metadata.year = tag + 5;
                     }
                     
                     if (!strncasecmp("COMMENT=", tag, 8)) {
-                        metadata.has_meta = true;
                         metadata.comment = tag + 8;
                     }
                     
                     if (!strncasecmp("GENRE=", tag, 6)) {
-                        metadata.has_meta = true;
                         metadata.genre = tag + 6;
                     }
                 }
@@ -89,16 +98,14 @@ namespace FLAC {
             case FLAC__METADATA_TYPE_PICTURE:
                 if (stream->data.picture.type == FLAC__STREAM_METADATA_PICTURE_TYPE_FRONT_COVER) {
                     if ((!strcasecmp(stream->data.picture.mime_type, "image/jpeg")) || (!strcasecmp(stream->data.picture.mime_type, "image/jpg"))) {
-                        metadata.has_meta = true;
-                        
-                        if (!metadata.cover_image)
-                            metadata.cover_image = Textures::LoadImageBufferJPEG(stream->data.picture.data, stream->data.picture.data_length);
+                        if (!metadata.image) {
+                            metadata.image = Textures::LoadImageBufferJPEG(stream->data.picture.data, stream->data.picture.data_length);
+                        }
                     }
                     else if (!strcasecmp(stream->data.picture.mime_type, "image/png")) {
-                        metadata.has_meta = true;
-                        
-                        if (!metadata.cover_image)
-                            metadata.cover_image = Textures::LoadImageBufferPNG(stream->data.picture.data, stream->data.picture.data_length);
+                        if (!metadata.image) {
+                            metadata.image = Textures::LoadImageBufferPNG(stream->data.picture.data, stream->data.picture.data_length);
+                        }
                     }
                 }
                 break;
@@ -109,53 +116,34 @@ namespace FLAC {
     }
     
     static void ErrorCB(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client_data) {
-        std::string error;
-
-        switch(status) {
-            case FLAC__STREAM_DECODER_ERROR_STATUS_LOST_SYNC:
-                error = "Lost sync";
-                break;
-                
-            case FLAC__STREAM_DECODER_ERROR_STATUS_BAD_HEADER:
-                error = "Bad header";
-                break;
-                
-            case FLAC__STREAM_DECODER_ERROR_STATUS_FRAME_CRC_MISMATCH:
-                error = "Frame CRC mismatch";
-                break;
-            
-            case FLAC__STREAM_DECODER_ERROR_STATUS_UNPARSEABLE_STREAM:
-                error = "Unparseable stream";
-                break;
-                
-            default:
-                break;
-        }
-        
-        Log::Error("error: %s\n", error.c_str());
+        Log::Error("FLAC error callback: %s\n", FLAC__StreamDecoderErrorStatusString[status]);
     }
     
     int Init(const std::string &path) {
         FLAC__StreamDecoderInitStatus ret = FLAC__STREAM_DECODER_INIT_STATUS_OK;
 
-        if ((flac = FLAC__stream_decoder_new()) == nullptr)
+        if ((flac = FLAC__stream_decoder_new()) == nullptr) {
             return -1;
+        }
 
         if (FLAC__stream_decoder_set_metadata_respond(flac, FLAC__METADATA_TYPE_STREAMINFO) == false) {
             Log::Error("FLAC__METADATA_TYPE_STREAMINFO response failed\n");
             return -1;
         }
 
-        if (FLAC__stream_decoder_set_metadata_respond(flac, FLAC__METADATA_TYPE_SEEKTABLE) == false)
+        if (FLAC__stream_decoder_set_metadata_respond(flac, FLAC__METADATA_TYPE_SEEKTABLE) == false) {
             Log::Error("FLAC__METADATA_TYPE_SEEKTABLE response failed\n");
+        }
 
-        if (FLAC__stream_decoder_set_metadata_respond(flac, FLAC__METADATA_TYPE_VORBIS_COMMENT) == false)
+        if (FLAC__stream_decoder_set_metadata_respond(flac, FLAC__METADATA_TYPE_VORBIS_COMMENT) == false) {
             Log::Error("FLAC__METADATA_TYPE_VORBIS_COMMENT response failed\n");
+        }
 
-        if (FLAC__stream_decoder_set_metadata_respond(flac, FLAC__METADATA_TYPE_PICTURE) == false)
+        if (FLAC__stream_decoder_set_metadata_respond(flac, FLAC__METADATA_TYPE_PICTURE) == false) {
             Log::Error("FLAC__METADATA_TYPE_PICTURE response failed\n");
+        }
         
-        if ((ret = FLAC__stream_decoder_init_file(flac, path.c_str(), FLAC::WriteCB, FLAC::MetadataCB, FLAC::ErrorCB, &cb_info)) != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
+        if ((ret = FLAC__stream_decoder_init_file(flac, path.c_str(), FLAC::WriteCB, FLAC::MetadataCB, FLAC::ErrorCB, &info)) != FLAC__STREAM_DECODER_INIT_STATUS_OK) {
             Log::Error("FLAC__stream_decoder_init_file failed: %s\n", FLAC__StreamDecoderInitStatusString[ret]);
             return ret;
         }
@@ -164,28 +152,31 @@ namespace FLAC {
     }
     
     u32 GetSampleRate(void) {
-        return cb_info.sample_rate;
+        return info.rate;
     }
     
     u8 GetChannels(void) {
-        return cb_info.channels;
+        return info.channels;
     }
     
     void Decode(void *buf, unsigned int length, void *userdata) {
         unsigned int decoded = 0;
         FLAC__bool ret = false;
         
-        if (length <= 0)
+        if (length <= 0) {
             return;
+        }
             
         FLAC__StreamDecoderState state = FLAC__stream_decoder_get_state(flac);
-        if (state == FLAC__STREAM_DECODER_END_OF_STREAM)
+        if (state == FLAC__STREAM_DECODER_END_OF_STREAM) {
             playing = false;
-        else if (state == FLAC__STREAM_DECODER_ABORTED)
+        }
+        else if (state == FLAC__STREAM_DECODER_ABORTED) {
             return;
+        }
             
         while(decoded < length) {
-            if ((cb_info.frame == nullptr) || (cb_info.position == cb_info.frame->header.blocksize)) {
+            if ((info.frame == nullptr) || (info.position == info.frame->header.blocksize)) {
                 ret = FLAC__stream_decoder_process_single(flac);
                 
                 if (ret == false) {
@@ -201,30 +192,30 @@ namespace FLAC {
                 }
             }
             
-            for(; decoded < length && cb_info.position < cb_info.frame->header.blocksize; cb_info.position++, decoded++) {
+            for(; decoded < length && info.position < info.frame->header.blocksize; info.position++, decoded++) {
                 // Copy to buffer here; convert from BE to LE
                 short *buffer = static_cast<short *>(buf);
-                buffer[decoded * 2] = cb_info.buffer[0][cb_info.position];
-                buffer[decoded * 2 + 1] = cb_info.buffer[1][cb_info.position];
+                buffer[decoded * 2] = info.buffer[0][info.position];
+                buffer[decoded * 2 + 1] = info.buffer[1][info.position];
             }
         }
     }
     
     u64 GetPosition(void) {
-        return cb_info.samples_read;
+        return info.samples;
     }
     
     u64 GetLength(void) {
-        return cb_info.total_samples;
+        return info.totalSamples;
     }
     
     u64 Seek(u64 index) {
-        FLAC__uint64 seek_sample = (cb_info.total_samples * (index / 225.0));
-        return FLAC__stream_decoder_seek_absolute(flac, seek_sample);
+        FLAC__uint64 seek = (info.totalSamples * (index / 225.0));
+        return FLAC__stream_decoder_seek_absolute(flac, seek);
     }
     
     void Exit(void) {
-        cb_info = { 0 };
+        info = { 0 };
         FLAC__stream_decoder_finish(flac);
         FLAC__stream_decoder_delete(flac);
     }

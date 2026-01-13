@@ -7,14 +7,14 @@
 extern bool playing, paused;
 
 typedef struct {
-    bool has_meta = false;
+    bool hasMeta = false;
     std::string title;
     std::string album;
     std::string artist;
     std::string year;
     std::string comment;
     std::string genre;
-    g2dTexture *cover_image;
+    g2dTexture *image;
 } AudioMetadata;
 
 extern AudioMetadata metadata;

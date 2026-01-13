@@ -49,7 +49,7 @@ namespace OGG {
         vorbis_comment *comment = ov_comment(&ogg, -1);
         
         if (comment != nullptr) {
-            metadata.has_meta = true;
+            metadata.hasMeta = true;
             char *value = nullptr;
             
             if ((value = vorbis_comment_query(comment, "title", 0)) != nullptr)

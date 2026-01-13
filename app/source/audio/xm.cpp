@@ -19,7 +19,7 @@ namespace XM {
         
         xmp_get_module_info(xmp, &module_info);
         if (module_info.mod->name[0] != '\0') {
-            metadata.has_meta = true;
+            metadata.hasMeta = true;
             metadata.title = module_info.mod->name;
         }
         

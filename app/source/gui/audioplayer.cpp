@@ -75,8 +75,8 @@ namespace AudioPlayer {
         bool ret = false;
 
         for (int i = item.selected - 1; i > 0; i--) {
-            std::string filename = item.entries[i].d_name;
-            if (filename.empty()) {
+            const char *filename = item.entries[i].d_name;
+            if (filename == nullptr || filename[0] == '\0') {
                 continue;
             }
 
@@ -141,13 +141,13 @@ namespace AudioPlayer {
             G2D::DrawImage(icon_back, 5, 25);
             GUI::DisplayStatusBar();
             
-            if ((metadata.has_meta) && (metadata.title.c_str()[0] != '\0') && (metadata.artist.c_str()[0] != '\0')) {
+            if ((metadata.hasMeta) && (metadata.title.c_str()[0] != '\0') && (metadata.artist.c_str()[0] != '\0')) {
                 std::transform(metadata.title.begin(), metadata.title.end(), metadata.title.begin(), ::toupper);
                 G2D::DrawText(40, 10 + ((40 - (fonts[FONT_DEFAULT]->texYSize - 30)) / 2), metadata.title.c_str());
                 std::transform(metadata.artist.begin(), metadata.artist.end(), metadata.artist.begin(), ::toupper);
                 G2D::DrawText(40, 25 + ((40 - (fonts[FONT_DEFAULT]->texYSize - 30)) / 2), metadata.artist.c_str());
             }
-            else if ((metadata.has_meta) && (metadata.title.c_str()[0] != '\0')) {
+            else if ((metadata.hasMeta) && (metadata.title.c_str()[0] != '\0')) {
                 std::transform(metadata.title.begin(), metadata.title.end(), metadata.title.begin(), ::toupper);
                 G2D::DrawText(40, 16 + ((40 - (fonts[FONT_DEFAULT]->texYSize - 30)) / 2), metadata.title.c_str());
             }
@@ -157,8 +157,8 @@ namespace AudioPlayer {
                 
             G2D::DrawRect(0, 62, 200, 200, G2D_RGBA(97, 97, 97, 255));
             
-            if ((metadata.has_meta) && (metadata.cover_image)) {
-                G2D::DrawImageScale(metadata.cover_image, 0, 62, 200, 200);
+            if ((metadata.hasMeta) && (metadata.image)) {
+                G2D::DrawImageScale(metadata.image, 0, 62, 200, 200);
             }
             else {
                 G2D::DrawImage(default_artwork, 0, 62); // Default album art

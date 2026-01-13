@@ -189,8 +189,8 @@ namespace Audio {
         (* decoder.term)();
         
         // Clear metadata struct
-        if (metadata.has_meta && metadata.cover_image) {
-            g2dTexFree(&metadata.cover_image);
+        if (metadata.hasMeta && metadata.image) {
+            g2dTexFree(&metadata.image);
         }
         
         metadata = { 0 };
