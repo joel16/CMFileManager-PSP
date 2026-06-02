@@ -19,22 +19,22 @@ namespace FS {
     
     static FSCopyEntry fs_copy_entry;
     
-    bool FileExists(const std::string &path) {
+    bool FileExists(const char *path) {
         SceIoStat stat;
 #ifdef FS_DEBUG
-        return sceIoGetstat(path.c_str(), &stat) >= 0;
+        return sceIoGetstat(path, &stat) >= 0;
 #else
-        return pspIoGetstat(path.c_str(), &stat) >= 0;
+        return pspIoGetstat(path, &stat) >= 0;
 #endif
     }
     
-    bool DirExists(const std::string &path) {	
+    bool DirExists(const char *path) {	
         SceUID dir = 0;
 #ifdef FS_DEBUG
-        if (R_SUCCEEDED(dir = sceIoDopen(path.c_str()))) {
+        if (R_SUCCEEDED(dir = sceIoDopen(path))) {
             sceIoDclose(dir);
 #else
-        if (R_SUCCEEDED(dir = pspIoOpenDir(path.c_str()))) {
+        if (R_SUCCEEDED(dir = pspIoOpenDir(path))) {
             pspIoCloseDir(dir);
 #endif
             return true;
@@ -67,7 +67,7 @@ namespace FS {
             currentLevel += level; // append folder to the current level
             
             // create current level
-            if (!FS::DirExists(currentLevel) && FS::MakeDir(currentLevel.c_str()) != 0) {
+            if (!FS::DirExists(currentLevel.c_str()) && FS::MakeDir(currentLevel.c_str()) != 0) {
                 return -1;
             }
                 
@@ -77,16 +77,16 @@ namespace FS {
         return 0;
     }
     
-    int CreateFile(const std::string &path) {
+    int CreateFile(const char *path) {
         SceUID file = 0;
 
 #ifdef FS_DEBUG
-        if (R_SUCCEEDED(file = sceIoOpen(path.c_str(), PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777))) {
+        if (R_SUCCEEDED(file = sceIoOpen(path, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777))) {
             sceIoClose(file);
             return 0;
         }
 #else
-        if (R_SUCCEEDED(file = pspIoOpenFile(path.c_str(), PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777))) {
+        if (R_SUCCEEDED(file = pspIoOpenFile(path, PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777))) {
             pspIoCloseFile(file);
             return 0;
         }
@@ -98,15 +98,15 @@ namespace FS {
     const char* GetFileExt(const char *filename) {
         const char *ext = strrchr(filename, '.');
         
-        if (ext == NULL) {
+        if (ext == nullptr) {
             return "";
         }
         
         return ext + 1;
     }
 
-    FileType GetFileType(const std::string &filename) {
-        const char *ext = FS::GetFileExt(filename.c_str());
+    FileType GetFileType(const char *filename) {
+        const char *ext = FS::GetFileExt(filename);
 
         if ((strncasecmp(ext, "cso", 3) == 0) || (strncasecmp(ext, "iso", 3) == 0) || (strncasecmp(ext, "pbp", 3) == 0)) {
             return FileTypeApp;
@@ -135,16 +135,16 @@ namespace FS {
         return FileTypeNone;
     }
     
-    SceOff GetFileSize(const std::string &path) {
+    SceOff GetFileSize(const char *path) {
         int ret = 0;
         
         SceIoStat stat;
         std::memset(&stat, 0, sizeof(stat));
         
 #ifdef FS_DEBUG
-        if (R_FAILED(ret = sceIoGetstat(path.c_str(), &stat))) {
+        if (R_FAILED(ret = sceIoGetstat(path, &stat))) {
 #else
-        if (R_FAILED(ret = pspIoGetstat(path.c_str(), &stat))) {
+        if (R_FAILED(ret = pspIoGetstat(path, &stat))) {
 #endif
             return ret;
         }

@@ -22,12 +22,14 @@ namespace Screenshot {
         const int SCREEN_HEIGHT = 272;
         
         SceUID file = 0;
-        if (R_FAILED(file = sceIoOpen(path.c_str(), PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777)))
+        if (R_FAILED(file = sceIoOpen(path.c_str(), PSP_O_WRONLY | PSP_O_CREAT | PSP_O_TRUNC, 0777))) {
             return;
+        }
         
         png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-        if (!png_ptr)
+        if (!png_ptr) {
             return;
+        }
         
         png_infop info_ptr = png_create_info_struct(png_ptr);
         if (!info_ptr) {
@@ -97,11 +99,13 @@ namespace Screenshot {
         int ret = 0;
         ScePspDateTime time;
         
-        if (R_FAILED(ret = sceRtcGetCurrentClockLocalTime(&time)))
+        if (R_FAILED(ret = sceRtcGetCurrentClockLocalTime(&time))) {
             return ret;
+        }
             
-        if (!(FS::DirExists(Utils::IsInternalStorage()? "ef0:/PSP/PHOTO/CMFileManager/" : "ms0:/PSP/PHOTO/CMFileManager/")))
+        if (!(FS::DirExists(Utils::IsInternalStorage()? "ef0:/PSP/PHOTO/CMFileManager/" : "ms0:/PSP/PHOTO/CMFileManager/"))) {
             FS::RecursiveMakeDir(Utils::IsInternalStorage()? "ef0:/PSP/PHOTO/CMFileManager" : "ms0:/PSP/PHOTO/CMFileManager");
+        }
             
         static char path[128];
         std::snprintf(path, 128, Utils::IsInternalStorage()? "ef0:/PSP/PHOTO/CMFileManager/screenshot_%02d%02d%02d-%i.bmp" : 

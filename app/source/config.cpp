@@ -10,12 +10,14 @@ static int config_version_holder = 0;
 config_t cfg;
 
 namespace Config {
+    static const char *path = "config.json";
+
     int Save(config_t config) {
         int ret = 0;
         char buf[128];
         int len = std::snprintf(buf, 128, config_file, config_version, cfg.sort, cfg.dark_theme, cfg.dev_options);
         
-        if (R_FAILED(ret = FS::WriteFile("config.json", buf, len))) {
+        if (R_FAILED(ret = FS::WriteFile(path, buf, len))) {
             Log::Error("%s failed: 0x%08x\n", __func__, ret);
             return ret;
         }
@@ -30,16 +32,16 @@ namespace Config {
         cfg.cwd = isPSPGo? "ef0:" : "ms0:";
         device = isPSPGo ? BROWSE_STATE_INTERNAL : BROWSE_STATE_EXTERNAL;
         
-        if (!FS::FileExists("config.json")) {
+        if (!FS::FileExists(path)) {
             cfg = config_t();
             cfg.cwd = isPSPGo? "ef0:" : "ms0:";
             return Config::Save(cfg);
         }
         
-        u64 size = FS::GetFileSize("config.json");
+        u64 size = FS::GetFileSize(path);
         char *buf = new char[size];
         
-        if (R_FAILED(ret = FS::ReadFile("config.json", buf, size))) {
+        if (R_FAILED(ret = FS::ReadFile(path, buf, size))) {
             Log::Error("%s(FS::ReadFile) failed: 0x%08x\n", __func__, ret);
             delete[] buf;
             return ret;
@@ -66,7 +68,7 @@ namespace Config {
         
         // delete[] config file if config file is updated. This will rarely happen.
         if (config_version_holder < config_version) {
-            sceIoRemove("config.json");
+            sceIoRemove(path);
             cfg = config_t();
             cfg.cwd = isPSPGo? "ef0:" : "ms0:";
             return Config::Save(cfg);

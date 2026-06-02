@@ -20,14 +20,14 @@ typedef enum FileTimestamp {
 } FileTimestamp;
 
 namespace FS {
-    bool FileExists(const std::string &path);
-    bool DirExists(const std::string &path);
+    bool FileExists(const char *path);
+    bool DirExists(const char *path);
     int MakeDir(const std::string &path);
     int RecursiveMakeDir(const std::string &path);
-    int CreateFile(const std::string &path);
+    int CreateFile(const char *path);
     const char* GetFileExt(const char *filename);
-    FileType GetFileType(const std::string &filename);
-    SceOff GetFileSize(const std::string &path);
+    FileType GetFileType(const char *filename);
+    SceOff GetFileSize(const char *path);
     char *GetFileTimestamp(SceIoStat &stat, FileTimestamp time);
     char *GetFilePermission(SceIoStat &stat);
     int ReadFile(const std::string &path, void *buf, int size);

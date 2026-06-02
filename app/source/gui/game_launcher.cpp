@@ -562,8 +562,8 @@ namespace GameLauncher {
         new_path.append(path);
         new_path.append(title);
         
-        if (!(FS::DirExists(new_path))) {
-            FS::RecursiveMakeDir(new_path);
+        if (!(FS::DirExists(new_path.c_str()))) {
+            FS::RecursiveMakeDir(new_path.c_str());
         }
         
         new_path.append(ext); // "/icon0.png"
