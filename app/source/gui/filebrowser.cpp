@@ -17,81 +17,90 @@
 namespace GUI {
     static const int sel_dist = 20;
     static const int start_y = 52;
-    static const u32 max_entries = 11;
+    static const int max_entries = 11;
     static int start = 0;
     static const char *empty_dir = "This is an empty directory";
     
     void DisplayFileBrowser(MenuItem &item) {
         G2D::FontSetStyle(1.f, WHITE, INTRAFONT_ALIGN_LEFT);
         float height = G2D::GetTextHeight();
-        intraFontPrintf(fonts[FONT_DEFAULT], 40, 36, cfg.cwd.length() > 42? "%.42s..." : "%s", cfg.cwd.c_str());
+        
+        bool cwd_long = cfg.cwd.length() > 42;
+        intraFontPrintf(fonts[FONT_DEFAULT], 40, 36, cwd_long ? "%.42s..." : "%s", cfg.cwd.c_str());
         G2D::DrawRect(40, 43, 400, 3, SELECTOR_COLOUR);
-
+        
         if ((device == BROWSE_STATE_INTERNAL) || (device == BROWSE_STATE_EXTERNAL)) {
-            float fill = (static_cast<float>(item.used_storage)/static_cast<float>(item.total_storage)) * 400.f;
+            float fill = (static_cast<float>(item.used_storage) / item.total_storage) * 400.f;
             G2D::DrawRect(40, 43, fill, 3, TITLE_COLOUR);
         }
         
         if (item.entries.empty()) {
             G2D::FontSetStyle(1.f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_CENTER);
             G2D::DrawText(240, 136, empty_dir);
+            return;
         }
-
-        for (u32 i = start; i < item.entries.size(); i++) {
+        
+        bool cwd_matches = (item.checked_cwd == cfg.cwd);
+        int end = std::min(static_cast<int>(item.entries.size()), start + max_entries);
+        
+        for (int i = start; i < end; i++) {
             const char *filename = item.entries[i].d_name;
+            int y_pos = start_y + (sel_dist * (i - start));
 
-            if (i == static_cast<u32>(item.selected)) {
-                G2D::DrawRect(0, start_y + (sel_dist * (i - start)), 480, sel_dist, SELECTOR_COLOUR);
+            if (i == item.selected) {
+                G2D::DrawRect(0, y_pos, 480, sel_dist, SELECTOR_COLOUR);
             }
-
-            if ((item.checked[i]) && (!item.checked_cwd.compare(cfg.cwd))) {
-                G2D::DrawImageScale(icon_check[cfg.dark_theme], 0, start_y + (sel_dist * (i - start)), 18.f, 18.f);
+            
+            if (item.checked[i] && cwd_matches) {
+                G2D::DrawImageScale(icon_check[cfg.dark_theme], 0, y_pos, 18.f, 18.f);
             }
             else {
-                G2D::DrawImageScale(icon_uncheck[cfg.dark_theme], 0, start_y + (sel_dist * (i - start)), 18.f, 18.f);
+                G2D::DrawImageScale(icon_uncheck[cfg.dark_theme], 0, y_pos, 18.f, 18.f);
             }
-
-            FileType file_type = FS::GetFileType(filename);
+            
             if (FIO_S_ISDIR(item.entries[i].d_stat.st_mode)) {
-                G2D::DrawImageScale(icon_dir[cfg.dark_theme], 20, start_y + (sel_dist * (i - start)), 18.f, 18.f);
+                G2D::DrawImageScale(icon_dir[cfg.dark_theme], 20, y_pos, 18.f, 18.f);
             }
             else {
-                G2D::DrawImageScale(file_icons[file_type], 20, start_y + (sel_dist * (i - start)), 18.f, 18.f);
+                FileType file_type = FS::GetFileType(filename);
+                G2D::DrawImageScale(file_icons[file_type], 20, y_pos, 18.f, 18.f);
             }
-
-            int len = std::strlen(filename);
+            
             G2D::FontSetStyle(1.f, cfg.dark_theme? WHITE : BLACK, INTRAFONT_ALIGN_LEFT);
-            intraFontPrintf(fonts[FONT_DEFAULT], 45, start_y + 10 + ((sel_dist - height) / 2) + (i - start) * sel_dist, len > 42? "%.42s..." : "%s", filename);
+            
+            bool is_truncated = (filename[42] != '\0');
+            float text_y = y_pos + 10 + ((sel_dist - height) / 2);
+            intraFontPrintf(fonts[FONT_DEFAULT], 45, text_y, is_truncated? "%.42s..." : "%s", filename);
         }
     }
 
     void ControlFileBrowser(MenuItem &item, int &ctrl) {
-        u32 size = (item.entries.size() - 1);
+        int size = (item.entries.size() - 1);
         Utils::SetBounds(item.selected, 0, size);
 
         if (ctrl & PSP_CTRL_UP) {
             item.selected--;
+
             if (item.selected < 0) {
                 item.selected = size;
             }
-
             if (size < max_entries) {
                 start = 0;
             }
             else if (start > item.selected) {
                 start--;
             }
-            else if ((static_cast<u32>(item.selected) == size) && (size > (max_entries - 1))) {
+            else if ((item.selected == size) && (size > (max_entries - 1))) {
                 start = size - (max_entries - 1);
             }
         }
         else if (ctrl & PSP_CTRL_DOWN) {
             item.selected++;
-            if (static_cast<u32>(item.selected) > size) {
+
+            if (item.selected > size) {
                 item.selected = 0;
             }
-
-            if ((static_cast<u32>(item.selected) > (start + (max_entries - 1))) && ((start + (max_entries - 1)) < size)) {
+            if ((item.selected > (start + (max_entries - 1))) && ((start + (max_entries - 1)) < size)) {
                 start++;
             }
             if (item.selected == 0) {
@@ -105,7 +114,8 @@ namespace GUI {
         }
         else if (Utils::IsButtonPressed(PSP_CTRL_RIGHT)) {
             item.selected = item.entries.size() - 1;
-            if ((item.entries.size() - 1) > max_entries) {
+
+            if (size > max_entries) {
                 start = size - (max_entries - 1);
             }
         }
