@@ -6,7 +6,6 @@
 #include "g2d.h"
 #include "gui.h"
 #include "kernel_functions.h"
-#include "log.h"
 #include "textures.h"
 #include "utils.h"
 
@@ -94,13 +93,10 @@ namespace Options {
             item.state = MENU_STATE_FILEBROWSER;
         }
         else {
-            Log::Error("In !copy\n");
             if ((item.checked_count > 1) && (item.checked_cwd.compare(cfg.cwd) != 0)) {
-                Log::Error("In !copy IF\n");
                 Options::HandleMultipleCopy(item, &FS::Paste);
             }
             else {
-                Log::Error("In !copy ELSE\n");
                 if (R_SUCCEEDED(FS::Paste())) {
                     Options::RefreshDirectory(item);
                 }
