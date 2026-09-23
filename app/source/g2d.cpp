@@ -160,23 +160,26 @@ namespace G2D {
             return ret;
         }
 
+        intraFont *lastLoadedFont = nullptr;
+
         for (int i = 0; i < NUM_FONTS; i++) {
             fonts[i] = intraFontLoad(fontInfo[i].filename, fontInfo[i].encodingFlag);
             if (!fonts[i]) {
                 Log::Error("intraFontLoad() failed: %s\n", fontInfo[i].filename);
+                continue;
             }
-        }
-
-        for (int i = 0; i < NUM_FONTS - 1; i++) {
-            if (fonts[i] && fonts[i + 1]) {
-                intraFontSetAltFont(fonts[i], fonts[i + 1]);
+            
+            if (lastLoadedFont) {
+                intraFontSetAltFont(lastLoadedFont, fonts[i]);
             }
+            
+            lastLoadedFont = fonts[i];
         }
 
         G2D::FontSetStyle(1.f, WHITE, INTRAFONT_ALIGN_LEFT);
 
         // Font size cache
-        for (int i = 0; i < 256; i++) {
+        for (int i = 0; i < 128; i++) {
             char character[2] = {0};
             character[0] = i;
             character[1] = '\0';
